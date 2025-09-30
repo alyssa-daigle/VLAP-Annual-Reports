@@ -1,4 +1,4 @@
-# Annual Report Plotting Scripts
+# VLAP Annual Report Plotting Scripts
 
 This repository contains scripts used to streamline the Annual Report workflow by generating all plots using a single script.
 
@@ -14,7 +14,7 @@ The individual scripts called by `make_all.R` include:
 - **`ph_cond.R`**: Contains the function to generate historical pH and Conductivity plots for each station.  
 - **`temp_DO.R`**: Contains the function to generate seasonal Temperature/Dissolved Oxygen profile plots for each station.  
 
-Note that a Season Phytoplankton Relative Abundance script is coming soon. 
+Note that a Seasonal Phytoplankton Relative Abundance script is coming soon. 
 
 ## Theming
 
