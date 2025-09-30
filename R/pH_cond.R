@@ -21,9 +21,9 @@ if (!dir.exists(output_folder)) {
 # ---------------------------
 # Get all unique StationIDs
 # ---------------------------
-station_list <- data %>%
-  select(StationID) %>%
-  distinct() %>%
+station_list <- data |>
+  select(StationID) |>
+  distinct() |>
   arrange(StationID)
 
 # ---------------------------
@@ -33,9 +33,9 @@ for (i in 1:nrow(station_list)) {
   station_id <- station_list$StationID[i]
 
   # Filter data for this station
-  df_plot <- data %>%
-    filter(StationID == station_id) %>%
-    filter(!is.na(PH_epi) | !is.na(SPCD_epi)) %>%
+  df_plot <- data |>
+    filter(StationID == station_id) |>
+    filter(!is.na(PH_epi) | !is.na(SPCD_epi)) |>
     arrange(Year)
 
   if (nrow(df_plot) == 0) {
@@ -50,8 +50,8 @@ for (i in 1:nrow(station_list)) {
   last_year <- max(df_plot$Year, na.rm = TRUE)
   all_years <- first_year:last_year
 
-  df_plot <- df_plot %>%
-    complete(Year = all_years, fill = list(PH_epi = NA, SPCD_epi = NA)) %>%
+  df_plot <- df_plot |>
+    complete(Year = all_years, fill = list(PH_epi = NA, SPCD_epi = NA)) |>
     mutate(Year = factor(Year, levels = all_years))
 
   # Determine pH + conductivity ranges

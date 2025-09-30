@@ -3,15 +3,16 @@ library(ggplot2)
 library(readxl)
 library(dplyr)
 
+
 #load data
 data <- read_excel(
   "S:/WD-Watershed/Monitoring/Volunteer/VLAP/Data Management/DO EMD Upload/2025/master-DO-2025.xlsm"
 )
 
 #clean and prepare
-temp_do <- data %>%
-  select(Depth, Date, Time, Station, DO, Temp...12) %>%
-  rename(Temp = `Temp...12`) %>%
+temp_do <- data |>
+  select(Depth, Date, Time, Station, DO, Temp...12) |>
+  rename(Temp = `Temp...12`) |>
   mutate(
     Date = as.Date(Date),
     Month = format(Date, "%B"),
@@ -23,13 +24,13 @@ stations <- unique(temp_do$Station)
 
 #loop through each station and make a temp/DO plot
 for (stn in stations) {
-  temp_do_stn <- temp_do %>%
-    filter(Station == stn) %>%
+  temp_do_stn <- temp_do |>
+    filter(Station == stn) |>
     select(Depth, Date, Month, Time, Station, DO, Temp)
 
   #average duplicate profiles, if they exist
-  temp_do_avg <- temp_do_stn %>%
-    group_by(Date, Depth) %>%
+  temp_do_avg <- temp_do_stn |>
+    group_by(Date, Depth) |>
     summarise(
       Temp = mean(Temp, na.rm = TRUE),
       DO = mean(DO, na.rm = TRUE),
@@ -38,7 +39,7 @@ for (stn in stations) {
     )
 
   #reshape
-  temp_do_long <- temp_do_avg %>%
+  temp_do_long <- temp_do_avg |>
     pivot_longer(cols = c(Temp, DO), names_to = "Variable", values_to = "Value")
 
   #compute max depth for this station

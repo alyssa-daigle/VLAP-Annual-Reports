@@ -39,7 +39,7 @@ data <- read_csv(content(res, "raw"))
 # ---------------------------
 # Step 4: Select only relevant columns from the raw SSRS export
 # ---------------------------
-df_clean <- data %>%
+df_clean <- data |>
   select(
     RELLAKE,
     TOWN,
@@ -54,7 +54,7 @@ df_clean <- data %>%
 # ---------------------------
 # Step 5: Map each parameter + depth combination to your desired column names
 # ---------------------------
-df_clean <- df_clean %>%
+df_clean <- df_clean |>
   mutate(
     Parameter_Depth = case_when(
       ParameterEdited == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" &
@@ -76,13 +76,13 @@ df_clean <- df_clean %>%
       ParameterEdited == "SECCHI DISK TRANSPARENCY" ~ "SECCHI",
       ParameterEdited == "Secchi-Scope" ~ "Secchi_Scope",
     )
-  ) %>%
+  ) |>
   filter(!is.na(Parameter_Depth)) # Keep only rows that we mapped
 
 # ---------------------------
 # Step 6: Pivot the data from long to wide format
 # ---------------------------
-df_wide <- df_clean %>%
+df_wide <- df_clean |>
   select(
     RELLAKE,
     TOWN,
@@ -91,7 +91,7 @@ df_wide <- df_clean %>%
     YEAR1,
     Parameter_Depth,
     NUMRESULT
-  ) %>%
+  ) |>
   pivot_wider(
     names_from = Parameter_Depth, # Column names come from Parameter_Depth
     values_from = NUMRESULT # Values come from NUMRESULT
@@ -100,7 +100,7 @@ df_wide <- df_clean %>%
 # ---------------------------
 # Step 7: Rename columns to match your desired format
 # ---------------------------
-df_wide <- df_wide %>%
+df_wide <- df_wide |>
   rename(
     Rel_Lake = RELLAKE,
     Town = TOWN,
@@ -117,7 +117,7 @@ BTC <- read_excel(
 # ---------------------------
 # Remove duplicate rows by RELLAKE
 # ---------------------------
-BTC <- BTC %>%
+BTC <- BTC |>
   distinct(RELLAKE, .keep_all = TRUE)
 
 # ---------------------------
@@ -132,8 +132,8 @@ trophic_thresholds <- tibble(
 # ---------------------------
 # Merge BTC into data
 # ---------------------------
-data <- df_wide %>%
-  left_join(BTC, by = c("Rel_Lake" = "RELLAKE")) %>% # adds BEST_TROPHIC_CLASS
+data <- df_wide |>
+  left_join(BTC, by = c("Rel_Lake" = "RELLAKE")) |> # adds BEST_TROPHIC_CLASS
   left_join(trophic_thresholds, by = "BEST_TROPHIC_CLASS") # adds CHLa_thresh & TP_thresh
 
 # ---------------------------
@@ -147,9 +147,9 @@ if (!dir.exists(output_folder)) {
 # ---------------------------
 # Get all unique StationIDs
 # ---------------------------
-station_list <- data %>%
-  select(StationID) %>%
-  distinct() %>%
+station_list <- data |>
+  select(StationID) |>
+  distinct() |>
   arrange(StationID)
 
 # ---------------------------
@@ -159,9 +159,9 @@ for (i in 1:nrow(station_list)) {
   station_id <- station_list$StationID[i]
 
   # Filter data for this StationID
-  df_plot <- data %>%
-    filter(StationID == station_id) %>%
-    filter(!is.na(CHL_comp) | !is.na(TP_epi) | !is.na(SECCHI)) %>%
+  df_plot <- data |>
+    filter(StationID == station_id) |>
+    filter(!is.na(CHL_comp) | !is.na(TP_epi) | !is.na(SECCHI)) |>
     arrange(Year)
 
   if (nrow(df_plot) == 0) {
@@ -187,11 +187,11 @@ for (i in 1:nrow(station_list)) {
   # ---------------------------
   # Fill in missing years
   # ---------------------------
-  df_plot <- df_plot %>%
+  df_plot <- df_plot |>
     complete(
       Year = all_years,
       fill = list(TP_epi = NA, CHL_comp = NA, SECCHI = NA)
-    ) %>%
+    ) |>
     mutate(Year = factor(Year, levels = all_years))
 
   # ---------------------------
@@ -214,7 +214,7 @@ for (i in 1:nrow(station_list)) {
   # ---------------------------
   # Flip Secchi bars
   # ---------------------------
-  df_plot <- df_plot %>%
+  df_plot <- df_plot |>
     mutate(
       secchi_top = pmin(y_max_left, y_max_right * scale_factor),
       secchi_bottom = pmax(0, (y_max_right - SECCHI) * scale_factor)
