@@ -25,6 +25,7 @@ source(file.path(project_path, "R", "theme.R"))
 source(file.path(project_path, "R", "chl_tp_secchi.R"))
 source(file.path(project_path, "R", "pH_cond.R"))
 source(file.path(project_path, "R", "temp_DO.R"))
+source(file.path(project_path, "R", "plankton.R"))
 
 # Run functions
 
@@ -48,3 +49,10 @@ make_temp_DO(
 )
 
 print("Done temp_DO")
+
+make_plankton(
+  input_path = input_path,
+  output_path = file.path(output_path, "plankton")
+)
+
+print("Done plankton")
