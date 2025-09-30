@@ -1,13 +1,13 @@
 theme_chl_tp_secchi <- function() {
   list(
     theme(
-      panel.grid = element_blank(),
-      axis.text.x = element_text(angle = 45, hjust = 1),
-      legend.position = c(1.0, 1.1),
-      legend.background = element_rect(fill = "transparent", size = 0.5),
+      panel.grid = element_blank(), # no plot grid
+      axis.text.x = element_text(angle = 45, hjust = 1), # change x axis text direction
+      legend.position = c(0.98, 1.175), # position of legend on plot
+      legend.background = element_blank(), #element_rect(fill = "transparent", size = 0.5),
       legend.key = element_rect(fill = "white"),
-      legend.spacing.y = unit(0.1, "cm"),
-      legend.margin = margin(t = 2, r = 2, b = 2, l = 2),
+      legend.spacing.y = unit(0.01, "cm"),
+      legend.margin = margin(t = 1, r = 1, b = 1, l = 1), # top right bottom left
       legend.text = element_text(size = 8),
       legend.key.width = unit(0.3, "cm"),
       legend.key.height = unit(0.3, "cm"),

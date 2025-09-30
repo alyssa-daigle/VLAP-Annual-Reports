@@ -9,6 +9,7 @@ library(dplyr)
 library(readxl)
 library(tidyr)
 library(tibble)
+library(parallel)
 
 source(paste0(path, "/R/theme.R"))
 source(paste0(path, "/R/chl_tp_secchi.R"))
