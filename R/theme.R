@@ -47,3 +47,14 @@ theme_pH_conduc <- function() {
     scale_color_manual(values = c("cond" = "red3"))
   )
 }
+
+theme_temp_DO <- function() {
+  list(
+    theme(
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor.x = element_blank(),
+      panel.grid.major.y = element_line(color = "whitesmoke"),
+      panel.grid.minor.y = element_blank()
+    )
+  )
+}

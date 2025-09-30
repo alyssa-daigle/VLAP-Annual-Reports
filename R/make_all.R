@@ -17,20 +17,33 @@ library(parallel)
 
 # Paths from .env
 project_path <- Sys.getenv("PROJECT_PATH")
-input_path   <- Sys.getenv("INPUT_PATH")
-output_path  <- Sys.getenv("OUTPUT_PATH")
+input_path <- Sys.getenv("INPUT_PATH")
+output_path <- Sys.getenv("OUTPUT_PATH")
 
 # Source helper scripts
 source(file.path(project_path, "R", "theme.R"))
 source(file.path(project_path, "R", "chl_tp_secchi.R"))
+source(file.path(project_path, "R", "pH_cond.R"))
+source(file.path(project_path, "R", "temp_DO.R"))
 
 # Run functions
 make_chl_tp_secchi(
-  input_path  = input_path,
+  input_path = input_path,
   output_path = file.path(output_path, "chl_tp_secchi")
 )
 
+print("Done chl_tp_secchi")
+
 make_pH_conduc(
-  input_path  = input_path,
+  input_path = input_path,
   output_path = file.path(output_path, "pH_conduc")
 )
+
+print("Done pH_conduc")
+
+make_temp_DO(
+  input_path = input_path,
+  output_path = file.path(output_path, "temp_DO")
+)
+
+print("Done temp_DO")
