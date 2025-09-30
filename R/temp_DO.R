@@ -9,7 +9,7 @@ make_temp_DO <- function(input_path, output_path) {
 
   #clean and prepare
   temp_do <- data |>
-    select(Depth, Date, Time, Station, DO, Temp...12) |>
+    select(Depth, Date, Station, DO, Temp...12) |>
     rename(Temp = `Temp...12`) |>
     mutate(
       Date = as.Date(Date),
@@ -27,7 +27,7 @@ make_temp_DO <- function(input_path, output_path) {
       cat(paste0("working on temp_DO for ", stn, "\n"))
       temp_do_stn <- temp_do |>
         filter(Station == stn) |>
-        select(Depth, Date, Month, Time, Station, DO, Temp)
+        select(Depth, Date, Month, Station, DO, Temp)
 
       #average duplicate profiles, if they exist
       temp_do_avg <- temp_do_stn |>

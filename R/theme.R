@@ -2,7 +2,6 @@ theme_chl_tp_secchi <- function() {
   list(
     theme(
       panel.grid = element_blank(), # no plot grid
-      axis.text.x = element_text(angle = 45, hjust = 1), # change x axis text direction
       legend.position = c(0.98, 1.175), # position of legend on plot
       legend.background = element_blank(), #element_rect(fill = "transparent", size = 0.5),
       legend.key = element_rect(fill = "white"),
@@ -17,7 +16,11 @@ theme_chl_tp_secchi <- function() {
         face = "bold",
         margin = margin(b = 20)
       ),
-      axis.line = element_line(color = "gray40")
+      axis.line = element_line(color = "gray40"),
+      axis.title.x = element_text(size = 8, face = "bold"),
+      axis.title.y = element_text(size = 8, face = "bold"),
+      axis.text.y = element_text(size = 8),
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 8)
     )
   )
 }
@@ -26,7 +29,6 @@ theme_pH_conduc <- function() {
   list(
     theme(
       panel.grid = element_blank(),
-      axis.text.x = element_text(angle = 45, hjust = 1),
       legend.position = c(-0.05, 1.2),
       legend.justification = c(0, 1),
       legend.background = element_rect(fill = "transparent"),
@@ -41,7 +43,11 @@ theme_pH_conduc <- function() {
         margin = margin(b = 20)
       ),
       panel.border = element_blank(),
-      axis.line = element_line(color = "gray40")
+      axis.line = element_line(color = "gray40"),
+      axis.title.x = element_text(size = 10, face = "bold"),
+      axis.title.y = element_text(size = 10, face = "bold"),
+      axis.text.y = element_text(size = 10),
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 10)
     ),
     scale_fill_manual(values = c("pH" = "white")),
     scale_color_manual(values = c("cond" = "red3"))
@@ -54,7 +60,16 @@ theme_temp_DO <- function() {
       panel.grid.major.x = element_blank(),
       panel.grid.minor.x = element_blank(),
       panel.grid.major.y = element_line(color = "whitesmoke"),
-      panel.grid.minor.y = element_blank()
+      panel.grid.minor.y = element_blank(),
+      plot.title = element_text(
+        hjust = 0.5,
+        face = "bold",
+        size = 14
+      ),
+      axis.title.x = element_text(size = 10, face = "bold"),
+      axis.title.y = element_text(size = 10, face = "bold"),
+      axis.text.x = element_text(size = 10),
+      axis.text.y = element_text(size = 10)
     )
   )
 }
