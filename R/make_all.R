@@ -1,9 +1,13 @@
-if (file.exists("../.env")) {
-  readRenviron("../.env")
+# Load environment variables
+if (file.exists(".env")) {
+  if (!requireNamespace("dotenv", quietly = TRUE)) {
+    install.packages("dotenv")
+  }
+  library(dotenv)
+  load_dot_env(".env")
 }
 
-path <- Sys.getenv("PATH")
-
+# Libraries
 library(ggplot2)
 library(dplyr)
 library(readxl)
@@ -11,18 +15,22 @@ library(tidyr)
 library(tibble)
 library(parallel)
 
-source(paste0(path, "/R/theme.R"))
-source(paste0(path, "/R/chl_tp_secchi.R"))
+# Paths from .env
+project_path <- Sys.getenv("PROJECT_PATH")
+input_path   <- Sys.getenv("INPUT_PATH")
+output_path  <- Sys.getenv("OUTPUT_PATH")
 
-input_path <- paste0(path, "/data/")
-output_path <- paste0(path, "/plots/chl_tp_secchi/")
+# Source helper scripts
+source(file.path(project_path, "R", "theme.R"))
+source(file.path(project_path, "R", "chl_tp_secchi.R"))
 
+# Run functions
 make_chl_tp_secchi(
-  input_path = paste0(path, "/data/"),
-  output_path = paste0(path, "/plots/chl_tp_secchi/")
+  input_path  = input_path,
+  output_path = file.path(output_path, "chl_tp_secchi")
 )
 
 make_pH_conduc(
-  input_path = paste0(path, "/data/"),
-  output_path = paste0(path, "/plots/pH_conduc/")
+  input_path  = input_path,
+  output_path = file.path(output_path, "pH_conduc")
 )
