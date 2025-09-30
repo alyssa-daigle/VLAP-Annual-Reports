@@ -16,7 +16,13 @@ source(paste0(path, "/R/chl_tp_secchi.R"))
 
 input_path <- paste0(path, "/data/")
 output_path <- paste0(path, "/plots/chl_tp_secchi/")
+
 make_chl_tp_secchi(
   input_path = paste0(path, "/data/"),
   output_path = paste0(path, "/plots/chl_tp_secchi/")
+)
+
+make_pH_conduc(
+  input_path = paste0(path, "/data/"),
+  output_path = paste0(path, "/plots/pH_conduc/")
 )
