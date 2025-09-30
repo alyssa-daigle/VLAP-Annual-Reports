@@ -18,7 +18,7 @@ make_chl_tp_secchi <- function(input_path, output_path) {
     left_join(BTC, by = c("Rel_Lake" = "RELLAKE")) |>
     left_join(trophic_thresholds, by = "BEST_TROPHIC_CLASS")
 
-  # if output directory doesnt exist, makxe it
+  # if output directory doesnt exist, make it
   if (!dir.exists(output_path)) {
     dir.create(output_path, recursive = TRUE)
   }
@@ -79,7 +79,7 @@ make_chl_tp_secchi <- function(input_path, output_path) {
           secchi_bottom = pmax(0, (y_max_right - SECCHI) * scale_factor)
         )
 
-      #build plot
+      # build plot
       p <- ggplot(df_plot, aes(x = Year)) +
 
         # Secchi bars mapped to fill
@@ -197,13 +197,10 @@ make_chl_tp_secchi <- function(input_path, output_path) {
           )
         ) +
 
-        # # Guides for points (no line through legend)
-        # guides(
-        #   color = guide_legend(override.aes = list(size = 2, linetype = 0)),
-        #   fill = guide_legend(
-        #     override.aes = list(shape = 22, size = 5, color = "black")
-        #   )
-        # ) +
+        # Guides for points (no line through legend)
+        guides(
+          color = guide_legend(override.aes = list(size = 2, linetype = 0))
+        ) +
         theme_bw() +
         theme_chl_tp_secchi()
 
