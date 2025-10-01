@@ -14,6 +14,8 @@ library(readxl)
 library(tidyr)
 library(tibble)
 library(parallel)
+library(forcats)
+library(cowplot)
 
 # Paths from .env
 project_path <- Sys.getenv("PROJECT_PATH")
@@ -34,25 +36,17 @@ make_chl_tp_secchi(
   output_path = file.path(output_path, "chl_tp_secchi")
 )
 
-print("Done chl_tp_secchi")
-
 make_pH_conduc(
   input_path = input_path,
   output_path = file.path(output_path, "pH_conduc")
 )
-
-print("Done pH_conduc")
 
 make_temp_DO(
   input_path = input_path,
   output_path = file.path(output_path, "temp_DO")
 )
 
-print("Done temp_DO")
-
 make_plankton(
   input_path = input_path,
   output_path = file.path(output_path, "plankton")
 )
-
-print("Done plankton")

@@ -73,3 +73,63 @@ theme_temp_DO <- function() {
     )
   )
 }
+
+theme_plankton <- function() {
+  list(
+    theme(
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor.x = element_blank(),
+      panel.grid.major.y = element_line(color = "whitesmoke"),
+      panel.grid.minor.y = element_blank(),
+      legend.position = "none", # hide legend here
+      plot.margin = margin(t = 0, r = 10, b = 10, l = 20),
+      plot.title = element_text(
+        hjust = 0.5,
+        vjust = -2.0,
+        face = "bold",
+        margin = margin(b = 20)
+      ),
+      panel.border = element_rect(size = 1),
+      axis.title.x = element_text(size = 10, face = "bold"),
+      axis.title.y = element_text(size = 12, face = "bold"),
+      axis.text.y = element_text(size = 8),
+      axis.text.x = element_text(size = 8),
+      axis.ticks.y = element_blank()
+    )
+  )
+}
+
+theme_plankton_legend <- function() {
+  list(
+    theme(
+      legend.text = element_text(size = 7, face = "bold"), # smaller text
+      legend.key.size = unit(0.4, "cm"), # smaller icons
+      legend.margin = margin(r = 10)
+    )
+  )
+}
+
+#plankton color pallete and renaming
+algae_colors <- c(
+  "UNKNOWN PHYTO" = "#772c2a",
+  "GREEN" = "#2c4d75",
+  "GOLDEN-BROWN" = "#4bacc6",
+  "EUGLENOID" = "#9bbb59",
+  "DINOFLAGELLATE" = "#e46c0a",
+  "DIATOM" = "#7f7f7f",
+  "CYANOBACTERIA" = "#604a7b",
+  "CRYPTOMONAD" = "#4f6228",
+  "XANTHOPHYTE" = "#c0504d"
+)
+
+algae_labels <- c(
+  "UNKNOWN PHYTO" = "Unknown",
+  "GREEN" = "Greens",
+  "GOLDEN-BROWN" = "Golden-Brown",
+  "EUGLENOID" = "Euglenoids",
+  "DINOFLAGELLATE" = "Dinoflagellates",
+  "DIATOM" = "Diatoms",
+  "CYANOBACTERIA" = "Cyanobacteria",
+  "CRYPTOMONAD" = "Cryptomonads",
+  "XANTHOPHYTE" = "Xanthophytes"
+)
