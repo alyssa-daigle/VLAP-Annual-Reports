@@ -10,9 +10,9 @@ This repository contains scripts used to streamline the Annual Report workflow b
 
 The individual scripts called by `make_all.R` include:
 
--   **`chl_tp_secchi.R`**: Contains the function to generate historical Chlorophyll-a, Total Phosphorus, and Secchi Disk transparency plots for each station.\
--   **`ph_cond.R`**: Contains the function to generate historical pH and Conductivity plots for each station.\
--   **`temp_DO.R`**: Contains the function to generate seasonal Temperature/Dissolved Oxygen profile plots for each station.\
+-   **`chl_tp_secchi.R`**: Contains the function to generate historical Chlorophyll-a, Total Phosphorus, and Secchi Disk transparency plots for each station.
+-   **`ph_cond.R`**: Contains the function to generate historical pH and Conductivity plots for each station.
+-   **`temp_DO.R`**: Contains the function to generate seasonal Temperature/Dissolved Oxygen profile plots for each station.
 -   **`plankton.R`**: Contains the function to generate seasonal Phytoplankton Population plots for each station.
 
 ## Theming
