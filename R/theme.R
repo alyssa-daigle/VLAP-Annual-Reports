@@ -109,7 +109,7 @@ theme_plankton_legend <- function() {
   )
 }
 
-#plankton color pallete and renaming
+#plankton color palette and renaming
 algae_colors <- c(
   "UNKNOWN PHYTO" = "#772c2a",
   "GREEN" = "#2c4d75",
