@@ -12,6 +12,7 @@ make_plankton <- function(input_path, output_path) {
 
   # loop over stations
   lapply(stations, function(station_id) {
+    cat(paste0("working on plankton for ", station_id, "\n"))
     # prepare plot_data
     plot_data <- data |>
       filter(WQDStationID == station_id) |>
@@ -37,7 +38,7 @@ make_plankton <- function(input_path, output_path) {
     # main plot, without legend
     p_main <- ggplot(
       plot_data,
-      aes(x = factor(MONTH), y = rel_abund, fill = COMMENTS_ordered)
+      aes(x = factor(MONTH), y = rel_abund, fill = COMMENTS)
     ) +
       geom_bar(stat = "identity") +
       scale_y_continuous(
@@ -62,6 +63,7 @@ make_plankton <- function(input_path, output_path) {
       scale_fill_manual(
         values = algae_colors,
         labels = algae_labels,
+        breaks = names(algae_labels),
         drop = FALSE
       ) +
       labs(fill = NULL) + # removes title from legend
@@ -78,7 +80,7 @@ make_plankton <- function(input_path, output_path) {
     # save plot
     ggsave(
       filename = paste0(output_path, "/", station_id, "_plankton.jpg"),
-      plot = p,
+      plot = final_plot <- plot_grid(p_main, legend, rel_widths = c(5, 1)),
       width = 8,
       height = 6,
       dpi = 300
