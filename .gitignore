@@ -32,6 +32,3 @@ Thumbs.db
 *.png
 *.jpg
 *.jpeg
-
-# Not ready to share
-pH_cond_DBconnect_test.R
