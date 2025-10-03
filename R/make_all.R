@@ -19,6 +19,7 @@ library(cowplot)
 library(DBI)
 library(odbc)
 library(dotenv)
+library(lubridate)
 
 # Paths from .env
 project_path <- Sys.getenv("PROJECT_PATH")
