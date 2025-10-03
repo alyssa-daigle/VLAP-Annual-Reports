@@ -1,19 +1,18 @@
 make_pH_conduc <- function(input_path, output_path) {
-  #load data
-  data <- read_excel(paste0(input_path, "pH_conduc.xlsx"))
-
   #if output directory doesnt exist, make it
   if (!dir.exists(output_path)) {
     dir.create(output_path, recursive = TRUE)
   }
 
+  data <- REG
+
   #get unique stationIDs
   station_list <- data |>
-    distinct(StationID) |>
-    arrange(StationID) |>
-    pull(StationID)
+    distinct(stationid) |>
+    arrange(stationid) |>
+    pull(stationid)
 
-  #loop through each stationID
+  #loop through each stationid
   lapply(
     station_list,
     function(station_id) {
@@ -21,7 +20,7 @@ make_pH_conduc <- function(input_path, output_path) {
 
       #select correct station ID + remove NAs
       df_plot <- data |>
-        filter(StationID == station_id) |>
+        filter(stationid == station_id) |>
         filter(!is.na(PH_epi) | !is.na(SPCD_epi)) |>
         arrange(Year)
 

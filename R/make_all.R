@@ -28,6 +28,7 @@ output_path <- Sys.getenv("OUTPUT_PATH")
 
 # Source helper scripts
 source(file.path(project_path, "R", "DBConnect.R"))
+source(file.path(project_path, "R", "data_reformat.R"))
 source(file.path(project_path, "R", "theme.R"))
 source(file.path(project_path, "R", "chl_tp_secchi.R"))
 source(file.path(project_path, "R", "pH_cond.R"))
@@ -37,8 +38,18 @@ source(file.path(project_path, "R", "plankton.R"))
 # Run functions
 
 #establishes DB connection and reformats data
-DBConnect()
+db_res <- DBConnect() # returns list: BTC_full, REG_long, con
+con <- db_res$con # keep connection for later
 
+#reformats data
+processed <- data_reformat(db_res$BTC_full, db_res$REG_long)
+BTC <- processed$BTC
+REG <- processed$REG
+
+#closes connection when done
+dbDisconnect(con)
+
+#starts plotting
 make_chl_tp_secchi(
   input_path = input_path,
   output_path = file.path(output_path, "chl_tp_secchi")
@@ -58,6 +69,3 @@ make_plankton(
   input_path = input_path,
   output_path = file.path(output_path, "plankton")
 )
-
-#closes connection when done
-dbDisconnect(con)
