@@ -1,22 +1,15 @@
 make_chl_tp_secchi <- function(input_path, output_path) {
-  # load data
-  data <- read_excel(paste0(input_path, "pH_conduc.xlsx"))
-  BTC <- read_excel(paste0(input_path, "BTC.xlsx"))
-
-  # get unique trophic statuses
-  BTC <- BTC |> distinct(RELLAKE, .keep_all = TRUE)
-
   # make trophic status threshold df
   trophic_thresholds <- tibble(
-    BEST_TROPHIC_CLASS = c("EUTROPHIC", "MESOTROPHIC", "OLIGOTROPHIC"),
+    BTC = c("EUTROPHIC", "MESOTROPHIC", "OLIGOTROPHIC"),
     CHLa_thresh = c(11, 5, 3),
     TP_thresh = c(28, 12, 8)
   )
 
   # combine statuses with thresholds
-  data <- data |>
-    left_join(BTC, by = c("Rel_Lake" = "RELLAKE")) |>
-    left_join(trophic_thresholds, by = "BEST_TROPHIC_CLASS")
+  data <- REG |>
+    left_join(BTC, by = "lake") |>
+    left_join(trophic_thresholds, by = "BTC")
 
   # if output directory doesnt exist, make it
   if (!dir.exists(output_path)) {
@@ -25,9 +18,9 @@ make_chl_tp_secchi <- function(input_path, output_path) {
 
   # make list of unique stationIDs
   station_list <- data |>
-    distinct(StationID) |>
-    arrange(StationID) |>
-    pull(StationID)
+    distinct(stationid) |>
+    arrange(stationid) |>
+    pull(stationid)
 
   # loop through unique stationIDs
   lapply(
@@ -37,11 +30,11 @@ make_chl_tp_secchi <- function(input_path, output_path) {
 
       # selects correct station ID + makes sure theres no NAs
       df_plot <- data |>
-        filter(StationID == station_id) |>
+        filter(stationid == station_id) |>
         filter(!is.na(CHL_comp) | !is.na(TP_epi) | !is.na(SECCHI)) |>
         arrange(Year)
 
-      # if no data, go to the next stationID
+      # if no data, go to the next stationid
       if (nrow(df_plot) == 0) {
         return()
       }
