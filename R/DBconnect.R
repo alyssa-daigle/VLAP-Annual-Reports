@@ -37,7 +37,7 @@ DBConnect <- function(dsn = "DESPRD") {
   # grabbing data from the regression table
   REG_QUERY <- "
     SELECT DISTINCT 
-        RELLAKE, RELLAKE_WBID, TOWN, STATIONID, STATNAME, STARTDATE, 
+        RELLAKE, RELLAKE_WBID, TOWN, stationid, STATNAME, STARTDATE, 
         WSHEDPARMNAME, NUMRESULT, QUALIFIER, RESULTUNITS, TEXTRESULT, 
         DEPTHZONE, ANALYTICALMETHOD, PROJID, DETLIM, VALID
     FROM WQD_REPORT_VIEW
@@ -112,9 +112,9 @@ DBConnect <- function(dsn = "DESPRD") {
       .groups = "drop"
     )
 
-  # pivot REG_long to wide format
   REG <- REG_long |>
-    filter(PROJID == "VLAP", DEPTHZONE == "EPILIMNION") |>
+    filter(PROJID == "VLAP") |>
+    # Only keep the columns we need
     select(
       RELLAKE,
       TOWN,
@@ -125,29 +125,48 @@ DBConnect <- function(dsn = "DESPRD") {
       WSHEDPARMNAME,
       NUMRESULT
     ) |>
+    # Create temporary column for combined parameter + depth
+    mutate(
+      param_depth = case_when(
+        WSHEDPARMNAME == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" &
+          DEPTHZONE == "COMPOSITE" ~
+          "CHL_comp",
+        WSHEDPARMNAME == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" &
+          DEPTHZONE == "EPILIMNION" ~
+          "CHL_epi",
+        WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" & DEPTHZONE == "EPILIMNION" ~
+          "SPCD_epi",
+        WSHEDPARMNAME == "PH" & DEPTHZONE == "EPILIMNION" ~ "PH_epi",
+        WSHEDPARMNAME == "PHOSPHORUS AS P" & DEPTHZONE == "EPILIMNION" ~
+          "TP_epi",
+        WSHEDPARMNAME == "PHOSPHORUS AS P" & DEPTHZONE == "HYPOLIMNION" ~
+          "TP_hypo",
+        WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" ~ "SECCHI",
+        TRUE ~ NA_character_ # ignore other combinations
+      )
+    ) |>
+    # Pivot wider using the combined param_depth as column names
     pivot_wider(
-      id_cols = c(RELLAKE, TOWN, STATIONID, STATNAME, STARTDATE, DEPTHZONE),
-      names_from = WSHEDPARMNAME,
+      id_cols = c(RELLAKE, TOWN, STATIONID, STATNAME, STARTDATE),
+      names_from = param_depth,
       values_from = NUMRESULT,
       values_fn = mean,
       values_fill = NA
     ) |>
+    # Rename main columns
     rename(
       lake = RELLAKE,
       town = TOWN,
       stationid = STATIONID,
       stationname = STATNAME,
-      date = STARTDATE,
-      depth = DEPTHZONE,
-      chl = `CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN`,
-      pH = PH,
-      TP = `PHOSPHORUS AS P`,
-      secchi = `SECCHI DISK TRANSPARENCY`,
-      cond = `SPECIFIC CONDUCTANCE`
-    )
+      date = STARTDATE
+    ) |>
+    mutate(Year = year(date))
 
   # force DFs to appear in global environment
   assign("BTC", BTC, envir = .GlobalEnv)
   assign("REG", REG, envir = .GlobalEnv)
   assign("con", con, envir = .GlobalEnv)
 }
+
+DBConnect()
