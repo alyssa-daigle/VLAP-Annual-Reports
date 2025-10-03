@@ -20,7 +20,7 @@ theme_chl_tp_secchi <- function() {
       axis.title.x = element_text(size = 8, face = "bold"),
       axis.title.y = element_text(size = 8, face = "bold"),
       axis.text.y = element_text(size = 8),
-      axis.text.x = element_text(angle = 45, hjust = 1, size = 8)
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 5)
     )
   )
 }
@@ -47,7 +47,7 @@ theme_pH_conduc <- function() {
       axis.title.x = element_text(size = 10, face = "bold"),
       axis.title.y = element_text(size = 10, face = "bold"),
       axis.text.y = element_text(size = 10),
-      axis.text.x = element_text(angle = 45, hjust = 1, size = 10)
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 5)
     ),
     scale_fill_manual(values = c("pH" = "white")),
     scale_color_manual(values = c("cond" = "red3"))
@@ -68,7 +68,7 @@ theme_temp_DO <- function() {
       ),
       axis.title.x = element_text(size = 10, face = "bold"),
       axis.title.y = element_text(size = 10, face = "bold"),
-      axis.text.x = element_text(size = 10),
+      axis.text.x = element_text(size = 6),
       axis.text.y = element_text(size = 10)
     )
   )
