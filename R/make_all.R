@@ -20,15 +20,21 @@ library(DBI)
 library(odbc)
 library(dotenv)
 library(lubridate)
+library(purrr)
+library(broom)
+library(readr)
+library(fs)
 
 # Paths from .env
 project_path <- Sys.getenv("PROJECT_PATH")
 input_path <- Sys.getenv("INPUT_PATH")
 output_path <- Sys.getenv("OUTPUT_PATH")
+reg_path <- Sys.getenv("REG_PATH")
 
 # Source helper scripts
 source(file.path(project_path, "R", "DBConnect.R"))
 source(file.path(project_path, "R", "data_reformat.R"))
+source(file.path(project_path, "R", "regression.R"))
 source(file.path(project_path, "R", "theme.R"))
 source(file.path(project_path, "R", "chl_tp_secchi.R"))
 source(file.path(project_path, "R", "pH_cond.R"))
@@ -48,6 +54,9 @@ REG <- processed$REG
 
 #closes connection when done
 dbDisconnect(con)
+
+#runs regression
+run_vlap_regressions(REG, reg_path)
 
 #starts plotting
 make_chl_tp_secchi(

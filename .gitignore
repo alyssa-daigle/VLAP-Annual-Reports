@@ -32,3 +32,6 @@ Thumbs.db
 *.png
 *.jpg
 *.jpeg
+
+# Ignore regression outputs
+regression/
