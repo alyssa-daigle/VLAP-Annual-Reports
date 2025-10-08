@@ -12,7 +12,7 @@ make_plankton <- function(input_path, output_path) {
 
   # loop over stations
   lapply(stations, function(station_id) {
-    cat(paste0("working on plankton for ", station_id, "\n"))
+    message(paste0("working on plankton for ", station_id, "\n"))
     # prepare plot_data
     plot_data <- data |>
       filter(WQDStationID == station_id) |>

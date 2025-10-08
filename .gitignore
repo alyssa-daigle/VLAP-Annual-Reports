@@ -35,3 +35,5 @@ Thumbs.db
 
 # Ignore regression outputs
 regression/
+
+warnings_log.txt

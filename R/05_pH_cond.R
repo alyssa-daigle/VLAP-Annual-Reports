@@ -16,7 +16,7 @@ make_pH_conduc <- function(input_path, output_path) {
   lapply(
     station_list,
     function(station_id) {
-      cat(paste0("working on pH_cond for ", station_id, "\n"))
+      message(paste0("working on pH_cond for ", station_id, "\n"))
 
       #select correct station ID + remove NAs
       df_plot <- data |>

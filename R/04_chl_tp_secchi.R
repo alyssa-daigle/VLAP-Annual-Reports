@@ -26,7 +26,7 @@ make_chl_tp_secchi <- function(input_path, output_path) {
   lapply(
     station_list,
     function(station_id) {
-      cat(paste0("working on chl_tp_secchi for ", station_id, "\n"))
+      message(paste0("working on chl_tp_secchi for ", station_id, "\n"))
 
       # selects correct station ID + makes sure theres no NAs
       df_plot <- data |>

@@ -15,7 +15,8 @@ make_temp_DO <- function(input_path, output_path) {
       Date = as.Date(Date),
       Month = format(Date, "%B"),
       Month = factor(Month, levels = month.name, ordered = TRUE)
-    )
+    ) |>
+    filter(!is.na(Station))
 
   #get list of unique station names
   stations <- unique(temp_do$Station)
@@ -24,7 +25,7 @@ make_temp_DO <- function(input_path, output_path) {
   lapply(
     stations,
     function(stn) {
-      cat(paste0("working on temp_DO for ", stn, "\n"))
+      message(paste0("working on temp_DO for ", stn, "\n"))
       temp_do_stn <- temp_do |>
         filter(Station == stn) |>
         select(Depth, Date, Month, Station, DO, Temp)
