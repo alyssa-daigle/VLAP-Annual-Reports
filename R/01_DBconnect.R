@@ -45,10 +45,50 @@ DBConnect <- function(dsn = "DESPRD") {
     WHERE PROJID = 'VLAP'
   "
 
+  # Define the query
+  CYA_QUERY <- "
+  SELECT
+      RELLAKE_WBID,
+      RELLAKE,
+      STATNAME,
+      STATIONID,
+      DEPTHZONE,
+      TOWN,
+      TO_CHAR(STARTDATE, 'YYYY') AS PYEAR,
+      WSHEDPARMNAME,
+      NUMRESULT,
+      QUALIFIER,
+      RESULTUNITS,
+      TEXTRESULT,
+      ANALYTICALMETHOD,
+      DETLIM
+  FROM
+      WQD_REPORT_VIEW
+  WHERE
+      PROJID = 'VLAP'
+      AND (VALID = 'Y' OR VALID IS NULL)
+      AND WSHEDPARMNAME IN (
+          'PH',
+          'GRAN ACID NEUTRALIZING CAPACITY',
+          'ALKALINITY, TOTAL',
+          'ALKALINITY, CARBONATE AS CACO3',
+          'CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN',
+          'SPECIFIC CONDUCTANCE',
+          'CONDUCTIVITY',
+          'ESCHERICHIA COLI',
+          'SECCHI DISK TRANSPARENCY',
+          'TURBIDITY',
+          'PHOSPHORUS AS P',
+          'CHLORIDE',
+          'APPARENT COLOR'
+      )
+  "
+
   # Run queries
   BTC_full <- dbGetQuery(con, BTC_QUERY)
   REG_long <- dbGetQuery(con, REG_QUERY)
+  CYA <- dbGetQuery(con, CYA_QUERY)
 
   # Return list of dataframes and connection
-  list(BTC_full = BTC_full, REG_long = REG_long, con = con)
+  list(BTC_full = BTC_full, REG_long = REG_long, con = con, CYA = CYA)
 }
