@@ -93,19 +93,19 @@ run_vlap_regressions <- function(REG, reg_path = "regression") {
           TRUE ~ "none"
         ),
         trend = case_when(
-          !significant ~ "stable", # changed from "not significant"
+          !significant ~ "Stable", # changed from "not significant"
           parameter %in%
             c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
             slope_dir == "increasing" ~
-            "worsening",
+            "Worsening",
           parameter %in%
             c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
             slope_dir == "decreasing" ~
-            "improving",
+            "Improving",
           parameter %in% c("PH_epi", "SECCHI") & slope_dir == "increasing" ~
-            "improving",
+            "Improving",
           parameter %in% c("PH_epi", "SECCHI") & slope_dir == "decreasing" ~
-            "worsening",
+            "Worsening",
           TRUE ~ "insufficient data"
         )
       )
@@ -132,6 +132,39 @@ run_vlap_regressions <- function(REG, reg_path = "regression") {
     write_csv(
       reg_summary,
       file.path(reg_path, paste0("Regression_", st, ".csv"))
+    )
+
+    # create summary display table (nicely formatted)
+    display_table <- reg_summary |>
+      mutate(
+        Parameter = recode(
+          parameter,
+          "SPCD_epi" = "Conductivity",
+          "CHL_comp" = "Chlorophyll-a",
+          "PH_epi" = "pH (epilimnion)",
+          "SECCHI" = "Transparency",
+          "TP_hypo" = "Phosphorus (hypolimnion)",
+          "TP_epi" = "Phosphorus (epilimnion)"
+        )
+      ) |>
+      select(Parameter, Trend = trend)
+
+    # arrange side-by-side (2 columns per row)
+    display_table <- display_table |>
+      mutate(row_id = ceiling(row_number() / 2)) |>
+      group_by(row_id) |>
+      summarise(
+        PARAMETER_1 = first(Parameter),
+        TREND_1 = first(Trend),
+        PARAMETER_2 = nth(Parameter, 2),
+        TREND_2 = nth(Trend, 2),
+        .groups = "drop"
+      )
+
+    # save formatted summary
+    write_csv(
+      display_table,
+      file.path(reg_path, paste0("TrendSummary_", st, ".csv"))
     )
   }
 }
