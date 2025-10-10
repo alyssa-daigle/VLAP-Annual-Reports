@@ -1,0 +1,125 @@
+---
+title: "2025 Volunteer Lake Assessment Program"
+output:
+  word_document:
+    reference_docx: "template.docx"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+
+# Load dotenv if available
+if (file.exists(".env")) {
+  if (!requireNamespace("dotenv", quietly = TRUE)) {
+    install.packages("dotenv")
+  }
+  library(dotenv)
+  load_dot_env(".env")
+}
+
+# Access environment variables
+project_path <- Sys.getenv("PROJECT_PATH")
+plot_path <- Sys.getenv("OUTPUT_PATH")
+reg_path <- Sys.getenv("REG_PATH")
+
+# Load libraries
+library(knitr)
+library(dplyr)
+```
+
+### **Individual Lake Report: LAKE NAME – TOWN**
+
+**RECOMMENDED ACTIONS:** Great job monitoring water quality in 2024! Pond phosphorus and chlorophyll levels (algal growth) remained elevated in 2024, causing a decrease in water clarity. This highlights the delicate balance of the pond ecosystem. Prior timber harvesting activities could contribute t nutrient inputs from groundwater as well as surface runoff for years to come. If possible, add tributary sampling stations within the timber harvest sub-watershed to better understand nutrient loading from the area. The above average pond nutrient levels measured in the past four years are a concern and residents should continue to be on alert for Cyanobacteria surface scums and blooms and notify NHDES’ Harmful Algal Bloom Program if observed. In-lake and Inlet conductivity levels decreased in 2024 after many years of elevated levels, potentially due to the excessive rainfall in 2023 flushing minerals from soils. However, historical data indicate that efforts should be made to better manage use and application of road salt within the watershed. Encourage local road agents and private winter maintenance companies to obtain Green SnowPro Certification. Refer to fact sheet WMB-4 Road Salt and Water Quality for additional information. Keep up the great work!
+
+### **HISTORICAL WATER QUALITY TREND ANALYSIS**
+``` {r trend table}
+# ---- SETTINGS ----
+station <- "OSSOSSD"  # change per lake
+
+# Use reg_path from .env
+trend_file <- list.files(
+  reg_path,
+  pattern = paste0("TrendSummary_", station, ".*\\.csv$"),
+  full.names = TRUE,
+  ignore.case = TRUE
+)
+
+# ---- IMPORT AND DISPLAY ----
+if (length(trend_file) == 1) {
+  trend_data <- read.csv(trend_file, stringsAsFactors = FALSE)
+  
+  # Tidy column names and numeric precision
+  trend_data <- trend_data |>
+    rename_with(\(x) gsub("_", " ", x)) |>
+    mutate(across(where(is.numeric), round, 3))
+  
+  knitr::kable(
+    trend_data,
+    caption = paste("Historical Water Quality Trend Summary for", station)
+  )
+} else {
+  cat("**Trend summary not found for", station, "**")
+}
+
+```
+
+
+### **HISTORICAL WATER QUALITY GRAPHICS**
+
+```{r plots, echo=FALSE, fig.show='hold', out.width='48%'}
+
+library(knitr)
+
+station <- "OSSOSSD"
+
+# Dynamic directories from environment variables
+plot_dirs <- c(
+  file.path(plot_path, "pH_conduc"),
+  file.path(plot_path, "chl_tp_secchi"),
+  file.path(plot_path, "temp_DO"),
+  file.path(plot_path, "plankton")
+)
+
+# Find matching images
+plot_files <- unlist(lapply(plot_dirs, function(d) {
+  if (dir.exists(d)) {
+    list.files(d, pattern = paste0(station, ".*\\.(png|jpg)$"),
+               full.names = TRUE, ignore.case = TRUE)
+  } else {
+    character(0)
+  }
+}))
+
+# Remove any NA or empty strings
+plot_files <- plot_files[!is.na(plot_files) & plot_files != ""]
+
+# Only keep up to 4 images
+if (length(plot_files) > 4) plot_files <- plot_files[1:4]
+
+# Include images if any found
+if (length(plot_files) == 0) {
+  cat("**No plots found for", station, "**")
+} else {
+  # Word output handles a vector of valid paths
+  include_graphics(plot_files)
+}
+
+
+```
+
+
+**OBSERVATIONS** *(Refer to Table 1 and Historical Deep Spot Data Graphics)*:
+
+- **CHLOROPHYLL-A:** Chlorophyll levels were elevated in June, increased to levels indicative of a potential algal bloom in July, and decreased to very low levels in August. The average chlorophyll level increased from 2023, exceeded the state median and the threshold for oligotrophic lakes, and was the highest measured since 2006. Historical trends indicate relatively stable chlorophyll levels since monitoring began.
+
+- **CONDUCTIVITY / CHLORIDE:** Epilimnetic (upper), Metalimnetic (middle), Hypolimnetic (lower), Inlet, and Outlet conductivity and chloride levels were slightly elevated and above state medians, although chloride levels remained well below the state chronic standard. Historical trends show significantly increasing epilimnetic conductivity since monitoring began and significantly increasing epilimnetic chloride levels since 2008.
+
+- **COLOR:** Apparent color measured in the epilimnion indicates the water was borderline clear to lightly tea-colored from June through August.
+
+- **TOTAL PHOSPHORUS:** Epilimnetic phosphorus was slightly elevated in June, stable in July, and decreased to low levels in August. The average epilimnetic phosphorus level decreased slightly from 2023, remained below the state median, and was slightly above the threshold for oligotrophic lakes. Metalimnetic, Hypolimnetic, and Outlet phosphorus levels were slightly elevated, with Metalimnetic phosphorus peaking in July during elevated algal growth. Historical trends indicate relatively stable epilimnetic and hypolimnetic phosphorus since monitoring began. Inlet phosphorus fluctuated within an average range and was lowest in August.
+
+- **TRANSPARENCY:** Transparency measured with (VS) and without (NVS) the viewscope was below average in June and July during elevated algal growth, then improved to normal levels in August. Average NVS transparency increased slightly from 2023 but remained below the pond average, although it exceeded the state median. Historical trends indicate stable NVS transparency since monitoring began.
+
+- **TURBIDITY:** Deep Spot and Outlet turbidity were slightly elevated in July during elevated algal growth. Inlet turbidity fluctuated within a low range.
+
+- **PH:** Epilimnetic and Outlet pH levels were within the desirable range of 6.5–8.0 units. Historical trends show stable but variable epilimnetic pH since monitoring began. Metalimnetic and Hypolimnetic pH levels were slightly acidic and below the desirable range, and Inlet pH was slightly below desirable.
