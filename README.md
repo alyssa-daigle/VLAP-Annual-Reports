@@ -25,4 +25,4 @@ The individual scripts called by `make_all.R` include:
 
 ## Report Generation
 
-**`report_gen.R`** (in progress) will be able to pull all the plots and tables (also in progress) into one report per active VLAP sampling station.
+**`report_gen.Rmd`** (in progress) will be able to pull all the plots and tables into one report per active VLAP sampling station.
