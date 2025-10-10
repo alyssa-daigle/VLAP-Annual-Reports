@@ -87,8 +87,8 @@ DBConnect <- function(dsn = "DESPRD") {
   # Run queries
   BTC_full <- dbGetQuery(con, BTC_QUERY)
   REG_long <- dbGetQuery(con, REG_QUERY)
-  CYA <- dbGetQuery(con, CYA_QUERY)
+  CYA_full <- dbGetQuery(con, CYA_QUERY)
 
   # Return list of dataframes and connection
-  list(BTC_full = BTC_full, REG_long = REG_long, con = con, CYA = CYA)
+  list(BTC_full = BTC_full, REG_long = REG_long, con = con, CYA_full = CYA_full)
 }

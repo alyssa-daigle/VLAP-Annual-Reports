@@ -80,5 +80,64 @@ data_reformat <- function(BTC_full, REG_long) {
       TP_hypo = TP_hypo * 1000
     )
 
-  list(BTC = BTC, REG = REG)
+  CYA <- CYA_full |>
+    select(
+      RELLAKE,
+      STATNAME,
+      STATIONID,
+      DEPTHZONE,
+      PYEAR,
+      WSHEDPARMNAME,
+      NUMRESULT,
+      ANALYTICALMETHOD
+    ) |>
+    filter(PYEAR == 2025) |>
+    mutate(
+      # ---- Clean parameter names ----
+      param_depth = case_when(
+        WSHEDPARMNAME == "ALKALINITY, CARBONATE AS CACO3" ~ "Alk. (mg/L)",
+        WSHEDPARMNAME == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" ~
+          "Chlor-a (ug/L)",
+        WSHEDPARMNAME == "CHLORIDE" ~ "Chloride (mg/L)",
+        WSHEDPARMNAME == "APPARENT COLOR" ~ "Color (pcu)",
+        WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" ~ "Cond. (us/cm)",
+        WSHEDPARMNAME == "ESCHERICHIA COLI" ~ "E. coli (mpn/100 mL)",
+        WSHEDPARMNAME == "PHOSPHORUS AS P" ~ "Total P (ug/L)",
+        WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" &
+          ANALYTICALMETHOD == "SECCHI" ~
+          "Trans. NVS (m)",
+        WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" &
+          ANALYTICALMETHOD == "SECCHI-SCOPE" ~
+          "Trans. VS (m)",
+        WSHEDPARMNAME == "TURBIDITY" ~ "Turb. (ntu)",
+        WSHEDPARMNAME == "PH" ~ "pH",
+        TRUE ~ NA_character_
+      ),
+      # ---- Clean station names ----
+      STATNAME = case_when(
+        # Deep spot logic
+        str_detect(STATNAME, "DEEP SPOT") ~
+          case_when(
+            toupper(DEPTHZONE) == "COMPOSITE" ~ "Epilimnion",
+            TRUE ~ str_to_title(DEPTHZONE)
+          ),
+        # Regular stations: remove lake prefix
+        str_detect(STATNAME, "-") ~
+          str_trim(str_to_title(str_split_fixed(STATNAME, "-", 2)[, 2])),
+        TRUE ~ STATNAME
+      )
+    ) |>
+    filter(!is.na(param_depth)) |>
+    group_by(RELLAKE, STATNAME, param_depth) |>
+    summarise(avg_result = mean(NUMRESULT, na.rm = TRUE), .groups = "drop") |>
+    pivot_wider(
+      names_from = param_depth,
+      values_from = avg_result
+    ) |>
+    arrange(
+      RELLAKE,
+      factor(STATNAME, levels = c("Epilimnion", "Metalimnion", "Hypolimnion"))
+    )
+
+  list(BTC = BTC, REG = REG, CYA = CYA)
 }
