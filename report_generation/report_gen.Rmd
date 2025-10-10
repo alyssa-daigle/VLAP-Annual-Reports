@@ -54,22 +54,22 @@ if (length(trend_file) == 1) {
   trend_data <- read.csv(trend_file, stringsAsFactors = FALSE)
   
   # Clean column names and round numeric values
-  trend_data <- trend_data %>%
-    rename_with(~ gsub("_", " ", .x)) %>%
+  trend_data <- trend_data |>
+    rename_with(~ gsub("_", " ", .x)) |>
     mutate(across(where(is.numeric), round, 3))
   
   # Convert to flextable
-  ft_trend <- flextable(trend_data) %>%
-    bold(part = "header") %>%               # bold top row
-    bold(j = 1, part = "body") %>%          # bold first column
-    bg(bg = accent1_60, part = "all") %>%   # fill color
-    border_outer(part = "all", border = fp_border(color="black", width=1)) %>%
-    border_inner_h(part = "all", border = fp_border(color="black", width=1)) %>%
-    border_inner_v(part = "all", border = fp_border(color="black", width=1)) %>%
-    align(align = "center", part = "header") %>%  # center header row
-    fontsize(size = 9, part = "all") %>%         # smaller text
-    set_table_properties(width = 0.9, layout = "autofit") %>%
-    font(fontname = "Aptos", part = "all") %>%
+  ft_trend <- flextable(trend_data) |>
+    bold(part = "header") |>               # bold top row
+    bold(j = 1, part = "body") |>          # bold first column
+    bg(bg = accent1_60, part = "all") |>   # fill color
+    border_outer(part = "all", border = fp_border(color="black", width=1)) |>
+    border_inner_h(part = "all", border = fp_border(color="black", width=1)) |>
+    border_inner_v(part = "all", border = fp_border(color="black", width=1)) |>
+    align(align = "center", part = "header") |>  # center header row
+    fontsize(size = 9, part = "all") |>         # smaller text
+    set_table_properties(width = 0.9, layout = "autofit") |>
+    font(fontname = "Aptos", part = "all") |>
     autofit()
   
   # Caption outside the table
@@ -164,17 +164,17 @@ median_values <- data.frame(
   check.names = FALSE
 )
 
-ft_median <- flextable(median_values) %>%
-  bold(part = "header") %>%
-  bold(j = 1, part = "body") %>%
-  bg(bg = accent1_60, part = "all") %>%
-  border_outer(part = "all", border = fp_border(color="black", width=1)) %>%
-  border_inner_h(part = "all", border = fp_border(color="black", width=1)) %>%
-  border_inner_v(part = "all", border = fp_border(color="black", width=1)) %>%
-  align(align = "center", part = "header") %>%   # center headers
-  fontsize(size = 9, part = "all") %>%          # smaller text
-  set_table_properties(width = 0.4, layout = "autofit") %>%
-  font(fontname = "Aptos", part = "all") %>%
+ft_median <- flextable(median_values) |>
+  bold(part = "header") |>
+  bold(j = 1, part = "body") |>
+  bg(bg = accent1_60, part = "all") |>
+  border_outer(part = "all", border = fp_border(color="black", width=1)) |>
+  border_inner_h(part = "all", border = fp_border(color="black", width=1)) |>
+  border_inner_v(part = "all", border = fp_border(color="black", width=1)) |>
+  align(align = "center", part = "header") |>   # center headers
+  fontsize(size = 9, part = "all") |>          # smaller text
+  set_table_properties(width = 0.4, layout = "autofit") |>
+  font(fontname = "Aptos", part = "all") |>
   autofit()
 
 ft_median
@@ -198,17 +198,17 @@ water_quality_standards <- data.frame(
   check.names = FALSE
 )
 
-ft_standards <- flextable(water_quality_standards) %>%
-  bold(part = "header") %>%
-  bold(j = 1, part = "body") %>%
-  bg(bg = accent1_60, part = "all") %>%
-  border_outer(part = "all", border = fp_border(color="black", width=1)) %>%
-  border_inner_h(part = "all", border = fp_border(color="black", width=1)) %>%
-  border_inner_v(part = "all", border = fp_border(color="black", width=1)) %>%
-  align(align = "center", part = "header") %>% 
-  fontsize(size = 9, part = "all") %>% 
-  set_table_properties(width = 0.4, layout = "autofit") %>%
-  font(fontname = "Aptos", part = "all") %>%
+ft_standards <- flextable(water_quality_standards) |>
+  bold(part = "header") |>
+  bold(j = 1, part = "body") |>
+  bg(bg = accent1_60, part = "all") |>
+  border_outer(part = "all", border = fp_border(color="black", width=1)) |>
+  border_inner_h(part = "all", border = fp_border(color="black", width=1)) |>
+  border_inner_v(part = "all", border = fp_border(color="black", width=1)) |>
+  align(align = "center", part = "header") |> 
+  fontsize(size = 9, part = "all") |> 
+  set_table_properties(width = 0.4, layout = "autofit") |>
+  font(fontname = "Aptos", part = "all") |>
   autofit()
 
 ft_standards
