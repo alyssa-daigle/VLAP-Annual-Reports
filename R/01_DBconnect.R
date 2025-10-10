@@ -45,7 +45,6 @@ DBConnect <- function(dsn = "DESPRD") {
     WHERE PROJID = 'VLAP'
   "
 
-  # Define the query
   CYA_QUERY <- "
   SELECT
       RELLAKE_WBID,

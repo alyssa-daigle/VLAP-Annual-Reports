@@ -1,11 +1,13 @@
 data_reformat <- function(BTC_full, REG_long) {
-  # --- BTC processing ---
+  # BTC (best Trophic Class) processing
+  # set factors where 1 = "best" and 3 = "worst"
   trophic_map <- c(
     "OLIGOTROPHIC" = 1,
     "MESOTROPHIC" = 2,
     "EUTROPHIC" = 3
   )
 
+  # reformat so only the "best" trophic class is retained per lake
   BTC <- BTC_full |>
     select(RELLAKE, BEST_TROPHIC_CLASS) |>
     rename(lake = RELLAKE, BTC = BEST_TROPHIC_CLASS) |>
@@ -16,7 +18,7 @@ data_reformat <- function(BTC_full, REG_long) {
       .groups = "drop"
     )
 
-  # --- REG processing ---
+  # REG (regression dataset) processing
   REG <- REG_long |>
     filter(PROJID == "VLAP") |>
     select(
@@ -80,6 +82,7 @@ data_reformat <- function(BTC_full, REG_long) {
       TP_hypo = TP_hypo * 1000
     )
 
+  # CYA (Current Year Averages) processing
   CYA <- CYA_full |>
     select(
       RELLAKE,
@@ -93,7 +96,6 @@ data_reformat <- function(BTC_full, REG_long) {
     ) |>
     filter(PYEAR == 2025) |>
     mutate(
-      # ---- Clean parameter names ----
       param_depth = case_when(
         WSHEDPARMNAME == "ALKALINITY, CARBONATE AS CACO3" ~ "Alk. (mg/L)",
         WSHEDPARMNAME == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" ~
@@ -113,7 +115,6 @@ data_reformat <- function(BTC_full, REG_long) {
         WSHEDPARMNAME == "PH" ~ "pH",
         TRUE ~ NA_character_
       ),
-      # ---- Clean station names ----
       STATNAME = case_when(
         # Deep spot logic
         str_detect(STATNAME, "DEEP SPOT") ~
@@ -139,5 +140,6 @@ data_reformat <- function(BTC_full, REG_long) {
       factor(STATNAME, levels = c("Epilimnion", "Metalimnion", "Hypolimnion"))
     )
 
+  # return list of tidy dataframes
   list(BTC = BTC, REG = REG, CYA = CYA)
 }
