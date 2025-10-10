@@ -21,6 +21,7 @@ if (file.exists(".env")) {
 project_path <- Sys.getenv("PROJECT_PATH")
 plot_path <- Sys.getenv("OUTPUT_PATH")
 reg_path <- Sys.getenv("REG_PATH")
+table_path <- Sys.getenv("TABLE_PATH")
 
 # Load libraries
 library(knitr)
@@ -44,7 +45,7 @@ station <- "OSSOSSD"  # change per lake
 
 # Locate trend CSV
 trend_file <- list.files(
-  reg_path,
+  table_path,
   pattern = paste0("TrendSummary_", station, ".*\\.csv$"),
   full.names = TRUE,
   ignore.case = TRUE

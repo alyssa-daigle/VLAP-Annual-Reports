@@ -33,7 +33,8 @@ Thumbs.db
 *.jpg
 *.jpeg
 
-# Ignore regression outputs
+# Ignore regression and table outputs
 regression/
+tables/
 
 warnings_log.txt

@@ -1,7 +1,16 @@
-run_vlap_regressions <- function(REG, reg_path = "regression") {
-  # create output directory if missing
+run_vlap_regressions <- function(
+  REG,
+  reg_path = "regression",
+  table_path = "tables"
+) {
+  # create output directories if missing
   if (!dir.exists(reg_path)) {
     dir.create(reg_path, recursive = TRUE)
+  }
+
+  # create table output directory
+  if (!dir.exists(table_path)) {
+    dir.create(table_path, recursive = TRUE)
   }
 
   # helper: check ≥10 consecutive years
@@ -28,7 +37,7 @@ run_vlap_regressions <- function(REG, reg_path = "regression") {
   stations_needing_note <- stations_with_10yrs |> filter(!consecutive_10yrs)
   write_csv(
     stations_needing_note,
-    file.path(reg_path, "Stations_less_than_10yrs.csv")
+    file.path(table_path, "Stations_less_than_10yrs.csv")
   )
 
   # filter REG to qualifying stations
@@ -134,7 +143,6 @@ run_vlap_regressions <- function(REG, reg_path = "regression") {
       file.path(reg_path, paste0("Regression_", st, ".csv"))
     )
 
-    # create summary display table (nicely formatted)
     display_table <- reg_summary |>
       mutate(
         Parameter = recode(
@@ -149,22 +157,10 @@ run_vlap_regressions <- function(REG, reg_path = "regression") {
       ) |>
       select(Parameter, Trend = trend)
 
-    # arrange side-by-side (2 columns per row)
-    display_table <- display_table |>
-      mutate(row_id = ceiling(row_number() / 2)) |>
-      group_by(row_id) |>
-      summarise(
-        PARAMETER_1 = first(Parameter),
-        TREND_1 = first(Trend),
-        PARAMETER_2 = nth(Parameter, 2),
-        TREND_2 = nth(Trend, 2),
-        .groups = "drop"
-      )
-
     # save formatted summary
     write_csv(
       display_table,
-      file.path(reg_path, paste0("TrendSummary_", st, ".csv"))
+      file.path(table_path, paste0("TrendSummary_", st, ".csv"))
     )
   }
 }

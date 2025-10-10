@@ -35,6 +35,7 @@ project_path <- Sys.getenv("PROJECT_PATH")
 input_path <- Sys.getenv("INPUT_PATH")
 output_path <- Sys.getenv("OUTPUT_PATH")
 reg_path <- Sys.getenv("REG_PATH")
+table_path <- Sys.getenv("TABLE_PATH")
 
 # ==========================
 # Source helper scripts
@@ -107,7 +108,7 @@ message("Database connection closed\n")
 # ==========================
 message("Starting regressions\n")
 log_warnings(
-  run_vlap_regressions(REG, reg_path),
+  run_vlap_regressions(REG, reg_path, table_path),
   log_file
 )
 message("Done regressions\n")
