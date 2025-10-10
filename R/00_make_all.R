@@ -48,6 +48,7 @@ source(file.path(project_path, "R", "04_chl_tp_secchi.R"))
 source(file.path(project_path, "R", "05_pH_cond.R"))
 source(file.path(project_path, "R", "06_temp_DO.R"))
 source(file.path(project_path, "R", "07_plankton.R"))
+source(file.path(project_path, "R", "08_CYA_table.R"))
 
 # ==========================
 # Logging wrapper
@@ -158,3 +159,16 @@ message(
   file = log_file,
   append = TRUE
 )
+
+# ==========================
+# CYA table exports
+# ==========================
+message("Starting CYA table exports\n")
+
+# Run the function with warning logging
+log_warnings(
+  make_CYA_table(CYA_wide, table_path),
+  log_file
+)
+
+message("Done CYA table exports\n")
