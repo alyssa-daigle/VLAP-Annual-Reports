@@ -25,6 +25,10 @@ reg_path <- Sys.getenv("REG_PATH")
 # Load libraries
 library(knitr)
 library(dplyr)
+library(kableExtra)
+library(flextable)
+library(officer)
+library(magrittr)
 ```
 
 ### **Individual Lake Report: LAKE NAME – TOWN**
@@ -33,10 +37,12 @@ library(dplyr)
 
 ### **HISTORICAL WATER QUALITY TREND ANALYSIS**
 ``` {r trend table}
-# ---- SETTINGS ----
+
+accent1_60 <- "#DCE6F1"  # same light blue fill
+
 station <- "OSSOSSD"  # change per lake
 
-# Use reg_path from .env
+# Locate trend CSV
 trend_file <- list.files(
   reg_path,
   pattern = paste0("TrendSummary_", station, ".*\\.csv$"),
@@ -44,22 +50,36 @@ trend_file <- list.files(
   ignore.case = TRUE
 )
 
-# ---- IMPORT AND DISPLAY ----
 if (length(trend_file) == 1) {
   trend_data <- read.csv(trend_file, stringsAsFactors = FALSE)
   
-  # Tidy column names and numeric precision
-  trend_data <- trend_data |>
-    rename_with(\(x) gsub("_", " ", x)) |>
+  # Clean column names and round numeric values
+  trend_data <- trend_data %>%
+    rename_with(~ gsub("_", " ", .x)) %>%
     mutate(across(where(is.numeric), round, 3))
   
-  knitr::kable(
-    trend_data,
-    caption = paste("Historical Water Quality Trend Summary for", station)
-  )
+  # Convert to flextable
+  ft_trend <- flextable(trend_data) %>%
+    bold(part = "header") %>%               # bold top row
+    bold(j = 1, part = "body") %>%          # bold first column
+    bg(bg = accent1_60, part = "all") %>%   # fill color
+    border_outer(part = "all", border = fp_border(color="black", width=1)) %>%
+    border_inner_h(part = "all", border = fp_border(color="black", width=1)) %>%
+    border_inner_v(part = "all", border = fp_border(color="black", width=1)) %>%
+    align(align = "center", part = "header") %>%  # center header row
+    fontsize(size = 9, part = "all") %>%         # smaller text
+    set_table_properties(width = 0.9, layout = "autofit") %>%
+    font(fontname = "Aptos", part = "all") %>%
+    autofit()
+  
+  # Caption outside the table
+  cat("##### **Historical Water Quality Trend Summary for", station, "**\n\n")
+  ft_trend
+  
 } else {
   cat("**Trend summary not found for", station, "**")
 }
+
 
 ```
 
@@ -68,7 +88,6 @@ if (length(trend_file) == 1) {
 
 ```{r plots, echo=FALSE, fig.show='hold', out.width='48%'}
 
-library(knitr)
 
 station <- "OSSOSSD"
 
@@ -123,3 +142,74 @@ if (length(plot_files) == 0) {
 - **TURBIDITY:** Deep Spot and Outlet turbidity were slightly elevated in July during elevated algal growth. Inlet turbidity fluctuated within a low range.
 
 - **PH:** Epilimnetic and Outlet pH levels were within the desirable range of 6.5–8.0 units. Historical trends show stable but variable epilimnetic pH since monitoring began. Metalimnetic and Hypolimnetic pH levels were slightly acidic and below the desirable range, and Inlet pH was slightly below desirable.
+
+
+#### **HOW DOES YOUR LAKE COMPARE TO NEW HAMPSHIRE LAKES & WATER QUALITY STANDARDS?**
+
+
+##### **New Hampshire Median Lake Water Quality Values**
+
+##### *Median values generated from historic lake monitoring data*
+
+``` {r, echo = FALSE, warning = FALSE}
+
+accent1_60 <- "#DCE6F1"
+
+# --- NH Median Lake Water Quality Values ---
+median_values <- data.frame(
+  Parameter = c("Alkalinity", "Chlorophyll-a", "Chloride", "Conductivity", 
+                "Total phosphorus", "Transparency", "pH"),
+  `Median Value` = c("4.5 mg/L", "4.39 ug/L", "5 mg/L", "42.3 uS/cm",
+                     "11 ug/L", "3.3 m", "6.6"),
+  check.names = FALSE
+)
+
+ft_median <- flextable(median_values) %>%
+  bold(part = "header") %>%
+  bold(j = 1, part = "body") %>%
+  bg(bg = accent1_60, part = "all") %>%
+  border_outer(part = "all", border = fp_border(color="black", width=1)) %>%
+  border_inner_h(part = "all", border = fp_border(color="black", width=1)) %>%
+  border_inner_v(part = "all", border = fp_border(color="black", width=1)) %>%
+  align(align = "center", part = "header") %>%   # center headers
+  fontsize(size = 9, part = "all") %>%          # smaller text
+  set_table_properties(width = 0.4, layout = "autofit") %>%
+  font(fontname = "Aptos", part = "all") %>%
+  autofit()
+
+ft_median
+
+```
+
+
+
+##### **New Hampshire Water Quality Standards**
+
+##### *Numeric criteria for specific parameters. Water quality violation occurs if thresholds are exceeded.*
+
+``` {r}
+# --- NH Water Quality Standards ---
+water_quality_standards <- data.frame(
+  Parameter = c("Chloride", "E. coli (beach)", "E. coli (surface water)", 
+                "pH", "Turbidity"),
+  Threshold = c("> 230 mg/L (chronic)", "> 88 cts/100 mL", "> 406 cts/100 mL",
+                "between 6.5-8.0 (unless naturally occurring)", 
+                "> 10 NTU above natural"),
+  check.names = FALSE
+)
+
+ft_standards <- flextable(water_quality_standards) %>%
+  bold(part = "header") %>%
+  bold(j = 1, part = "body") %>%
+  bg(bg = accent1_60, part = "all") %>%
+  border_outer(part = "all", border = fp_border(color="black", width=1)) %>%
+  border_inner_h(part = "all", border = fp_border(color="black", width=1)) %>%
+  border_inner_v(part = "all", border = fp_border(color="black", width=1)) %>%
+  align(align = "center", part = "header") %>% 
+  fontsize(size = 9, part = "all") %>% 
+  set_table_properties(width = 0.4, layout = "autofit") %>%
+  font(fontname = "Aptos", part = "all") %>%
+  autofit()
+
+ft_standards
+```
