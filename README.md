@@ -18,6 +18,7 @@ The individual scripts called by `make_all.R` include:
 -   **`05_ph_cond.R`**: Contains the function to generate historical pH and Conductivity plots for each station.
 -   **`06_temp_DO.R`**: Contains the function to generate seasonal Temperature/Dissolved Oxygen profile plots for each station.
 -   **`07_plankton.R`**: Contains the function to generate seasonal Phytoplankton Population plots for each station.
+-   **`08_CYA_table`**: Contains the function to generate Current Year Average tables for each lake.
 
 ## Theming
 
