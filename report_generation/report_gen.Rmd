@@ -68,14 +68,12 @@ if (length(trend_file) == 1) {
     border_inner_h(part = "all", border = fp_border(color="black", width=1)) |>
     border_inner_v(part = "all", border = fp_border(color="black", width=1)) |>
     align(align = "center", part = "header") |>  # center header row
-    fontsize(size = 9, part = "all") |>         # smaller text
-    set_table_properties(width = 0.9, layout = "autofit") |>
+    fontsize(size = 11, part = "all") |>         # smaller text
+    set_table_properties(width = 0.4, layout = "autofit") |>
     font(fontname = "Aptos", part = "all") |>
     autofit()
   
-  # Caption outside the table
-  cat("##### **Historical Water Quality Trend Summary for", station, "**\n\n")
-  ft_trend
+ ft_trend
   
 } else {
   cat("**Trend summary not found for", station, "**")
@@ -86,10 +84,7 @@ if (length(trend_file) == 1) {
 
 
 ### **HISTORICAL WATER QUALITY GRAPHICS**
-
-```{r plots, echo=FALSE, fig.show='hold', out.width='48%'}
-
-
+```{r plots, echo=FALSE, results='asis', out.width = '85%'}
 station <- "OSSOSSD"
 
 # Dynamic directories from environment variables
@@ -110,17 +105,14 @@ plot_files <- unlist(lapply(plot_dirs, function(d) {
   }
 }))
 
-# Remove any NA or empty strings
+# Clean and limit to 4 images
 plot_files <- plot_files[!is.na(plot_files) & plot_files != ""]
-
-# Only keep up to 4 images
 if (length(plot_files) > 4) plot_files <- plot_files[1:4]
 
-# Include images if any found
+# Include images
 if (length(plot_files) == 0) {
   cat("**No plots found for", station, "**")
 } else {
-  # Word output handles a vector of valid paths
   include_graphics(plot_files)
 }
 
@@ -128,7 +120,7 @@ if (length(plot_files) == 0) {
 ```
 
 
-**OBSERVATIONS** *(Refer to Table 1 and Historical Deep Spot Data Graphics)*:
+### **OBSERVATIONS** *(Refer to Table 1 and Historical Deep Spot Data Graphics)*:
 
 - **CHLOROPHYLL-A:** Chlorophyll levels were elevated in June, increased to levels indicative of a potential algal bloom in July, and decreased to very low levels in August. The average chlorophyll level increased from 2023, exceeded the state median and the threshold for oligotrophic lakes, and was the highest measured since 2006. Historical trends indicate relatively stable chlorophyll levels since monitoring began.
 
@@ -173,8 +165,8 @@ ft_median <- flextable(median_values) |>
   border_inner_h(part = "all", border = fp_border(color="black", width=1)) |>
   border_inner_v(part = "all", border = fp_border(color="black", width=1)) |>
   align(align = "center", part = "header") |>   # center headers
-  fontsize(size = 9, part = "all") |>          # smaller text
-  set_table_properties(width = 0.4, layout = "autofit") |>
+  fontsize(size = 10, part = "all") |>          # smaller text
+  set_table_properties(width = 0.35, layout = "autofit") |>
   font(fontname = "Aptos", part = "all") |>
   autofit()
 
@@ -186,7 +178,8 @@ ft_median
 
 ##### **New Hampshire Water Quality Standards**
 
-##### *Numeric criteria for specific parameters. Water quality violation occurs if thresholds are exceeded.*
+##### *Numeric criteria for specific parameters.*
+##### *Water quality violation occurs if thresholds are exceeded.*
 
 ``` {r}
 # --- NH Water Quality Standards ---
@@ -207,8 +200,8 @@ ft_standards <- flextable(water_quality_standards) |>
   border_inner_h(part = "all", border = fp_border(color="black", width=1)) |>
   border_inner_v(part = "all", border = fp_border(color="black", width=1)) |>
   align(align = "center", part = "header") |> 
-  fontsize(size = 9, part = "all") |> 
-  set_table_properties(width = 0.4, layout = "autofit") |>
+  fontsize(size = 10, part = "all") |> 
+  set_table_properties(width = 0.5, layout = "autofit") |>
   font(fontname = "Aptos", part = "all") |>
   autofit()
 
