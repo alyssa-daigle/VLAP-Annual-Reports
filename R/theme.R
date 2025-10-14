@@ -14,13 +14,14 @@ theme_chl_tp_secchi <- function() {
       plot.title = element_text(
         hjust = 0.05,
         face = "bold",
-        margin = margin(b = 20)
+        margin = margin(b = 20),
+        size = 10
       ),
       axis.line = element_line(color = "gray40"),
       axis.title.x = element_text(size = 8, face = "bold"),
-      axis.title.y = element_text(size = 8, face = "bold"),
-      axis.text.y = element_text(size = 8),
-      axis.text.x = element_text(angle = 45, hjust = 1, size = 5)
+      axis.title.y = element_text(size = 10, face = "bold"),
+      axis.text.y = element_text(size = 10),
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 10)
     )
   )
 }
@@ -40,14 +41,15 @@ theme_pH_conduc <- function() {
       plot.title = element_text(
         hjust = 0.5,
         face = "bold",
-        margin = margin(b = 20)
+        margin = margin(b = 20),
+        size = 10
       ),
       panel.border = element_blank(),
       axis.line = element_line(color = "gray40"),
       axis.title.x = element_text(size = 10, face = "bold"),
       axis.title.y = element_text(size = 10, face = "bold"),
       axis.text.y = element_text(size = 10),
-      axis.text.x = element_text(angle = 45, hjust = 1, size = 5)
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 10)
     ),
     scale_fill_manual(values = c("pH" = "white")),
     scale_color_manual(values = c("cond" = "red3"))
@@ -68,7 +70,7 @@ theme_temp_DO <- function() {
       ),
       axis.title.x = element_text(size = 10, face = "bold"),
       axis.title.y = element_text(size = 10, face = "bold"),
-      axis.text.x = element_text(size = 6),
+      axis.text.x = element_text(size = 10),
       axis.text.y = element_text(size = 10)
     )
   )
@@ -90,10 +92,10 @@ theme_plankton <- function() {
         margin = margin(b = 20)
       ),
       panel.border = element_rect(size = 1),
-      axis.title.x = element_text(size = 10, face = "bold"),
+      axis.title.x = element_text(size = 12, face = "bold"),
       axis.title.y = element_text(size = 12, face = "bold"),
-      axis.text.y = element_text(size = 8),
-      axis.text.x = element_text(size = 8),
+      axis.text.y = element_text(size = 10),
+      axis.text.x = element_text(size = 10),
       axis.ticks.y = element_blank()
     )
   )
@@ -102,8 +104,8 @@ theme_plankton <- function() {
 theme_plankton_legend <- function() {
   list(
     theme(
-      legend.text = element_text(size = 7, face = "bold"), # smaller text
-      legend.key.size = unit(0.4, "cm"), # smaller icons
+      legend.text = element_text(size = 10, face = "bold"),
+      legend.key.size = unit(0.5, "cm"),
       legend.margin = margin(r = 10)
     )
   )
