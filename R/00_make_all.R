@@ -96,9 +96,10 @@ db_res <- DBConnect() # returns list: BTC_full, REG_long, con
 con <- db_res$con
 
 message("Reformatting data\n")
-processed <- data_reformat(db_res$BTC_full, db_res$REG_long)
+processed <- data_reformat(db_res$BTC_full, db_res$REG_long, db_res$CYA_FULL)
 BTC <- processed$BTC
 REG <- processed$REG
+CYA <- processed$CYA
 
 # Close DB connection
 dbDisconnect(con)

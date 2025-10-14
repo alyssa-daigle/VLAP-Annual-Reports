@@ -1,4 +1,4 @@
-data_reformat <- function(BTC_full, REG_long) {
+data_reformat <- function(BTC_full, REG_long, CYA_full) {
   # BTC (best Trophic Class) processing
   # set factors where 1 = "best" and 3 = "worst"
   trophic_map <- c(
