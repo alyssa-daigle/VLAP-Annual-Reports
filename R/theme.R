@@ -10,18 +10,18 @@ theme_chl_tp_secchi <- function() {
       legend.text = element_text(size = 8),
       legend.key.width = unit(0.3, "cm"),
       legend.key.height = unit(0.3, "cm"),
-      plot.margin = margin(t = 35, r = 40, b = 10, l = 20),
+      plot.margin = margin(t = 20, r = 30, b = 10, l = 20),
       plot.title = element_text(
         hjust = 0.05,
         face = "bold",
         margin = margin(b = 20),
-        size = 10
+        size = 13.5
       ),
       axis.line = element_line(color = "gray40"),
-      axis.title.x = element_text(size = 8, face = "bold"),
+      axis.title.x = element_text(size = 12, face = "bold"),
       axis.title.y = element_text(size = 10, face = "bold"),
       axis.text.y = element_text(size = 10),
-      axis.text.x = element_text(angle = 45, hjust = 1, size = 10)
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 8)
     )
   )
 }
@@ -36,20 +36,20 @@ theme_pH_conduc <- function() {
       legend.key = element_rect(fill = "white"),
       legend.spacing.y = unit(0.01, "cm"),
       legend.margin = margin(t = 2, r = 2, b = 2, l = 2),
-      legend.text = element_text(size = 8),
+      legend.text = element_text(size = 10),
       plot.margin = margin(t = 20, r = 10, b = 10, l = 20),
       plot.title = element_text(
         hjust = 0.5,
         face = "bold",
         margin = margin(b = 20),
-        size = 10
+        size = 13
       ),
       panel.border = element_blank(),
       axis.line = element_line(color = "gray40"),
-      axis.title.x = element_text(size = 10, face = "bold"),
-      axis.title.y = element_text(size = 10, face = "bold"),
+      axis.title.x = element_text(size = 12, face = "bold"),
+      axis.title.y = element_text(size = 12, face = "bold"),
       axis.text.y = element_text(size = 10),
-      axis.text.x = element_text(angle = 45, hjust = 1, size = 10)
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 8)
     ),
     scale_fill_manual(values = c("pH" = "white")),
     scale_color_manual(values = c("cond" = "red3"))
@@ -66,12 +66,14 @@ theme_temp_DO <- function() {
       plot.title = element_text(
         hjust = 0.5,
         face = "bold",
-        size = 14
+        size = 13
       ),
-      axis.title.x = element_text(size = 10, face = "bold"),
-      axis.title.y = element_text(size = 10, face = "bold"),
+      axis.title.x = element_text(size = 12, face = "bold"),
+      axis.title.y = element_text(size = 12, face = "bold"),
       axis.text.x = element_text(size = 10),
-      axis.text.y = element_text(size = 10)
+      axis.text.y = element_text(size = 10),
+      legend.text = element_text(size = 7),
+      legend.title = element_text(size = 9)
     )
   )
 }
@@ -89,11 +91,12 @@ theme_plankton <- function() {
         hjust = 0.5,
         vjust = -2.0,
         face = "bold",
-        margin = margin(b = 20)
+        margin = margin(b = 20),
+        size = 13
       ),
       panel.border = element_rect(size = 1),
       axis.title.x = element_text(size = 12, face = "bold"),
-      axis.title.y = element_text(size = 12, face = "bold"),
+      axis.title.y = element_text(size = 14, face = "bold"),
       axis.text.y = element_text(size = 10),
       axis.text.x = element_text(size = 10),
       axis.ticks.y = element_blank()

@@ -79,10 +79,10 @@ make_plankton <- function(input_path, output_path) {
 
     # save plot
     ggsave(
-      filename = paste0(output_path, "/", station_id, "_plankton.jpg"),
+      filename = paste0(output_path, "/", station_id, "_plankton.png"),
       plot = final_plot <- plot_grid(p_main, legend, rel_widths = c(5, 1)),
-      width = 8,
-      height = 6,
+      width = 7,
+      height = 4,
       dpi = 300
     )
 

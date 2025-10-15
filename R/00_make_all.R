@@ -27,6 +27,7 @@ library(purrr)
 library(broom)
 library(readr)
 library(fs)
+library(stringr)
 
 # ==========================
 # Paths from .env
@@ -168,7 +169,7 @@ message("Starting CYA table exports\n")
 
 # Run the function with warning logging
 log_warnings(
-  make_CYA_table(CYA_wide, table_path),
+  make_CYA_table(CYA, table_path),
   log_file
 )
 

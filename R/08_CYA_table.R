@@ -1,16 +1,16 @@
-make_CYA_table <- function(CYA_wide, table_path) {
+make_CYA_table <- function(CYA, table_path) {
   # create output directory if missing
   if (!dir.exists(table_path)) {
     dir.create(table_path, recursive = TRUE)
   }
 
   # get unique lakes
-  lakes <- unique(CYA_wide$RELLAKE)
+  lakes <- unique(CYA$RELLAKE)
 
   # loop through each lake and save CSV
   for (lake in lakes) {
     # subset data for this lake
-    lake_data <- CYA_wide |> filter(RELLAKE == lake)
+    lake_data <- CYA |> filter(RELLAKE == lake)
 
     # remove RELLAKE column if not needed
     lake_data_out <- lake_data |> select(-RELLAKE)

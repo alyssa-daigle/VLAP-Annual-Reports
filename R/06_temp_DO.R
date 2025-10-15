@@ -79,7 +79,7 @@ make_temp_DO <- function(input_path, output_path) {
         theme_temp_DO()
 
       #save output
-      filename <- paste0(stn, "_profile.jpg")
+      filename <- paste0(stn, "_profile.png")
       ggsave(
         file.path(output_path, filename),
         plot = p,

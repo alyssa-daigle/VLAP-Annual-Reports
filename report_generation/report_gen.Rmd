@@ -84,7 +84,7 @@ if (length(trend_file) == 1) {
 
 
 ### **HISTORICAL WATER QUALITY GRAPHICS**
-```{r plots, echo=FALSE, results='asis', out.width = '85%'}
+```{r plots, echo=FALSE, results='asis', out.width = '75%'}
 station <- "OSSOSSD"
 
 # Dynamic directories from environment variables
@@ -117,6 +117,11 @@ if (length(plot_files) == 0) {
 }
 
 
+```
+
+### **2025 Average Water Quality Data for **
+```{r}
+#insert CYA tables
 ```
 
 
