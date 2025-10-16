@@ -121,7 +121,57 @@ if (length(plot_files) == 0) {
 
 ### **2025 Average Water Quality Data for **
 ```{r}
-#insert CYA tables
+lake <- "ossipee"  # change per lake
+
+accent1_60 <- "#DCE6F1"  # same light blue fill
+
+# Locate CYA CSV file (searches for lake name and ends in _CYA.csv)
+cya_file <- list.files(
+  table_path,
+  pattern = paste0(lake, ".*_CYA\\.csv$"),
+  full.names = TRUE,
+  ignore.case = TRUE
+)
+
+if (length(cya_file) == 1) {
+  # Read CSV without altering column names
+  cya_data <- read.csv(cya_file, check.names = FALSE, stringsAsFactors = FALSE)
+  
+  # Rename STATNAME -> Station (if it exists)
+  if ("STATNAME" %in% names(cya_data)) {
+    names(cya_data)[names(cya_data) == "STATNAME"] <- "Station"
+  }
+  
+  # Remove columns that are completely empty (all NA or blank)
+  cya_data <- cya_data |>
+    select(where(~ !all(is.na(.x) | .x == "")))
+  
+  # Round numeric values
+  cya_data <- cya_data |>
+    mutate(across(where(is.numeric), round, 3))
+  
+  # Convert to flextable
+  ft_cya <- flextable(cya_data) |>
+    bold(part = "header") |>                  # bold top row
+    bold(j = 1, part = "body") |>             # bold first column
+    bg(bg = accent1_60, part = "all") |>      # fill color
+    border_outer(part = "all", border = fp_border(color = "black", width = 1)) |>
+    border_inner_h(part = "all", border = fp_border(color = "black", width = 1)) |>
+    border_inner_v(part = "all", border = fp_border(color = "black", width = 1)) |>
+    align(align = "center", part = "all") |>       # left-align entire body
+    fontsize(size = 9, part = "all") |>           # text size
+    set_table_properties(width = 0.05) |>
+    font(fontname = "Aptos", part = "all")
+  
+  ft_cya
+  
+} else if (length(cya_file) == 0) {
+  cat("**CYA summary not found for", lake, "**")
+} else {
+  cat("**Multiple CYA files found for", lake, "- please check directory**")
+}
+
+
 ```
 
 
