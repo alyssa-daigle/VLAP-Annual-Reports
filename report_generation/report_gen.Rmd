@@ -41,7 +41,7 @@ library(magrittr)
 
 accent1_60 <- "#DCE6F1"  # same light blue fill
 
-station <- "PINMAND"  # change per lake
+station <- "SPOCHED"  # change per lake
 
 # Locate trend CSV
 trend_file <- list.files(
@@ -57,7 +57,7 @@ if (length(trend_file) == 1) {
   # Clean column names and round numeric values
   trend_data <- trend_data |>
     rename_with(~ gsub("_", " ", .x)) |>
-    mutate(across(where(is.numeric), round, 3))
+    mutate(across(where(is.numeric), round, 2))
   
   # Convert to flextable
   ft_trend <- flextable(trend_data) |>
@@ -68,6 +68,8 @@ if (length(trend_file) == 1) {
     border_inner_h(part = "all", border = fp_border(color="black", width=1)) |>
     border_inner_v(part = "all", border = fp_border(color="black", width=1)) |>
     align(align = "center", part = "header") |>  # center header row
+    line_spacing(space = 1) |> 
+    padding(padding.top = 0, padding.bottom = 0, part = "all") |> 
     fontsize(size = 10, part = "all") |>         # smaller text
     set_table_properties(width = 0.4, layout = "autofit") |>
     font(fontname = "Aptos", part = "all") |>
@@ -85,7 +87,7 @@ if (length(trend_file) == 1) {
 
 ### **HISTORICAL WATER QUALITY GRAPHICS - DEEP SPOT**
 ```{r plots, echo=FALSE, results='asis', out.width = '75%'}
-station <- "PINMAND"
+station <- "SPOCHED"
 
 # Dynamic directories from environment variables
 plot_dirs <- c(
@@ -110,25 +112,25 @@ plot_files <- plot_files[!is.na(plot_files) & plot_files != ""]
 if (length(plot_files) > 4) plot_files <- plot_files[1:4]
 ```
 
-```{r cond pH plot, out.width = '75%'}
+```{r cond pH plot, out.width = '70%'}
 if (length(plot_files) >= 1) knitr::include_graphics(plot_files[1])
 ```
 
-```{r chl tp trans plot, out.width = '75%'}
+```{r chl tp trans plot, out.width = '70%'}
 if (length(plot_files) >= 2) knitr::include_graphics(plot_files[2])
 ```
 
-```{r temp DO plot, out.width = '75%'}
+```{r temp DO plot, out.width = '70%'}
 if (length(plot_files) >= 3) knitr::include_graphics(plot_files[3])
 ```
 
-```{r plankton, out.width = '75%'}
+```{r plankton, out.width = '70%'}
 if (length(plot_files) >= 4) knitr::include_graphics(plot_files[4])
 ```
 
 ### **2025 Average Water Quality Data for **
 ```{r}
-lake <- "pine_island_pond"  # change per lake
+lake <- "spofford"  # change per lake
 
 accent1_60 <- "#DCE6F1"  # same light blue fill
 
@@ -155,19 +157,28 @@ if (length(cya_file) == 1) {
   
   # Round numeric values
   cya_data <- cya_data |>
-    mutate(across(where(is.numeric), round, 3))
+    mutate(across(where(is.numeric), round, 2))
   
   # Convert to flextable
-  ft_cya <- flextable(cya_data) |>
-    bold(part = "header") |>                  # bold top row
-    bg(bg = accent1_60, part = "all") |>      # fill color
-    border_outer(part = "all", border = fp_border(color = "black", width = 1)) |>
-    border_inner_h(part = "all", border = fp_border(color = "black", width = 1)) |>
-    border_inner_v(part = "all", border = fp_border(color = "black", width = 1)) |>
-    align(align = "center", part = "all") |>       # left-align entire body
-    fontsize(size = 9, part = "all") |>           # text size
-    set_table_properties(layout = "autofit") |>
-    font(fontname = "Aptos", part = "all")
+ft_cya <- flextable(cya_data) |>
+  bold(part = "header") |>                  # bold top row
+  bg(bg = accent1_60, part = "all") |>      # fill color
+  border_outer(part = "all", border = fp_border(color = "black", width = 1)) |>
+  border_inner_h(part = "all", border = fp_border(color = "black", width = 1)) |>
+  border_inner_v(part = "all", border = fp_border(color = "black", width = 1)) |>
+  # 1. Header row centered
+  align(align = "center", part = "header") |>
+  # 2. First column left-aligned, except first cell
+  align(j = 1, i = 2:nrow(cya_data), align = "left", part = "body") |>
+  # 3. Remaining body cells centered
+  align(j = 2:ncol(cya_data), align = "center", part = "body") |>
+  # Condense table
+  line_spacing(space = 1) |> 
+  padding(padding.top = 0, padding.bottom = 0, part = "all") |> 
+  fontsize(size = 9.5, part = "all") |>          
+  set_table_properties(layout = "autofit") |>
+  font(fontname = "Aptos", part = "all")
+
   
   ft_cya
   
@@ -226,6 +237,8 @@ ft_median <- flextable(median_values) |>
   border_inner_h(part = "all", border = fp_border(color="black", width=1)) |>
   border_inner_v(part = "all", border = fp_border(color="black", width=1)) |>
   align(align = "center", part = "header") |>   # center headers
+  line_spacing(space = 1) |> 
+    padding(padding.top = 0, padding.bottom = 0, part = "all") |> 
   fontsize(size = 10, part = "all") |>          # smaller text
   set_table_properties(width = 0.35, layout = "autofit") |>
   font(fontname = "Aptos", part = "all") |>
@@ -260,6 +273,8 @@ ft_standards <- flextable(water_quality_standards) |>
   border_inner_h(part = "all", border = fp_border(color="black", width=1)) |>
   border_inner_v(part = "all", border = fp_border(color="black", width=1)) |>
   align(align = "center", part = "header") |> 
+  line_spacing(space = 1) |> 
+    padding(padding.top = 0, padding.bottom = 0, part = "all") |> 
   fontsize(size = 10, part = "all") |> 
   set_table_properties(width = 0.5, layout = "autofit") |>
   font(fontname = "Aptos", part = "all") |>
