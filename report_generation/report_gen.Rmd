@@ -41,7 +41,7 @@ library(magrittr)
 
 accent1_60 <- "#DCE6F1"  # same light blue fill
 
-station <- "OSSOSSD"  # change per lake
+station <- "PINMAND"  # change per lake
 
 # Locate trend CSV
 trend_file <- list.files(
@@ -68,7 +68,7 @@ if (length(trend_file) == 1) {
     border_inner_h(part = "all", border = fp_border(color="black", width=1)) |>
     border_inner_v(part = "all", border = fp_border(color="black", width=1)) |>
     align(align = "center", part = "header") |>  # center header row
-    fontsize(size = 11, part = "all") |>         # smaller text
+    fontsize(size = 10, part = "all") |>         # smaller text
     set_table_properties(width = 0.4, layout = "autofit") |>
     font(fontname = "Aptos", part = "all") |>
     autofit()
@@ -85,7 +85,7 @@ if (length(trend_file) == 1) {
 
 ### **HISTORICAL WATER QUALITY GRAPHICS**
 ```{r plots, echo=FALSE, results='asis', out.width = '75%'}
-station <- "OSSOSSD"
+station <- "PINMAND"
 
 # Dynamic directories from environment variables
 plot_dirs <- c(
@@ -121,7 +121,7 @@ if (length(plot_files) == 0) {
 
 ### **2025 Average Water Quality Data for **
 ```{r}
-lake <- "ossipee"  # change per lake
+lake <- "pine_island_pond"  # change per lake
 
 accent1_60 <- "#DCE6F1"  # same light blue fill
 
@@ -153,14 +153,13 @@ if (length(cya_file) == 1) {
   # Convert to flextable
   ft_cya <- flextable(cya_data) |>
     bold(part = "header") |>                  # bold top row
-    bold(j = 1, part = "body") |>             # bold first column
     bg(bg = accent1_60, part = "all") |>      # fill color
     border_outer(part = "all", border = fp_border(color = "black", width = 1)) |>
     border_inner_h(part = "all", border = fp_border(color = "black", width = 1)) |>
     border_inner_v(part = "all", border = fp_border(color = "black", width = 1)) |>
     align(align = "center", part = "all") |>       # left-align entire body
     fontsize(size = 9, part = "all") |>           # text size
-    set_table_properties(width = 0.05) |>
+    set_table_properties(layout = "autofit") |>
     font(fontname = "Aptos", part = "all")
   
   ft_cya
@@ -195,7 +194,7 @@ if (length(cya_file) == 1) {
 #### **HOW DOES YOUR LAKE COMPARE TO NEW HAMPSHIRE LAKES & WATER QUALITY STANDARDS?**
 
 
-##### **New Hampshire Median Lake Water Quality Values**
+##### **NH Median Lake Water Quality Values**
 
 ##### *Median values generated from historic lake monitoring data*
 
@@ -205,9 +204,9 @@ accent1_60 <- "#DCE6F1"
 
 # --- NH Median Lake Water Quality Values ---
 median_values <- data.frame(
-  Parameter = c("Alkalinity", "Chlorophyll-a", "Chloride", "Conductivity", 
+  PARAMETER = c("Alkalinity", "Chlorophyll-a", "Chloride", "Conductivity", 
                 "Total phosphorus", "Transparency", "pH"),
-  `Median Value` = c("4.5 mg/L", "4.39 ug/L", "5 mg/L", "42.3 uS/cm",
+  `MEDIAN VALUE` = c("4.5 mg/L", "4.39 ug/L", "5 mg/L", "42.3 uS/cm",
                      "11 ug/L", "3.3 m", "6.6"),
   check.names = FALSE
 )
@@ -231,17 +230,16 @@ ft_median
 
 
 
-##### **New Hampshire Water Quality Standards**
+##### **NH Water Quality Standards**
 
-##### *Numeric criteria for specific parameters.*
-##### *Water quality violation occurs if thresholds are exceeded.*
+##### *Numeric criteria for specific parameters. Water quality violation occurs if thresholds are exceeded.*
 
 ``` {r}
 # --- NH Water Quality Standards ---
 water_quality_standards <- data.frame(
-  Parameter = c("Chloride", "E. coli (beach)", "E. coli (surface water)", 
+  PARAMETER = c("Chloride", "E. coli (beach)", "E. coli (surface water)", 
                 "pH", "Turbidity"),
-  Threshold = c("> 230 mg/L (chronic)", "> 88 cts/100 mL", "> 406 cts/100 mL",
+  THRESHOLD = c("> 230 mg/L (chronic)", "> 88 cts/100 mL", "> 406 cts/100 mL",
                 "between 6.5-8.0 (unless naturally occurring)", 
                 "> 10 NTU above natural"),
   check.names = FALSE
