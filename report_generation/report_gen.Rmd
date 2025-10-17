@@ -83,7 +83,7 @@ if (length(trend_file) == 1) {
 ```
 
 
-### **HISTORICAL WATER QUALITY GRAPHICS**
+### **HISTORICAL WATER QUALITY GRAPHICS - DEEP SPOT**
 ```{r plots, echo=FALSE, results='asis', out.width = '75%'}
 station <- "PINMAND"
 
@@ -108,15 +108,22 @@ plot_files <- unlist(lapply(plot_dirs, function(d) {
 # Clean and limit to 4 images
 plot_files <- plot_files[!is.na(plot_files) & plot_files != ""]
 if (length(plot_files) > 4) plot_files <- plot_files[1:4]
+```
 
-# Include images
-if (length(plot_files) == 0) {
-  cat("**No plots found for", station, "**")
-} else {
-  include_graphics(plot_files)
-}
+```{r cond pH plot, out.width = '75%'}
+if (length(plot_files) >= 1) knitr::include_graphics(plot_files[1])
+```
 
+```{r chl tp trans plot, out.width = '75%'}
+if (length(plot_files) >= 2) knitr::include_graphics(plot_files[2])
+```
 
+```{r temp DO plot, out.width = '75%'}
+if (length(plot_files) >= 3) knitr::include_graphics(plot_files[3])
+```
+
+```{r plankton, out.width = '75%'}
+if (length(plot_files) >= 4) knitr::include_graphics(plot_files[4])
 ```
 
 ### **2025 Average Water Quality Data for **
