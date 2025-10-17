@@ -28,6 +28,7 @@ library(broom)
 library(readr)
 library(fs)
 library(stringr)
+library(magick)
 
 # ==========================
 # Paths from .env

@@ -1,41 +1,51 @@
 make_plankton <- function(input_path, output_path) {
-  # load data
+  library(ggplot2)
+  library(dplyr)
+  library(tidyr)
+  library(forcats)
+  library(cowplot)
+  library(magick)
+  library(readxl)
+  library(scales)
+
+  # Load data
   data <- read_excel(paste0(input_path, "VLAPPlanktonGraphicYear-2024.xlsx"))
 
-  # if output directory doesn't exist, make it
+  # Ensure output directory exists
   if (!dir.exists(output_path)) {
     dir.create(output_path, recursive = TRUE)
   }
 
-  # get list of stations
+  # Get list of stations
   stations <- unique(data$WQDStationID)
 
-  # loop over stations
+  # Loop over stations
   lapply(stations, function(station_id) {
-    message(paste0("working on plankton for ", station_id, "\n"))
-    # prepare plot_data
+    message(paste0("Working on plankton for ", station_id, "\n"))
+
+    # Prepare plot data
     plot_data <- data |>
       filter(WQDStationID == station_id) |>
-      group_by(Year, MONTH, COMMENTS) |> # COMMENTS actually contains algal taxa
+      group_by(Year, MONTH, COMMENTS) |>
       summarise(
         total_cells = sum(`Cell Count`, na.rm = TRUE),
-        .groups = "drop_last" # keep Year, MONTH grouping for next step
+        .groups = "drop_last" # Keep Year, MONTH grouping for next step
       ) |>
       mutate(
-        rel_abund = total_cells / sum(total_cells), # relative abundance per month
-        COMMENTS = factor(COMMENTS, levels = names(algae_colors)), # keeps ordering of algae for legend
-        COMMENTS_ordered = fct_reorder(COMMENTS, rel_abund, .desc = FALSE) # sort most to least abundant
+        rel_abund = total_cells / sum(total_cells), # Relative abundance per month
+        COMMENTS = factor(COMMENTS, levels = names(algae_colors)), # Legend order
+        COMMENTS_ordered = fct_reorder(COMMENTS, rel_abund, .desc = FALSE)
       ) |>
       ungroup() |>
       complete(
-        # ensures all legend items are always present even if not in plot
+        # Ensure all legend items are always present
         Year,
         MONTH,
         COMMENTS = names(algae_colors),
         fill = list(total_cells = 0, rel_abund = 0)
       )
 
-    # main plot, without legend
+    # Main plot
     p_main <- ggplot(
       plot_data,
       aes(x = factor(MONTH), y = rel_abund, fill = COMMENTS)
@@ -43,9 +53,9 @@ make_plankton <- function(input_path, output_path) {
       geom_bar(stat = "identity") +
       scale_y_continuous(
         labels = scales::percent,
-        breaks = seq(0, 1, by = 0.1), # break every 10% until 100%
-        expand = c(0, 0), # allows bars to start at zero
-        limits = c(0, 1) # 0 to 100%
+        breaks = seq(0, 1, by = 0.1),
+        expand = c(0, 0),
+        limits = c(0, 1)
       ) +
       scale_fill_manual(values = algae_colors, drop = FALSE) +
       labs(
@@ -57,7 +67,7 @@ make_plankton <- function(input_path, output_path) {
       theme_bw() +
       theme_plankton()
 
-    # legend only plot
+    # Legend-only plot
     p_legend <- ggplot(plot_data, aes(x = 1, y = 1, fill = COMMENTS)) +
       geom_bar(stat = "identity") +
       scale_fill_manual(
@@ -66,26 +76,36 @@ make_plankton <- function(input_path, output_path) {
         breaks = names(algae_labels),
         drop = FALSE
       ) +
-      labs(fill = NULL) + # removes title from legend
+      labs(fill = NULL) +
       theme_void() +
       theme_plankton_legend() +
       guides(fill = guide_legend(ncol = 1))
 
-    # extract legend
+    # Extract legend
     legend <- get_legend(p_legend)
 
-    # combine main plot + fixed legend
+    # Combine main plot and legend
     final_plot <- plot_grid(p_main, legend, rel_widths = c(5, 1))
 
-    # save plot
+    # Save plot and add full PNG border
+    filename <- paste0(station_id, "_plankton.png")
+    temp_path <- file.path(output_path, filename)
+
     ggsave(
-      filename = paste0(output_path, "/", station_id, "_plankton.png"),
-      plot = final_plot <- plot_grid(p_main, legend, rel_widths = c(5, 1)),
+      temp_path,
+      plot = final_plot,
       width = 7,
       height = 4,
-      dpi = 300
+      dpi = 300,
+      bg = "white"
     )
 
-    return(NULL)
+    img <- magick::image_read(temp_path)
+    img_bordered <- magick::image_border(
+      img,
+      color = "black",
+      geometry = "7x7"
+    )
+    magick::image_write(img_bordered, path = temp_path, format = "png")
   })
 }

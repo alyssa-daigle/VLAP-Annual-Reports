@@ -78,16 +78,26 @@ make_temp_DO <- function(input_path, output_path) {
         theme_bw(base_size = 14) +
         theme_temp_DO()
 
-      #save output
+      # Save plot and add full PNG border
       filename <- paste0(stn, "_profile.png")
+      temp_path <- file.path(output_path, filename)
+
       ggsave(
-        file.path(output_path, filename),
+        temp_path,
         plot = p,
         width = 7,
         height = 4,
-        dpi = 300
+        dpi = 300,
+        bg = "white"
       )
-      return(NULL)
+
+      img <- magick::image_read(temp_path)
+      img_bordered <- magick::image_border(
+        img,
+        color = "black",
+        geometry = "7x7"
+      )
+      magick::image_write(img_bordered, path = temp_path, format = "png")
     }
   )
 }
