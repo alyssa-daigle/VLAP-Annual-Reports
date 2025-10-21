@@ -140,6 +140,9 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       factor(STATNAME, levels = c("Epilimnion", "Metalimnion", "Hypolimnion"))
     )
 
+  LAKEMAP <- CYA_full |>
+    select(c(RELLAKE, STATNAME, STATIONID, TOWN))
+
   # return list of tidy dataframes
-  list(BTC = BTC, REG = REG, CYA = CYA)
+  list(BTC = BTC, REG = REG, CYA = CYA, LAKEMAP = LAKEMAP)
 }

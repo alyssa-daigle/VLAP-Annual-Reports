@@ -32,7 +32,7 @@ library(officer)
 library(magrittr)
 ```
 
-### **Individual Lake Report: LAKE NAME – TOWN**
+### **Individual Report: LAKE NAME – TOWN**
 
 **RECOMMENDED ACTIONS:** Great job monitoring water quality in 2024! Pond phosphorus and chlorophyll levels (algal growth) remained elevated in 2024, causing a decrease in water clarity. This highlights the delicate balance of the pond ecosystem. Prior timber harvesting activities could contribute t nutrient inputs from groundwater as well as surface runoff for years to come. If possible, add tributary sampling stations within the timber harvest sub-watershed to better understand nutrient loading from the area. The above average pond nutrient levels measured in the past four years are a concern and residents should continue to be on alert for Cyanobacteria surface scums and blooms and notify NHDES’ Harmful Algal Bloom Program if observed. In-lake and Inlet conductivity levels decreased in 2024 after many years of elevated levels, potentially due to the excessive rainfall in 2023 flushing minerals from soils. However, historical data indicate that efforts should be made to better manage use and application of road salt within the watershed. Encourage local road agents and private winter maintenance companies to obtain Green SnowPro Certification. Refer to fact sheet WMB-4 Road Salt and Water Quality for additional information. Keep up the great work!
 
@@ -75,7 +75,7 @@ if (length(trend_file) == 1) {
     font(fontname = "Aptos", part = "all") |>
     autofit()
   
- ft_trend
+  ft_trend
   
 } else {
   cat("**Trend summary not found for", station, "**")
@@ -101,7 +101,7 @@ plot_dirs <- c(
 plot_files <- unlist(lapply(plot_dirs, function(d) {
   if (dir.exists(d)) {
     list.files(d, pattern = paste0(station, ".*\\.(png|jpg)$"),
-               full.names = TRUE, ignore.case = TRUE)
+            full.names = TRUE, ignore.case = TRUE)
   } else {
     character(0)
   }
@@ -128,7 +128,7 @@ if (length(plot_files) >= 3) knitr::include_graphics(plot_files[3])
 if (length(plot_files) >= 4) knitr::include_graphics(plot_files[4])
 ```
 
-### **2025 Average Water Quality Data for **
+#### Table 1. 2025 Average Water Quality Data for SPOFFORD LAKE, CHESTERFIELD
 ```{r}
 lake <- "spofford"  # change per lake
 
@@ -225,7 +225,7 @@ median_values <- data.frame(
   PARAMETER = c("Alkalinity", "Chlorophyll-a", "Chloride", "Conductivity", 
                 "Total phosphorus", "Transparency", "pH"),
   `MEDIAN VALUE` = c("4.5 mg/L", "4.39 ug/L", "5 mg/L", "42.3 uS/cm",
-                     "11 ug/L", "3.3 m", "6.6"),
+                    "11 ug/L", "3.3 m", "6.6"),
   check.names = FALSE
 )
 
