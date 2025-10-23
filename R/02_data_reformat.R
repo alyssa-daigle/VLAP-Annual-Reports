@@ -143,6 +143,12 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
   LAKEMAP <- CYA_full |>
     select(c(RELLAKE, STATNAME, STATIONID, TOWN))
 
+  write.csv(
+    LAKEMAP,
+    file = file.path(input_path, "LAKEMAP.csv"),
+    row.names = FALSE
+  )
+
   # return list of tidy dataframes
   list(BTC = BTC, REG = REG, CYA = CYA, LAKEMAP = LAKEMAP)
 }
