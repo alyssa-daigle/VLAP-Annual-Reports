@@ -141,7 +141,8 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
     )
 
   LAKEMAP <- CYA_full |>
-    select(c(RELLAKE, STATNAME, STATIONID, TOWN))
+    select(RELLAKE, STATNAME, STATIONID, TOWN) |>
+    distinct()
 
   write.csv(
     LAKEMAP,

@@ -7,6 +7,7 @@ params:
   lake: NULL
   station: NULL
   station_id: NULL
+  town: NULL
 ---
 
 ```{r setup, include=FALSE}
@@ -36,7 +37,7 @@ library(officer)
 library(magrittr)
 ```
 
-### **INDIVIDUAL REPORT: `r toupper(lake)` – `r station`**
+### **INDIVIDUAL REPORT: `r toupper(lake)` – `r town`**
 
 
 **RECOMMENDED ACTIONS:** 
@@ -133,60 +134,50 @@ if (length(plot_files) >= 3) knitr::include_graphics(plot_files[3])
 if (length(plot_files) >= 4) knitr::include_graphics(plot_files[4])
 ```
 
-#### Table 1. 2025 Average Water Quality Data for SPOFFORD LAKE, CHESTERFIELD
+#### Table 1. 2025 Average Water Quality Data for `r toupper(lake)` – `r town`
 ```{r}
-lake <- params$lake  # change per lake
+lake <- params$lake
+accent1_60 <- "#DCE6F1"
 
-accent1_60 <- "#DCE6F1"  # same light blue fill
+# Replace spaces with underscores and escape any regex characters
+lake_clean <- gsub(" ", "_", lake)
+lake_clean <- gsub("([\\(\\)\\[\\]\\+\\?\\*\\.\\^\\$])", "\\\\\\1", lake_clean)
 
-# Locate CYA CSV file (searches for lake name and ends in _CYA.csv)
+# Search for CYA CSV file
 cya_file <- list.files(
   table_path,
-  pattern = paste0(lake, ".*_CYA\\.csv$"),
+  pattern = paste0("^", lake_clean, ".*_CYA\\.csv$"), # match start of filename
   full.names = TRUE,
   ignore.case = TRUE
 )
 
 if (length(cya_file) == 1) {
-  # Read CSV without altering column names
   cya_data <- read.csv(cya_file, check.names = FALSE, stringsAsFactors = FALSE)
   
-  # Rename STATNAME -> Station (if it exists)
   if ("STATNAME" %in% names(cya_data)) {
     names(cya_data)[names(cya_data) == "STATNAME"] <- "Station"
   }
   
-  # Remove columns that are completely empty (all NA or blank)
   cya_data <- cya_data |>
-    select(where(~ !all(is.na(.x) | .x == "")))
-  
-  # Round numeric values
-  cya_data <- cya_data |>
+    select(where(~ !all(is.na(.x) | .x == ""))) |>
     mutate(across(where(is.numeric), round, 2))
   
-  # Convert to flextable
-ft_cya <- flextable(cya_data) |>
-  bold(part = "header") |>                  # bold top row
-  bg(bg = accent1_60, part = "all") |>      # fill color
-  border_outer(part = "all", border = fp_border(color = "black", width = 1)) |>
-  border_inner_h(part = "all", border = fp_border(color = "black", width = 1)) |>
-  border_inner_v(part = "all", border = fp_border(color = "black", width = 1)) |>
-  # 1. Header row centered
-  align(align = "center", part = "header") |>
-  # 2. First column left-aligned, except first cell
-  align(j = 1, i = 2:nrow(cya_data), align = "left", part = "body") |>
-  # 3. Remaining body cells centered
-  align(j = 2:ncol(cya_data), align = "center", part = "body") |>
-  # Condense table
-  line_spacing(space = 1) |> 
-  padding(padding.top = 0, padding.bottom = 0, part = "all") |> 
-  fontsize(size = 9.5, part = "all") |>          
-  set_table_properties(layout = "autofit") |>
-  font(fontname = "Aptos", part = "all")
-
+  ft_cya <- flextable(cya_data) |>
+    bold(part = "header") |>
+    bg(bg = accent1_60, part = "all") |>
+    border_outer(part = "all", border = fp_border(color = "black", width = 1)) |>
+    border_inner_h(part = "all", border = fp_border(color = "black", width = 1)) |>
+    border_inner_v(part = "all", border = fp_border(color = "black", width = 1)) |>
+    align(align = "center", part = "header") |>
+    align(j = 1, i = 2:nrow(cya_data), align = "left", part = "body") |>
+    align(j = 2:ncol(cya_data), align = "center", part = "body") |>
+    line_spacing(space = 1) |> 
+    padding(padding.top = 0, padding.bottom = 0, part = "all") |> 
+    fontsize(size = 9.5, part = "all") |>          
+    set_table_properties(layout = "autofit") |>
+    font(fontname = "Aptos", part = "all")
   
   ft_cya
-  
 } else if (length(cya_file) == 0) {
   cat("**CYA summary not found for", lake, "**")
 } else {
