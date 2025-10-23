@@ -26,4 +26,6 @@ The individual scripts called by `make_all.R` include:
 
 ## Report Generation
 
-**`report_gen.Rmd`** (in progress) will be able to pull all the plots and tables into one report per active VLAP sampling station.
+**`report_template.Rmd`**: Template markdown script that provides theming and placement of plots into a docx for the reports.
+
+**`report_gen.R`**: Generates a report for each station by looping through a lake map. A docx is generated for each station that pulls together all plots and tables. Leaves room to manually enter observations and recommendations (typically lake-specific).
