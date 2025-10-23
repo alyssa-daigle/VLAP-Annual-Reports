@@ -1,4 +1,8 @@
-# Load dotenv if available
+#load required libraries
+library(rmarkdown)
+library(dplyr)
+
+#load env file
 if (file.exists(".env")) {
   if (!requireNamespace("dotenv", quietly = TRUE)) {
     install.packages("dotenv")
@@ -10,10 +14,6 @@ if (file.exists(".env")) {
 #define paths
 input_path <- Sys.getenv("INPUT_PATH")
 report_path <- Sys.getenv("REPORT_PATH")
-
-#load required libraries
-library(rmarkdown)
-library(dplyr)
 
 #load LAKEMAP
 LAKEMAP <- read.csv(input_path, "LAKEMAP.csv", stringsAsFactors = FALSE)
