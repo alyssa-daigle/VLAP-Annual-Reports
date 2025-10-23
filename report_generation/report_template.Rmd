@@ -39,7 +39,7 @@ library(magrittr)
 ### **INDIVIDUAL REPORT: `r toupper(lake)` – `r station`**
 
 
-**RECOMMENDED ACTIONS:** 
+**RECOMMENDED ACTIONS:** Great job monitoring water quality in 2024! Pond phosphorus and chlorophyll levels (algal growth) remained elevated in 2024, causing a decrease in water clarity. This highlights the delicate balance of the pond ecosystem. Prior timber harvesting activities could contribute t nutrient inputs from groundwater as well as surface runoff for years to come. If possible, add tributary sampling stations within the timber harvest sub-watershed to better understand nutrient loading from the area. The above average pond nutrient levels measured in the past four years are a concern and residents should continue to be on alert for Cyanobacteria surface scums and blooms and notify NHDES’ Harmful Algal Bloom Program if observed. In-lake and Inlet conductivity levels decreased in 2024 after many years of elevated levels, potentially due to the excessive rainfall in 2023 flushing minerals from soils. However, historical data indicate that efforts should be made to better manage use and application of road salt within the watershed. Encourage local road agents and private winter maintenance companies to obtain Green SnowPro Certification. Refer to fact sheet WMB-4 Road Salt and Water Quality for additional information. Keep up the great work!
 
 ### **HISTORICAL WATER QUALITY TREND ANALYSIS**
 ``` {r trend table}
@@ -199,19 +199,19 @@ ft_cya <- flextable(cya_data) |>
 
 ### **OBSERVATIONS** *(Refer to Table 1 and Historical Deep Spot Data Graphics)*:
 
-- **CHLOROPHYLL-A:** 
+- **CHLOROPHYLL-A:** Chlorophyll levels were elevated in June, increased to levels indicative of a potential algal bloom in July, and decreased to very low levels in August. The average chlorophyll level increased from 2023, exceeded the state median and the threshold for oligotrophic lakes, and was the highest measured since 2006. Historical trends indicate relatively stable chlorophyll levels since monitoring began.
 
-- **CONDUCTIVITY / CHLORIDE:** 
+- **CONDUCTIVITY / CHLORIDE:** Epilimnetic (upper), Metalimnetic (middle), Hypolimnetic (lower), Inlet, and Outlet conductivity and chloride levels were slightly elevated and above state medians, although chloride levels remained well below the state chronic standard. Historical trends show significantly increasing epilimnetic conductivity since monitoring began and significantly increasing epilimnetic chloride levels since 2008.
 
-- **COLOR:** 
+- **COLOR:** Apparent color measured in the epilimnion indicates the water was borderline clear to lightly tea-colored from June through August.
 
-- **TOTAL PHOSPHORUS:** 
+- **TOTAL PHOSPHORUS:** Epilimnetic phosphorus was slightly elevated in June, stable in July, and decreased to low levels in August. The average epilimnetic phosphorus level decreased slightly from 2023, remained below the state median, and was slightly above the threshold for oligotrophic lakes. Metalimnetic, Hypolimnetic, and Outlet phosphorus levels were slightly elevated, with Metalimnetic phosphorus peaking in July during elevated algal growth. Historical trends indicate relatively stable epilimnetic and hypolimnetic phosphorus since monitoring began. Inlet phosphorus fluctuated within an average range and was lowest in August.
 
-- **TRANSPARENCY:** 
+- **TRANSPARENCY:** Transparency measured with (VS) and without (NVS) the viewscope was below average in June and July during elevated algal growth, then improved to normal levels in August. Average NVS transparency increased slightly from 2023 but remained below the pond average, although it exceeded the state median. Historical trends indicate stable NVS transparency since monitoring began.
 
-- **TURBIDITY:** 
+- **TURBIDITY:** Deep Spot and Outlet turbidity were slightly elevated in July during elevated algal growth. Inlet turbidity fluctuated within a low range.
 
-- **PH:** 
+- **PH:** Epilimnetic and Outlet pH levels were within the desirable range of 6.5–8.0 units. Historical trends show stable but variable epilimnetic pH since monitoring began. Metalimnetic and Hypolimnetic pH levels were slightly acidic and below the desirable range, and Inlet pH was slightly below desirable.
 
 
 #### **HOW DOES YOUR LAKE COMPARE TO NEW HAMPSHIRE LAKES & WATER QUALITY STANDARDS?**
