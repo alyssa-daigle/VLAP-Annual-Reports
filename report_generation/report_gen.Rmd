@@ -220,8 +220,8 @@ accent1_60 <- "#DCE6F1"
 median_values <- data.frame(
   PARAMETER = c("Alkalinity", "Chlorophyll-a", "Chloride", "Conductivity", 
                 "Total phosphorus", "Transparency", "pH"),
-  `MEDIAN VALUE` = c("4.5 mg/L", "4.39 ug/L", "5 mg/L", "42.3 uS/cm",
-                    "11 ug/L", "3.3 m", "6.6"),
+  `MEDIAN VALUE` = c("4.5 mg/L", "4.39 μg/L", "5 mg/L", "42.3 uS/cm",
+                    "11 μg/L", "3.3 m", "6.6"),
   check.names = FALSE
 )
 

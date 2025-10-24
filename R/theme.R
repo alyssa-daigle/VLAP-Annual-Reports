@@ -72,7 +72,7 @@ theme_temp_DO <- function() {
       axis.title.y = element_text(size = 12, face = "bold"),
       axis.text.x = element_text(size = 10),
       axis.text.y = element_text(size = 10),
-      legend.text = element_text(size = 7),
+      legend.text = element_text(size = 9),
       legend.title = element_text(size = 9)
     )
   )

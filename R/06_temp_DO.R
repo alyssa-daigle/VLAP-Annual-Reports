@@ -65,6 +65,13 @@ make_temp_DO <- function(input_path, output_path) {
         geom_path() +
         geom_point(size = 2) +
         scale_y_reverse(breaks = seq(0, ceiling(max_depth), by = 1)) +
+        scale_x_continuous(
+          breaks = seq(
+            floor(min(temp_do_long$Value, na.rm = TRUE)),
+            ceiling(max(temp_do_long$Value, na.rm = TRUE)),
+            by = 2
+          )
+        ) +
         scale_color_manual(
           values = c("Temp" = "darkblue", "DO" = "darkgreen")
         ) +

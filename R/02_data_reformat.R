@@ -99,12 +99,12 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       param_depth = case_when(
         WSHEDPARMNAME == "ALKALINITY, CARBONATE AS CACO3" ~ "Alk. (mg/L)",
         WSHEDPARMNAME == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" ~
-          "Chlor-a (ug/L)",
+          "Chlor-a (μg/L)",
         WSHEDPARMNAME == "CHLORIDE" ~ "Chloride (mg/L)",
         WSHEDPARMNAME == "APPARENT COLOR" ~ "Color (pcu)",
         WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" ~ "Cond. (us/cm)",
         WSHEDPARMNAME == "ESCHERICHIA COLI" ~ "E. coli (mpn/100 mL)",
-        WSHEDPARMNAME == "PHOSPHORUS AS P" ~ "Total P (ug/L)",
+        WSHEDPARMNAME == "PHOSPHORUS AS P" ~ "Total P (μg/L)",
         WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" &
           ANALYTICALMETHOD == "SECCHI" ~
           "Trans. NVS (m)",
@@ -138,7 +138,8 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
     arrange(
       RELLAKE,
       factor(STATNAME, levels = c("Epilimnion", "Metalimnion", "Hypolimnion"))
-    )
+    ) |>
+    mutate(`Total P (μg/L)` = `Total P (μg/L)` * 1000)
 
   LAKEMAP <- CYA_full |>
     select(RELLAKE, STATNAME, STATIONID, TOWN) |>
