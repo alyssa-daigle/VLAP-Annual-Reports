@@ -24,7 +24,7 @@ LAKEMAP <- read.csv(
 # Filter for DEEP stations and keep unique lake–station combos
 LAKEMAP_filtered <- LAKEMAP |>
   filter(grepl("DEEP", STATNAME, ignore.case = TRUE)) |>
-  distinct(RELLAKE, STATNAME, STATIONID, .keep_all = TRUE)
+  distinct(RELLAKE, STATNAME, STATIONID, TOWN, .keep_all = TRUE)
 
 # Define output directory
 output_dir <- report_path
@@ -43,11 +43,16 @@ for (i in seq_len(nrow(LAKEMAP_filtered))) {
   lake <- LAKEMAP_filtered$RELLAKE[i]
   station <- LAKEMAP_filtered$STATNAME[i]
   station_id <- LAKEMAP_filtered$STATIONID[i]
+  town <- LAKEMAP_filtered$TOWN[i]
 
   # Sanitize file name (replace spaces and special chars)
-  safe_name <- gsub("[^A-Za-z0-9_-]", "_", paste0(station, "_", lake))
+  safe_name <- gsub(
+    "[^A-Za-z0-9_-]",
+    "_",
+    paste0(station, "_", lake, "_", town)
+  )
 
-  message("Rendering report for: ", lake, " (", station, ")")
+  message("Rendering report for: ", lake, " (", station, ", ", town, ")")
 
   # Render report
   render(
@@ -58,7 +63,8 @@ for (i in seq_len(nrow(LAKEMAP_filtered))) {
     params = list(
       lake = lake,
       station = station,
-      station_id = station_id
+      station_id = station_id,
+      town = town
     ),
     envir = new.env() # isolate each run
   )
