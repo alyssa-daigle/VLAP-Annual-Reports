@@ -52,11 +52,14 @@ make_chl_tp_secchi <- function(input_path, output_path) {
       ) |>
       mutate(Year = factor(Year, levels = all_years))
 
-    max_left <- max(c(df_plot$CHL_comp, df_plot$TP_epi), na.rm = TRUE)
+    max_left <- max(
+      c(df_plot$CHL_comp, df_plot$TP_epi, chl_thresh, tp_thresh),
+      na.rm = TRUE
+    )
     max_right <- max(df_plot$SECCHI, na.rm = TRUE)
     scale_factor <- ifelse(max_right > 0, max_left / max_right, 1)
-    y_max_left <- max_left * 1.5
-    y_max_right <- max_right * 1.5
+    y_max_left <- max_left * 1.7
+    y_max_right <- max_right * 1.7
 
     df_plot <- df_plot |>
       mutate(
