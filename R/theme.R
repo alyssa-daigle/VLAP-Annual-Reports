@@ -14,7 +14,7 @@ theme_chl_tp_secchi <- function() {
       plot.title = element_text(
         hjust = 0.5,
         face = "bold",
-        margin = margin(b = 20),
+        #margin = margin(b = 20),
         size = 13.5
       ),
       axis.line = element_line(color = "gray40"),

@@ -55,8 +55,7 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       id_cols = c(RELLAKE, TOWN, STATIONID, STATNAME, STARTDATE),
       names_from = param_depth,
       values_from = NUMRESULT,
-      values_fn = mean,
-      values_fill = NA
+      values_fn = \(x) mean(x[x >= 0], na.rm = TRUE),
     ) |>
     rename(
       lake = RELLAKE,
