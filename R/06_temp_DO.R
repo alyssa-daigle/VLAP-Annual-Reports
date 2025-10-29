@@ -82,6 +82,10 @@ make_temp_DO <- function(input_path, output_path) {
           color = "Parameter",
           shape = "Month"
         ) +
+        guides(
+          color = guide_legend(order = 1),
+          shape = guide_legend(order = 2)
+        ) +
         theme_bw(base_size = 14) +
         theme_temp_DO()
 
@@ -92,7 +96,7 @@ make_temp_DO <- function(input_path, output_path) {
       ggsave(
         temp_path,
         plot = p,
-        width = 7,
+        width = 8,
         height = 4,
         dpi = 300,
         bg = "white"

@@ -135,7 +135,7 @@ if (length(plot_files) >= 4) knitr::include_graphics(plot_files[4])
 ```
 
 #### Table 1. 2025 Average Water Quality Data for `r toupper(lake)` – `r town`
-```{r}
+```{r avg water quality}
 lake <- params$lake
 accent1_60 <- "#DCE6F1"
 
@@ -212,7 +212,7 @@ if (length(cya_file) == 1) {
 
 ##### *Median values generated from historic lake monitoring data*
 
-``` {r, echo = FALSE, warning = FALSE}
+``` {r NH median values, echo = FALSE, warning = FALSE}
 
 accent1_60 <- "#DCE6F1"
 
@@ -220,7 +220,7 @@ accent1_60 <- "#DCE6F1"
 median_values <- data.frame(
   PARAMETER = c("Alkalinity", "Chlorophyll-a", "Chloride", "Conductivity", 
                 "Total phosphorus", "Transparency", "pH"),
-  `MEDIAN VALUE` = c("4.5 mg/L", "4.39 μg/L", "5 mg/L", "42.3 uS/cm",
+  `MEDIAN VALUE` = c("4.5 mg/L", "4.39 μg/L", "5 mg/L", "42.3 μS/cm",
                     "11 μg/L", "3.3 m", "6.6"),
   check.names = FALSE
 )
@@ -250,7 +250,7 @@ ft_median
 
 ##### *Numeric criteria for specific parameters. Water quality violation occurs if thresholds are exceeded.*
 
-``` {r}
+``` {r NH water quality standards}
 # --- NH Water Quality Standards ---
 water_quality_standards <- data.frame(
   PARAMETER = c("Chloride", "E. coli (beach)", "E. coli (surface water)", 

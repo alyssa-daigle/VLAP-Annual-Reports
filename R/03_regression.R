@@ -145,7 +145,7 @@ run_vlap_regressions <- function(
 
     display_table <- reg_summary |>
       mutate(
-        Parameter = recode(
+        PARAMETER = recode(
           parameter,
           "SPCD_epi" = "Conductivity",
           "CHL_comp" = "Chlorophyll-a",
@@ -155,7 +155,7 @@ run_vlap_regressions <- function(
           "TP_epi" = "Phosphorus (epilimnion)"
         )
       ) |>
-      select(Parameter, Trend = trend)
+      select(PARAMETER, TREND = trend)
 
     # save formatted summary
     write_csv(

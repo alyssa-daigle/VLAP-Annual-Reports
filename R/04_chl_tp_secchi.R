@@ -123,7 +123,7 @@ make_chl_tp_secchi <- function(input_path, output_path) {
         }
       } +
       labs(
-        title = "Historical Chlorophyll-a, Epilimnetic Phosphorus, \n& Transparency Data",
+        title = "Historical Chlorophyll-a, Epilimnetic Phosphorus, \nand Transparency Data",
         x = "Year",
         fill = NULL,
         color = NULL,
@@ -186,7 +186,7 @@ make_chl_tp_secchi <- function(input_path, output_path) {
     filename <- paste0(station_id, "_tp_chl_secchi.png")
     temp_path <- file.path(output_path, filename)
 
-    ggsave(temp_path, plot = p, width = 7, height = 4, dpi = 300, bg = "white")
+    ggsave(temp_path, plot = p, width = 8, height = 4, dpi = 300, bg = "white")
 
     img <- magick::image_read(temp_path)
     img_bordered <- magick::image_border(

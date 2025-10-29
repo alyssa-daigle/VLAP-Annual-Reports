@@ -2,7 +2,7 @@ theme_chl_tp_secchi <- function() {
   list(
     theme(
       panel.grid = element_blank(), # no plot grid
-      legend.position = c(0.98, 1.175), # position of legend on plot
+      legend.position = "right", # position of legend on plot
       legend.background = element_blank(), #element_rect(fill = "transparent", size = 0.5),
       legend.key = element_rect(fill = "white"),
       legend.spacing.y = unit(0.01, "cm"),
@@ -10,9 +10,9 @@ theme_chl_tp_secchi <- function() {
       legend.text = element_text(size = 8),
       legend.key.width = unit(0.3, "cm"),
       legend.key.height = unit(0.3, "cm"),
-      plot.margin = margin(t = 20, r = 30, b = 10, l = 20),
+      plot.margin = margin(t = 20, r = 10, b = 10, l = 20),
       plot.title = element_text(
-        hjust = 0.05,
+        hjust = 0.5,
         face = "bold",
         margin = margin(b = 20),
         size = 13.5
@@ -30,14 +30,13 @@ theme_pH_conduc <- function() {
   list(
     theme(
       panel.grid = element_blank(),
-      legend.position = c(-0.05, 1.2),
-      legend.justification = c(0, 1),
+      legend.position = "right",
       legend.background = element_rect(fill = "transparent"),
       legend.key = element_rect(fill = "white"),
       legend.spacing.y = unit(0.01, "cm"),
-      legend.margin = margin(t = 2, r = 2, b = 2, l = 2),
+      legend.margin = margin(t = 2, r = 2, b = 2, l = 1),
       legend.text = element_text(size = 10),
-      plot.margin = margin(t = 20, r = 10, b = 10, l = 20),
+      plot.margin = margin(t = 20, r = 5, b = 10, l = 20),
       plot.title = element_text(
         hjust = 0.5,
         face = "bold",
@@ -72,6 +71,7 @@ theme_temp_DO <- function() {
       axis.title.y = element_text(size = 12, face = "bold"),
       axis.text.x = element_text(size = 10),
       axis.text.y = element_text(size = 10),
+      legend.position = "right",
       legend.text = element_text(size = 9),
       legend.title = element_text(size = 9)
     )
@@ -86,7 +86,7 @@ theme_plankton <- function() {
       panel.grid.major.y = element_line(color = "whitesmoke"),
       panel.grid.minor.y = element_blank(),
       legend.position = "none", # hide legend here
-      plot.margin = margin(t = 0, r = 10, b = 10, l = 20),
+      plot.margin = margin(t = 0, r = 10, b = 10, l = 10),
       plot.title = element_text(
         hjust = 0.5,
         vjust = -2.0,
@@ -109,7 +109,7 @@ theme_plankton_legend <- function() {
     theme(
       legend.text = element_text(size = 10, face = "bold"),
       legend.key.size = unit(0.5, "cm"),
-      legend.margin = margin(r = 10)
+      legend.margin = margin(t = 1, r = 10, b = 1, l = 1), # top right bottom left
     )
   )
 }

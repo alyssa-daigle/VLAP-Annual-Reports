@@ -85,7 +85,7 @@ make_plankton <- function(input_path, output_path) {
     legend <- get_legend(p_legend)
 
     # Combine main plot and legend
-    final_plot <- plot_grid(p_main, legend, rel_widths = c(5, 1))
+    final_plot <- plot_grid(p_main, legend, rel_widths = c(6, 1.5))
 
     # Save plot and add full PNG border
     filename <- paste0(station_id, "_plankton.png")
@@ -94,7 +94,7 @@ make_plankton <- function(input_path, output_path) {
     ggsave(
       temp_path,
       plot = final_plot,
-      width = 7,
+      width = 8,
       height = 4,
       dpi = 300,
       bg = "white"

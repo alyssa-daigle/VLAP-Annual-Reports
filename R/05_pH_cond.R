@@ -102,7 +102,7 @@ make_pH_conduc <- function(input_path, output_path) {
       ggsave(
         temp_path,
         plot = p,
-        width = 7,
+        width = 8,
         height = 4,
         dpi = 300,
         bg = "white"

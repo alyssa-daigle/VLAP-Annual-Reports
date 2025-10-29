@@ -102,7 +102,7 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
           "Chlor-a (μg/L)",
         WSHEDPARMNAME == "CHLORIDE" ~ "Chloride (mg/L)",
         WSHEDPARMNAME == "APPARENT COLOR" ~ "Color (pcu)",
-        WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" ~ "Cond. (us/cm)",
+        WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" ~ "Cond. (μS/cm)",
         WSHEDPARMNAME == "ESCHERICHIA COLI" ~ "E. coli (mpn/100 mL)",
         WSHEDPARMNAME == "PHOSPHORUS AS P" ~ "Total P (μg/L)",
         WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" &
