@@ -18,7 +18,11 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       .groups = "drop"
     )
 
-  # REG (regression dataset) processing
+  #REG dataset
+  # REG (regression dataset) processing ----
+  DETECTION_LIMIT <- 0.005 # mg/L for TP
+  HALF_DL <- DETECTION_LIMIT / 2 # 0.0025 mg/L
+
   REG <- REG_long |>
     filter(PROJID == "VLAP") |>
     select(
@@ -29,23 +33,28 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       STARTDATE,
       DEPTHZONE,
       WSHEDPARMNAME,
-      NUMRESULT
+      NUMRESULT,
+      TEXTRESULT
     ) |>
     mutate(
+      # Handle non-detects for Total Phosphorus
+      NUMRESULT = case_when(
+        WSHEDPARMNAME == "PHOSPHORUS AS P" &
+          str_detect(toupper(TEXTRESULT), "ND") ~ HALF_DL,
+        TRUE ~ NUMRESULT
+      ),
       param_depth = case_when(
         WSHEDPARMNAME == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" &
-          DEPTHZONE == "COMPOSITE" ~
-          "CHL_comp",
+          DEPTHZONE == "COMPOSITE" ~ "CHL_comp",
         WSHEDPARMNAME == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" &
-          DEPTHZONE == "EPILIMNION" ~
-          "CHL_epi",
-        WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" & DEPTHZONE == "EPILIMNION" ~
-          "SPCD_epi",
+          DEPTHZONE == "EPILIMNION" ~ "CHL_epi",
+        WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" &
+          DEPTHZONE == "EPILIMNION" ~ "SPCD_epi",
         WSHEDPARMNAME == "PH" & DEPTHZONE == "EPILIMNION" ~ "PH_epi",
-        WSHEDPARMNAME == "PHOSPHORUS AS P" & DEPTHZONE == "EPILIMNION" ~
-          "TP_epi",
-        WSHEDPARMNAME == "PHOSPHORUS AS P" & DEPTHZONE == "HYPOLIMNION" ~
-          "TP_hypo",
+        WSHEDPARMNAME == "PHOSPHORUS AS P" &
+          DEPTHZONE == "EPILIMNION" ~ "TP_epi",
+        WSHEDPARMNAME == "PHOSPHORUS AS P" &
+          DEPTHZONE == "HYPOLIMNION" ~ "TP_hypo",
         WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" ~ "SECCHI",
         TRUE ~ NA_character_
       )
@@ -55,7 +64,7 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       id_cols = c(RELLAKE, TOWN, STATIONID, STATNAME, STARTDATE),
       names_from = param_depth,
       values_from = NUMRESULT,
-      values_fn = \(x) mean(x[x >= 0], na.rm = TRUE),
+      values_fn = \(x) mean(x[x >= 0], na.rm = TRUE)
     ) |>
     rename(
       lake = RELLAKE,
@@ -77,7 +86,7 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       .groups = "drop"
     ) |>
     mutate(
-      TP_epi = TP_epi * 1000, # convert to µg/L
+      TP_epi = TP_epi * 1000, # convert mg/L → µg/L
       TP_hypo = TP_hypo * 1000
     )
 
