@@ -23,84 +23,6 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
   DETECTION_LIMIT <- 0.005 # mg/L for TP
   HALF_DL <- DETECTION_LIMIT / 2 # 0.0025 mg/L
 
-  REG <- REG_long |>
-    filter(PROJID == "VLAP") |>
-    select(
-      RELLAKE,
-      TOWN,
-      STATIONID,
-      STATNAME,
-      STARTDATE,
-      DEPTHZONE,
-      WSHEDPARMNAME,
-      NUMRESULT,
-      TEXTRESULT
-    ) |>
-    mutate(
-      NUMRESULT = if_else(
-        WSHEDPARMNAME == "PHOSPHORUS AS P" &
-          str_detect(toupper(TEXTRESULT), "ND"),
-        HALF_DL,
-        NUMRESULT
-      ),
-      param_depth = case_when(
-        WSHEDPARMNAME == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" &
-          DEPTHZONE == "COMPOSITE" ~ "CHL_comp",
-        WSHEDPARMNAME == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" &
-          DEPTHZONE == "EPILIMNION" ~ "CHL_epi",
-        WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" &
-          DEPTHZONE == "EPILIMNION" ~ "SPCD_epi",
-        WSHEDPARMNAME == "PH" & DEPTHZONE == "EPILIMNION" ~ "PH_epi",
-        WSHEDPARMNAME == "PHOSPHORUS AS P" &
-          DEPTHZONE == "EPILIMNION" ~ "TP_epi",
-        WSHEDPARMNAME == "PHOSPHORUS AS P" &
-          DEPTHZONE == "HYPOLIMNION" ~ "TP_hypo",
-        WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" ~ "SECCHI",
-        TRUE ~ NA_character_
-      ),
-      # merge duplicate station IDs
-      # merge duplicate station IDs and station names
-      stationid = case_when(
-        STATIONID %in% c("LONPELNHD", "LONPELMAD") ~ "LONPELD",
-        STATIONID %in% c("PEMMERD", "PEMMERVLAPD") ~ "PEMMERD",
-        TRUE ~ STATIONID
-      ),
-      stationname = case_when(
-        STATIONID %in% c("LONPELNHD", "LONPELMAD") ~ "LONG POND-DEEP SPOT",
-        STATIONID %in%
-          c("PEMMERD", "PEMMERVLAPD") ~ "PEMIGEWASSET LAKE-DEEP SPOT",
-        TRUE ~ str_trim(toupper(STATNAME))
-      )
-    ) |>
-    filter(!is.na(param_depth)) |>
-    pivot_wider(
-      id_cols = c(RELLAKE, TOWN, stationid, stationname, STARTDATE),
-      names_from = param_depth,
-      values_from = NUMRESULT,
-      values_fn = \(x) mean(x[x >= 0], na.rm = TRUE)
-    ) |>
-    rename(
-      lake = RELLAKE,
-      town = TOWN,
-      date = STARTDATE
-    ) |>
-    mutate(Year = year(date)) |>
-    group_by(stationid, Year) |>
-    summarise(
-      lake = first(lake),
-      stationname = first(stationname),
-      across(
-        c(CHL_comp, CHL_epi, SPCD_epi, PH_epi, TP_epi, TP_hypo, SECCHI),
-        mean,
-        na.rm = TRUE
-      ),
-      .groups = "drop"
-    ) |>
-    mutate(
-      TP_epi = TP_epi * 1000,
-      TP_hypo = TP_hypo * 1000
-    )
-
   #setting start dates for certain lakes with gaps in data
   lake_start_years <- tibble::tibble(
     stationid = c(
@@ -113,6 +35,8 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       "FRAHSBD",
       "HOWDUBD",
       "JENNORD",
+      "LONPELD",
+      "PEMMERD",
       "PHISDND",
       "ROCFITD",
       "SAWGLMD",
@@ -131,6 +55,8 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       2010,
       2011,
       1994,
+      2006,
+      2005,
       2007,
       2001,
       2009,
@@ -141,13 +67,89 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
     )
   )
 
-  #join with overall data set
-  REG <- REG |>
-    # join start years to identify which lakes have restrictions
+  REG1 <- REG_long |>
+    filter(PROJID == "VLAP") |>
+    # keep only proper thermal layers
+    select(
+      RELLAKE,
+      TOWN,
+      STATIONID,
+      STATNAME,
+      STARTDATE,
+      DEPTHZONE,
+      WSHEDPARMNAME,
+      NUMRESULT,
+      TEXTRESULT
+    ) |>
+    filter(DEPTHZONE %in% c("EPILIMNION", "HYPOLIMNION", "COMPOSITE")) |>
+    mutate(
+      # Handle non-detects for Total Phosphorus
+      NUMRESULT = case_when(
+        WSHEDPARMNAME == "PHOSPHORUS AS P" &
+          str_detect(toupper(TEXTRESULT), "ND") ~ HALF_DL,
+        TRUE ~ NUMRESULT
+      ),
+      param_depth = case_when(
+        WSHEDPARMNAME == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" &
+          DEPTHZONE == "COMPOSITE" ~ "CHL_comp",
+        WSHEDPARMNAME == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" &
+          DEPTHZONE == "EPILIMNION" ~ "CHL_epi",
+        WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" &
+          DEPTHZONE == "EPILIMNION" ~ "SPCD_epi",
+        WSHEDPARMNAME == "PH" & DEPTHZONE == "EPILIMNION" ~ "PH_epi",
+        WSHEDPARMNAME == "PHOSPHORUS AS P" &
+          DEPTHZONE == "EPILIMNION" ~ "TP_epi",
+        WSHEDPARMNAME == "PHOSPHORUS AS P" &
+          DEPTHZONE == "HYPOLIMNION" ~ "TP_hypo",
+        WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" ~ "SECCHI",
+        TRUE ~ NA_character_
+      ),
+      stationid = case_when(
+        STATIONID %in% c("LONPELNHD", "LONPELMAD") ~ "LONPELD",
+        STATIONID %in% c("PEMMERD", "PEMMERVLAPD") ~ "PEMMERD",
+        TRUE ~ STATIONID
+      ),
+      stationname = case_when(
+        STATIONID %in% c("LONPELNHD", "LONPELMAD") ~ "LONG POND-DEEP SPOT",
+        STATIONID %in%
+          c("PEMMERD", "PEMMERVLAPD") ~ "PEMIGEWASSET LAKE-DEEP SPOT",
+        TRUE ~ str_trim(toupper(STATNAME))
+      )
+    )
+
+  REG2 <- REG1 |>
+    filter(!is.na(param_depth)) |>
+    pivot_wider(
+      id_cols = c(RELLAKE, TOWN, stationid, stationname, STARTDATE),
+      names_from = param_depth,
+      values_from = NUMRESULT,
+      values_fn = \(x) mean(x, na.rm = TRUE)
+    ) |>
+    rename(
+      lake = RELLAKE,
+      town = TOWN,
+      date = STARTDATE
+    ) |>
+    mutate(Year = year(date))
+
+  REG <- REG2 |>
+    group_by(stationid, Year) |>
+    summarise(
+      lake = first(lake),
+      stationname = first(stationname),
+      across(
+        c(CHL_comp, CHL_epi, SPCD_epi, PH_epi, TP_epi, TP_hypo, SECCHI),
+        mean,
+        na.rm = TRUE
+      ),
+      .groups = "drop"
+    ) |>
+    mutate(
+      TP_epi = TP_epi * 1000,
+      TP_hypo = TP_hypo * 1000
+    ) |>
     left_join(lake_start_years, by = "stationid") |>
-    # filter out years before the start year (only for those lakes)
     filter(is.na(start_year) | Year >= start_year) |>
-    # drop helper column
     select(-start_year)
 
   # ------------------------------------------------------------------------------------------------------------------------
