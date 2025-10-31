@@ -58,8 +58,8 @@ make_chl_tp_secchi <- function(input_path, output_path) {
     )
     max_right <- max(df_plot$SECCHI, na.rm = TRUE)
     scale_factor <- ifelse(max_right > 0, max_left / max_right, 1)
-    y_max_left <- max_left * 1.7
-    y_max_right <- max_right * 1.7
+    y_max_left <- max_left * 1.5
+    y_max_right <- max_right * 1.5
 
     df_plot <- df_plot |>
       mutate(

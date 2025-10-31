@@ -19,7 +19,6 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
     )
 
   #REG dataset
-  # REG (regression dataset) processing ----
   DETECTION_LIMIT <- 0.005 # mg/L for TP
   HALF_DL <- DETECTION_LIMIT / 2 # 0.0025 mg/L
 
@@ -90,6 +89,55 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       TP_hypo = TP_hypo * 1000
     )
 
+  #setting start dates for certain lakes with gaps in data
+  lake_start_years <- tibble::tibble(
+    stationid = c(
+      "ANGSDND",
+      "COUKIND",
+      "CRYMAND",
+      "DORMAND",
+      "EMERIND",
+      "FLIHLSD",
+      "FRAHSBD",
+      "HOWDUBD",
+      "JENNORD",
+      "PHISDND",
+      "ROCFITD",
+      "SAWGLMD",
+      "TARPIED",
+      "WARALSD",
+      "WAUDAND",
+      "WILPFDD"
+    ),
+    start_year = c(
+      2005,
+      2018,
+      1993,
+      2000,
+      2006,
+      1991,
+      2010,
+      2011,
+      1994,
+      2007,
+      2001,
+      2009,
+      2002,
+      1999,
+      2003,
+      2013
+    )
+  )
+
+  #join with overall data set
+  REG <- REG |>
+    # join start years to identify which lakes have restrictions
+    left_join(lake_start_years, by = "stationid") |>
+    # filter out years before the start year (only for those lakes)
+    filter(is.na(start_year) | Year >= start_year) |>
+    # drop helper column
+    select(-start_year)
+
   # CYA (Current Year Averages) processing
   CYA <- CYA_full |>
     select(
@@ -105,7 +153,7 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
     filter(PYEAR == 2025) |>
     mutate(
       param_depth = case_when(
-        WSHEDPARMNAME == "ALKALINITY, CARBONATE AS CACO3" ~ "Alk. (mg/L)",
+        WSHEDPARMNAME == "GRAN ACID NEUTRALIZING CAPACITY" ~ "Alk. (mg/L)",
         WSHEDPARMNAME == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" ~
           "Chlor-a (μg/L)",
         WSHEDPARMNAME == "CHLORIDE" ~ "Chloride (mg/L)",
@@ -149,15 +197,29 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
     ) |>
     mutate(`Total P (μg/L)` = `Total P (μg/L)` * 1000)
 
+  CYA <- CYA |>
+    mutate(
+      `Alk. (mg/L)` = round(`Alk. (mg/L)`, 1),
+      `Chlor-a (μg/L)` = round(`Chlor-a (μg/L)`, 2),
+      `Chloride (mg/L)` = round(`Chloride (mg/L)`, 0),
+      `Color (pcu)` = round(`Color (pcu)`, 0),
+      `E. coli (mpn/100 mL)` = round(`E. coli (mpn/100 mL)`, 0),
+      `Total P (μg/L)` = round(`Total P (μg/L)`, 0),
+      `Trans. NVS (m)` = round(`Trans. NVS (m)`, 2),
+      `Trans. VS (m)` = round(`Trans. VS (m)`, 2),
+      `Turb. (ntu)` = round(`Turb. (ntu)`, 2),
+      `pH` = round(`pH`, 2)
+    )
+
   LAKEMAP <- CYA_full |>
     select(RELLAKE, STATNAME, STATIONID, TOWN) |>
     distinct()
 
-  write.csv(
-    LAKEMAP,
-    file = file.path(input_path, "LAKEMAP.csv"),
-    row.names = FALSE
-  )
+  # write.csv(
+  #   LAKEMAP,
+  #   file = file.path(input_path, "LAKEMAP.csv"),
+  #   row.names = FALSE
+  # )
 
   # return list of tidy dataframes
   list(BTC = BTC, REG = REG, CYA = CYA, LAKEMAP = LAKEMAP)
