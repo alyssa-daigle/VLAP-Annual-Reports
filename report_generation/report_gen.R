@@ -1,5 +1,4 @@
-# Load required libraries
-library(rmarkdown)
+library(rmarkdown) # Load required libraries
 library(dplyr)
 
 # Load env file
@@ -24,7 +23,8 @@ LAKEMAP <- read.csv(
 # Filter for DEEP stations and keep unique lake–station combos
 LAKEMAP_filtered <- LAKEMAP |>
   filter(grepl("DEEP", STATNAME, ignore.case = TRUE)) |>
-  distinct(RELLAKE, STATNAME, STATIONID, TOWN, .keep_all = TRUE)
+  distinct(RELLAKE, STATNAME, STATIONID, TOWN, .keep_all = TRUE) |>
+  arrange(STATIONID)
 
 # Define output directory
 output_dir <- report_path

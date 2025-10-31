@@ -4,16 +4,6 @@ make_CYA_table <- function(CYA, table_path) {
     dir.create(table_path, recursive = TRUE)
   }
 
-  lakes_2025 <- CYA |>
-    distinct(RELLAKE) |>
-    arrange(RELLAKE) |>
-    pull(RELLAKE)
-
-  write_csv(
-    tibble(Lake = lakes_2025),
-    file.path(table_path, "Lakes_with_2025_data.csv")
-  )
-
   # get unique lakes
   lakes <- unique(CYA$RELLAKE)
 
@@ -22,8 +12,8 @@ make_CYA_table <- function(CYA, table_path) {
     # subset data for this lake
     lake_data <- CYA |> filter(RELLAKE == lake)
 
-    # remove RELLAKE column if not needed
-    lake_data_out <- lake_data |> select(-RELLAKE)
+    # remove RELLAKE, STATIONID, and TOWN columns
+    lake_data_out <- lake_data |> select(-RELLAKE, -STATIONID, -TOWN)
 
     # build file name (replace spaces with underscores)
     file_name <- paste0(gsub(" ", "_", lake), "_CYA.csv")
