@@ -18,6 +18,7 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       .groups = "drop"
     )
 
+  # ------------------------------------------------------------------------------------------------------------------------
   #REG dataset
   DETECTION_LIMIT <- 0.005 # mg/L for TP
   HALF_DL <- DETECTION_LIMIT / 2 # 0.0025 mg/L
@@ -36,11 +37,11 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       TEXTRESULT
     ) |>
     mutate(
-      # Handle non-detects for Total Phosphorus
-      NUMRESULT = case_when(
+      NUMRESULT = if_else(
         WSHEDPARMNAME == "PHOSPHORUS AS P" &
-          str_detect(toupper(TEXTRESULT), "ND") ~ HALF_DL,
-        TRUE ~ NUMRESULT
+          str_detect(toupper(TEXTRESULT), "ND"),
+        HALF_DL,
+        NUMRESULT
       ),
       param_depth = case_when(
         WSHEDPARMNAME == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" &
@@ -56,11 +57,24 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
           DEPTHZONE == "HYPOLIMNION" ~ "TP_hypo",
         WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" ~ "SECCHI",
         TRUE ~ NA_character_
+      ),
+      # merge duplicate station IDs
+      # merge duplicate station IDs and station names
+      stationid = case_when(
+        STATIONID %in% c("LONPELNHD", "LONPELMAD") ~ "LONPELD",
+        STATIONID %in% c("PEMMERD", "PEMMERVLAPD") ~ "PEMMERD",
+        TRUE ~ STATIONID
+      ),
+      stationname = case_when(
+        STATIONID %in% c("LONPELNHD", "LONPELMAD") ~ "LONG POND-DEEP SPOT",
+        STATIONID %in%
+          c("PEMMERD", "PEMMERVLAPD") ~ "PEMIGEWASSET LAKE-DEEP SPOT",
+        TRUE ~ str_trim(toupper(STATNAME))
       )
     ) |>
     filter(!is.na(param_depth)) |>
     pivot_wider(
-      id_cols = c(RELLAKE, TOWN, STATIONID, STATNAME, STARTDATE),
+      id_cols = c(RELLAKE, TOWN, stationid, stationname, STARTDATE),
       names_from = param_depth,
       values_from = NUMRESULT,
       values_fn = \(x) mean(x[x >= 0], na.rm = TRUE)
@@ -68,8 +82,6 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
     rename(
       lake = RELLAKE,
       town = TOWN,
-      stationid = STATIONID,
-      stationname = STATNAME,
       date = STARTDATE
     ) |>
     mutate(Year = year(date)) |>
@@ -85,7 +97,7 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       .groups = "drop"
     ) |>
     mutate(
-      TP_epi = TP_epi * 1000, # convert mg/L → µg/L
+      TP_epi = TP_epi * 1000,
       TP_hypo = TP_hypo * 1000
     )
 
@@ -138,6 +150,7 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
     # drop helper column
     select(-start_year)
 
+  # ------------------------------------------------------------------------------------------------------------------------
   # CYA (Current Year Averages) processing
   CYA <- CYA_full |>
     select(
