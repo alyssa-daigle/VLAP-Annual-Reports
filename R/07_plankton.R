@@ -9,7 +9,7 @@ make_plankton <- function(input_path, output_path) {
   library(scales)
 
   # Load data
-  data <- read_excel(paste0(input_path, "VLAPPlanktonGraphicYear-2024.xlsx"))
+  data <- read_excel(paste0(input_path, "phytoplankton-master.xlsm"))
 
   # Ensure output directory exists
   if (!dir.exists(output_path)) {
@@ -17,7 +17,7 @@ make_plankton <- function(input_path, output_path) {
   }
 
   # Get list of stations
-  stations <- unique(data$WQDStationID)
+  stations <- unique(data$stationid)
 
   # Loop over stations
   lapply(stations, function(station_id) {
@@ -25,30 +25,29 @@ make_plankton <- function(input_path, output_path) {
 
     # Prepare plot data
     plot_data <- data |>
-      filter(WQDStationID == station_id) |>
-      group_by(Year, MONTH, COMMENTS) |>
+      filter(stationid == station_id) |>
+      group_by(year, division) |>
       summarise(
-        total_cells = sum(`Cell Count`, na.rm = TRUE),
+        total_cells = sum(count, na.rm = TRUE),
         .groups = "drop_last" # Keep Year, MONTH grouping for next step
       ) |>
       mutate(
         rel_abund = total_cells / sum(total_cells), # Relative abundance per month
-        COMMENTS = factor(COMMENTS, levels = names(algae_colors)), # Legend order
-        COMMENTS_ordered = fct_reorder(COMMENTS, rel_abund, .desc = FALSE)
+        division = factor(division, levels = names(algae_colors)), # Legend order
+        division_ordered = fct_reorder(division, rel_abund, .desc = FALSE)
       ) |>
       ungroup() |>
       complete(
         # Ensure all legend items are always present
-        Year,
-        MONTH,
-        COMMENTS = names(algae_colors),
+        year,
+        division = names(algae_colors),
         fill = list(total_cells = 0, rel_abund = 0)
       )
 
     # Main plot
     p_main <- ggplot(
       plot_data,
-      aes(x = factor(MONTH), y = rel_abund, fill = COMMENTS)
+      aes(x = factor(year), y = rel_abund, fill = division)
     ) +
       geom_bar(stat = "identity") +
       scale_y_continuous(
@@ -68,7 +67,7 @@ make_plankton <- function(input_path, output_path) {
       theme_plankton()
 
     # Legend-only plot
-    p_legend <- ggplot(plot_data, aes(x = 1, y = 1, fill = COMMENTS)) +
+    p_legend <- ggplot(plot_data, aes(x = 1, y = 1, fill = division)) +
       geom_bar(stat = "identity") +
       scale_fill_manual(
         values = algae_colors,

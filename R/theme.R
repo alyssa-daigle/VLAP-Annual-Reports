@@ -116,7 +116,7 @@ theme_plankton_legend <- function() {
 
 #plankton color palette and renaming
 algae_colors <- c(
-  "UNKNOWN PHYTO" = "#772c2a",
+  "UNKNOWN" = "#772c2a",
   "GREEN" = "#2c4d75",
   "GOLDEN-BROWN" = "#4bacc6",
   "EUGLENOID" = "#9bbb59",
@@ -128,7 +128,7 @@ algae_colors <- c(
 )
 
 algae_labels <- c(
-  "UNKNOWN PHYTO" = "Unknown",
+  "UNKNOWNYTO" = "Unknown",
   "GREEN" = "Greens",
   "GOLDEN-BROWN" = "Golden-Brown",
   "EUGLENOID" = "Euglenoids",

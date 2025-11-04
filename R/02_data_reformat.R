@@ -36,7 +36,7 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       "HOWDUBD",
       "JENNORD",
       "LONPELD",
-      "PEMMERD",
+      "PEMMERVLAPD",
       "PHISDND",
       "ROCFITD",
       "SAWGLMD",
@@ -105,14 +105,16 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
         TRUE ~ NA_character_
       ),
       stationid = case_when(
-        STATIONID %in% c("LONPELNHD", "LONPELMAD") ~ "LONPELD",
-        STATIONID %in% c("PEMMERD", "PEMMERVLAPD") ~ "PEMMERD",
+        STATIONID %in% c("ROCHLSVLAPD", "ROCHLSD") ~ "ROCHLSVLAPD",
+        STATIONID %in% c("PEMMERVLAPD", "PEMMERD") ~ "PEMMERVLAPD",
+        STATIONID %in% c("SPEGROVLAPD", "SPEGROD") ~ "SPEGROVLAPD",
         TRUE ~ STATIONID
       ),
       stationname = case_when(
-        STATIONID %in% c("LONPELNHD", "LONPELMAD") ~ "LONG POND-DEEP SPOT",
+        STATIONID %in% c("ROCHLSVLAPD", "ROCHLSD") ~ "ROCKY POND-DEEP SPOT",
         STATIONID %in%
-          c("PEMMERD", "PEMMERVLAPD") ~ "PEMIGEWASSET LAKE-DEEP SPOT",
+          c("PEMMERVLAPD", "PEMMERD") ~ "PEMIGEWASSET LAKE-DEEP SPOT",
+        STATIONID %in% c("SPEGROVLAPD", "SPEGROD") ~ "SPECTACLE POND-DEEP SPOT",
         TRUE ~ str_trim(toupper(STATNAME))
       )
     )
@@ -139,18 +141,10 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       stationname = first(stationname),
       across(
         c(CHL_comp, CHL_epi, SPCD_epi, PH_epi, TP_epi, TP_hypo, SECCHI),
-        mean,
-        na.rm = TRUE
+        \(x) mean(x, na.rm = TRUE)
       ),
       .groups = "drop"
-    ) |>
-    mutate(
-      TP_epi = TP_epi * 1000,
-      TP_hypo = TP_hypo * 1000
-    ) |>
-    left_join(lake_start_years, by = "stationid") |>
-    filter(is.na(start_year) | Year >= start_year) |>
-    select(-start_year)
+    )
 
   # ------------------------------------------------------------------------------------------------------------------------
   # CYA (Current Year Averages) processing
