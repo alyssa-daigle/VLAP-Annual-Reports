@@ -146,7 +146,7 @@ lake_clean <- gsub("([\\(\\)\\[\\]\\+\\?\\*\\.\\^\\$])", "\\\\\\1", lake_clean)
 # Search for CYA CSV file
 cya_file <- list.files(
   table_path,
-  pattern = paste0("^", lake_clean, ".*_CYA\\.csv$"), # match start of filename
+  pattern = paste0("^", lake_clean, ".*_CYA\\.csv$"),
   full.names = TRUE,
   ignore.case = TRUE
 )
@@ -162,6 +162,7 @@ if (length(cya_file) == 1) {
     select(where(~ !all(is.na(.x) | .x == ""))) |>
     mutate(across(where(is.numeric), round, 2))
   
+  # create base flextable
   ft_cya <- flextable(cya_data) |>
     bold(part = "header") |>
     bg(bg = accent1_60, part = "all") |>
@@ -169,13 +170,19 @@ if (length(cya_file) == 1) {
     border_inner_h(part = "all", border = fp_border(color = "black", width = 1)) |>
     border_inner_v(part = "all", border = fp_border(color = "black", width = 1)) |>
     align(align = "center", part = "header") |>
-    align(j = 1, i = 2:nrow(cya_data), align = "left", part = "body") |>
-    align(j = 2:ncol(cya_data), align = "center", part = "body") |>
     line_spacing(space = 1) |> 
     padding(padding.top = 0, padding.bottom = 0, part = "all") |> 
     fontsize(size = 9.5, part = "all") |>          
     set_table_properties(layout = "autofit") |>
     font(fontname = "Aptos", part = "all")
+  
+  # Conditionally align body rows/columns to avoid out-of-range selections
+  if (nrow(cya_data) >= 2) {
+    ft_cya <- align(ft_cya, j = 1, i = 2:nrow(cya_data), align = "left", part = "body")
+  }
+  if (ncol(cya_data) >= 2) {
+    ft_cya <- align(ft_cya, j = 2:ncol(cya_data), align = "center", part = "body")
+  }
   
   ft_cya
 } else if (length(cya_file) == 0) {
@@ -183,8 +190,6 @@ if (length(cya_file) == 1) {
 } else {
   cat("**Multiple CYA files found for", lake, "- please check directory**")
 }
-
-
 ```
 
 
