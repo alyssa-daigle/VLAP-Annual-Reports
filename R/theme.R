@@ -107,7 +107,7 @@ theme_plankton <- function() {
 theme_plankton_legend <- function() {
   list(
     theme(
-      legend.text = element_text(size = 10, face = "bold"),
+      legend.text = element_text(size = 10),
       legend.key.size = unit(0.5, "cm"),
       legend.margin = margin(t = 1, r = 10, b = 1, l = 1), # top right bottom left
     )
@@ -128,9 +128,9 @@ algae_colors <- c(
 )
 
 algae_labels <- c(
-  "UNKNOWNYTO" = "Unknown",
+  "UNKNOWN" = "Unknown",
   "GREEN" = "Greens",
-  "GOLDEN-BROWN" = "Golden-Brown",
+  "GOLDEN-BROWN" = "Golden-Browns",
   "EUGLENOID" = "Euglenoids",
   "DINOFLAGELLATE" = "Dinoflagellates",
   "DIATOM" = "Diatoms",

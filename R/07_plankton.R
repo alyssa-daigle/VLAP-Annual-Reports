@@ -17,7 +17,7 @@ make_plankton <- function(input_path, output_path) {
   }
 
   # Get list of stations
-  stations <- unique(data$stationid)
+  stations <- sort(unique(data$stationid))
 
   # Loop over stations
   lapply(stations, function(station_id) {
