@@ -19,7 +19,7 @@ make_temp_DO <- function(input_path, output_path) {
     filter(!is.na(Station))
 
   #get list of unique station names
-  stations <- unique(temp_do$Station)
+  stations <- sort(unique(temp_do$Station))
 
   #loop through each station and make a temp/DO plot
   lapply(
