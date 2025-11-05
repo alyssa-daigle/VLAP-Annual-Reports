@@ -32,19 +32,21 @@ input_path   <- Sys.getenv("INPUT_PATH")
 output_path  <- Sys.getenv("OUTPUT_PATH")
 reg_path     <- Sys.getenv("REG_PATH")
 table_path   <- Sys.getenv("TABLE_PATH")
+reportgen_path <- Sys.getenv("TEMPLATE_PATH")
 
 # ==========================
 # Source helper scripts
 # ==========================
+source(file.path(project_path, "R", "theme.R"))
 source(file.path(project_path, "R", "01_DBConnect.R"))
 source(file.path(project_path, "R", "02_data_reformat.R"))
 source(file.path(project_path, "R", "03_regression.R"))
-source(file.path(project_path, "R", "theme.R"))
 source(file.path(project_path, "R", "04_chl_tp_secchi.R"))
 source(file.path(project_path, "R", "05_pH_cond.R"))
 source(file.path(project_path, "R", "06_temp_DO.R"))
 source(file.path(project_path, "R", "07_plankton.R"))
 source(file.path(project_path, "R", "08_CYA_table.R"))
+source(file.path(reportgen_path, "report_gen.R"))
 
 # ==========================
 # Database + data prep
@@ -84,3 +86,10 @@ message("All plots completed.")
 message("Exporting CYA tables...")
 make_CYA_table(CYA, table_path)
 message("All tables exported.")
+
+# ==========================
+# generate reports
+# ==========================
+message("Starting report generation...")
+report_gen()
+message("All reports generated.")
