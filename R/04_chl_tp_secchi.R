@@ -79,6 +79,8 @@ make_chl_tp_secchi <- function(input_path, output_path) {
         ),
         color = "gray20"
       ) +
+
+      # --- TP lines + points ---
       {
         if (sum(!is.na(df_plot$TP_epi)) > 1) {
           geom_line(
@@ -88,10 +90,15 @@ make_chl_tp_secchi <- function(input_path, output_path) {
         }
       } +
       geom_point(
-        aes(y = TP_epi, color = "Phosphorus (µg/L)"),
-        shape = 17,
+        aes(
+          y = TP_epi,
+          color = "Phosphorus (µg/L)",
+          shape = "Phosphorus (µg/L)"
+        ),
         size = 2
       ) +
+
+      # --- Chl-a lines + points ---
       {
         if (sum(!is.na(df_plot$CHL_comp)) > 1) {
           geom_line(
@@ -101,30 +108,41 @@ make_chl_tp_secchi <- function(input_path, output_path) {
         }
       } +
       geom_point(
-        aes(y = CHL_comp, color = "Chlorophyll-a (µg/L)"),
-        shape = 16,
+        aes(
+          y = CHL_comp,
+          color = "Chlorophyll-a (µg/L)",
+          shape = "Chlorophyll-a (µg/L)"
+        ),
         size = 2
       ) +
+
+      # --- Threshold lines ---
       {
         if (!is.na(tp_thresh)) {
           geom_hline(
-            aes(yintercept = tp_thresh, linetype = "TP Threshold"),
-            color = "red4",
-            size = 0.8,
-            show.legend = TRUE
+            aes(
+              yintercept = tp_thresh,
+              color = "Phos. BTC Threshold",
+              linetype = "Phos. BTC Threshold"
+            ),
+            size = 0.8
           )
         }
       } +
       {
         if (!is.na(chl_thresh)) {
           geom_hline(
-            aes(yintercept = chl_thresh, linetype = "Chl-a Threshold"),
-            color = "springgreen4",
-            size = 0.8,
-            show.legend = TRUE
+            aes(
+              yintercept = chl_thresh,
+              color = "Chlor-a BTC Threshold",
+              linetype = "Chlor-a BTC Threshold"
+            ),
+            size = 0.8
           )
         }
       } +
+
+      # --- Labels ---
       labs(
         title = "Historical Chlorophyll-a, Epilimnetic Phosphorus, \nand Transparency Data",
         x = "Year",
@@ -132,6 +150,8 @@ make_chl_tp_secchi <- function(input_path, output_path) {
         color = NULL,
         linetype = NULL
       ) +
+
+      # --- Scales ---
       scale_fill_manual(
         values = c("Transparency (m)" = "lightsteelblue2"),
         guide = guide_legend(
@@ -148,15 +168,36 @@ make_chl_tp_secchi <- function(input_path, output_path) {
         values = c(
           "Phosphorus (µg/L)" = "red4",
           "Chlorophyll-a (µg/L)" = "springgreen4",
-          "TP Threshold" = "red4",
-          "Chl-a Threshold" = "springgreen4"
+          "Phos. BTC Threshold" = "red4",
+          "Chlor-a BTC Threshold" = "springgreen4"
         )
       ) +
       scale_linetype_manual(
-        values = c("Chl-a Threshold" = "dashed", "TP Threshold" = "dashed")
+        values = c(
+          "Phos. BTC Threshold" = "dashed",
+          "Chlor-a BTC Threshold" = "dashed"
+        )
       ) +
+      scale_shape_manual(
+        values = c(
+          "Phosphorus (µg/L)" = 17, # triangle
+          "Chlorophyll-a (µg/L)" = 16, # circle
+          "Phos. BTC Threshold" = NA, # no shape
+          "Chlor-a BTC Threshold" = NA # no shape
+        )
+      ) +
+
+      # --- Legend merge fix ---
       guides(
-        color = guide_legend(override.aes = list(size = 2, linetype = 0))
+        color = guide_legend(
+          override.aes = list(
+            shape = c(17, 16, NA, NA),
+            linetype = c("solid", "solid", "dashed", "dashed"),
+            size = c(2, 2, 0.8, 0.8)
+          )
+        ),
+        shape = "none",
+        linetype = "none"
       ) +
       theme_bw() +
       theme_chl_tp_secchi()
@@ -179,7 +220,7 @@ make_chl_tp_secchi <- function(input_path, output_path) {
     } else {
       p <- p +
         scale_y_continuous(
-          name = "TP & Chl (µg/L)",
+          name = "TP & Chl-a (µg/L)",
           limits = c(0, y_max_left),
           expand = c(0, 0)
         )

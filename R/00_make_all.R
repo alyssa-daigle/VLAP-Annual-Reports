@@ -1,6 +1,8 @@
 # Load environment variables (if .env exists)
 if (file.exists(".env")) {
-  if (!requireNamespace("dotenv", quietly = TRUE)) install.packages("dotenv")
+  if (!requireNamespace("dotenv", quietly = TRUE)) {
+    install.packages("dotenv")
+  }
   library(dotenv)
   load_dot_env(".env")
 }
@@ -28,16 +30,15 @@ library(magick)
 # Paths from .env
 # ==========================
 project_path <- Sys.getenv("PROJECT_PATH")
-input_path   <- Sys.getenv("INPUT_PATH")
-output_path  <- Sys.getenv("OUTPUT_PATH")
-reg_path     <- Sys.getenv("REG_PATH")
-table_path   <- Sys.getenv("TABLE_PATH")
+input_path <- Sys.getenv("INPUT_PATH")
+output_path <- Sys.getenv("OUTPUT_PATH")
+reg_path <- Sys.getenv("REG_PATH")
+table_path <- Sys.getenv("TABLE_PATH")
 reportgen_path <- Sys.getenv("TEMPLATE_PATH")
 
 # ==========================
 # Source helper scripts
 # ==========================
-source(file.path(project_path, "R", "theme.R"))
 source(file.path(project_path, "R", "01_DBConnect.R"))
 source(file.path(project_path, "R", "02_data_reformat.R"))
 source(file.path(project_path, "R", "03_regression.R"))
