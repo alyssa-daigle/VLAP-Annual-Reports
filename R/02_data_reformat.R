@@ -89,6 +89,11 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
           str_detect(toupper(TEXTRESULT), "ND") ~ HALF_DL,
         TRUE ~ NUMRESULT
       ),
+      # convert TP from mg/L to ug/L
+      NUMRESULT = case_when(
+        WSHEDPARMNAME == "PHOSPHORUS AS P" ~ NUMRESULT * 1000,
+      TRUE ~ NUMRESULT
+    ),
       param_depth = case_when(
         WSHEDPARMNAME == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" &
           DEPTHZONE == "COMPOSITE" ~ "CHL_comp",
@@ -134,17 +139,21 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
     ) |>
     mutate(Year = year(date))
 
-  REG <- REG2 |>
-    group_by(stationid, Year) |>
-    summarise(
-      lake = first(lake),
-      stationname = first(stationname),
-      across(
-        c(CHL_comp, CHL_epi, SPCD_epi, PH_epi, TP_epi, TP_hypo, SECCHI),
-        \(x) mean(x, na.rm = TRUE)
-      ),
-      .groups = "drop"
-    )
+REG <- REG2 |>
+  # join start-year info (left join keeps all lakes; join if available)
+  left_join(lake_start_years, by = "stationid") |>
+  # if a start_year is defined, remove data before it
+  filter(is.na(start_year) | Year >= start_year) |>
+  group_by(stationid, Year) |>
+  summarise(
+    lake = first(lake),
+    stationname = first(stationname),
+    across(
+      c(CHL_comp, CHL_epi, SPCD_epi, PH_epi, TP_epi, TP_hypo, SECCHI),
+      \(x) mean(x, na.rm = TRUE)
+    ),
+    .groups = "drop"
+  )
 
   # ------------------------------------------------------------------------------------------------------------------------
   # CYA (Current Year Averages) processing

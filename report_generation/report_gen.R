@@ -13,6 +13,7 @@ if (file.exists(".env")) {
 # Define paths
 input_path <- Sys.getenv("INPUT_PATH")
 report_path <- Sys.getenv("REPORT_PATH")
+template_path <- Sys.getenv("TEMPLATE_PATH")
 
 # Load LAKEMAP
 LAKEMAP <- read.csv(
@@ -36,7 +37,7 @@ if (!dir.exists(output_dir)) {
 }
 
 # Define template path
-template_path <- "S:/WD-Watershed/Monitoring/Volunteer/VLAP/Data Reporting/Annual reports/2025/VLAP-Annual-Reports/report_generation/report_template.Rmd"
+template_path <- file.path(template_path, "report_template.Rmd")
 
 # Loop through each unique DEEP station
 for (i in seq_len(nrow(LAKEMAP_filtered))) {
@@ -45,7 +46,7 @@ for (i in seq_len(nrow(LAKEMAP_filtered))) {
   station_id <- LAKEMAP_filtered$STATIONID[i]
   town <- LAKEMAP_filtered$TOWN[i]
 
-  # Sanitize file name (replace spaces and special chars)
+  # clena file name
   safe_name <- gsub(
     "[^A-Za-z0-9_-]",
     "_",

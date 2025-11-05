@@ -23,23 +23,34 @@ make_plankton <- function(input_path, output_path) {
   lapply(stations, function(station_id) {
     message(paste0("Working on plankton for ", station_id, "\n"))
 
-    # Prepare plot data
+    # Subset for the station
     plot_data <- data |>
-      filter(stationid == station_id) |>
+      filter(stationid == station_id)
+
+        # Skip if no data or missing year values
+    if (nrow(plot_data) == 0 || all(is.na(plot_data$year))) {
+      message("  -> Skipping ", station_id, " (no valid year data)\n")
+      return(NULL)
+    }
+
+    # Get full year range (so gaps show up)
+    all_years <- seq(min(plot_data$year, na.rm = TRUE),
+                     max(plot_data$year, na.rm = TRUE), by = 1)
+
+    # Aggregate and ensure full grid of years × divisions
+    plot_data <- plot_data |>
       group_by(year, division) |>
       summarise(
         total_cells = sum(count, na.rm = TRUE),
-        .groups = "drop_last" # Keep Year, MONTH grouping for next step
+        .groups = "drop_last"
       ) |>
       mutate(
-        rel_abund = total_cells / sum(total_cells), # Relative abundance per month
-        division = factor(division, levels = names(algae_colors)), # Legend order
-        division_ordered = fct_reorder(division, rel_abund, .desc = FALSE)
+        rel_abund = total_cells / sum(total_cells),
+        division = factor(division, levels = names(algae_colors))
       ) |>
       ungroup() |>
       complete(
-        # Ensure all legend items are always present
-        year,
+        year = all_years,
         division = names(algae_colors),
         fill = list(total_cells = 0, rel_abund = 0)
       )
