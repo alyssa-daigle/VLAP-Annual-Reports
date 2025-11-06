@@ -2,7 +2,6 @@ theme_chl_tp_secchi <- function() {
   list(
     theme(
       panel.grid = element_blank(), # no plot grid
-      legend.position = "right", # position of legend on plot
       legend.background = element_blank(), #element_rect(fill = "transparent", size = 0.5),
       legend.key = element_rect(fill = "white"),
       legend.spacing.y = unit(0.01, "cm"),
@@ -12,9 +11,9 @@ theme_chl_tp_secchi <- function() {
       legend.key.height = unit(0.3, "cm"),
       plot.margin = margin(t = 20, r = 10, b = 10, l = 20),
       plot.title = element_text(
-        hjust = 0.5,
+        hjust = 0.2,
         face = "bold",
-        #margin = margin(b = 20),
+        margin = margin(b = 10),
         size = 13.5
       ),
       axis.line = element_line(color = "gray40"),

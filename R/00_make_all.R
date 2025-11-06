@@ -25,6 +25,8 @@ library(readr)
 library(fs)
 library(stringr)
 library(magick)
+library(png)
+library(grid)
 
 # ==========================
 # Paths from .env

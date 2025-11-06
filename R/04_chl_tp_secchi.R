@@ -24,6 +24,11 @@ make_chl_tp_secchi <- function(input_path, output_path) {
 
   # Loop through each station ID
   lapply(station_list, function(station_id) {
+    temp_path <- file.path(
+      output_path,
+      paste0(station_id, "_chl_tp_secchi.png")
+    )
+
     message(paste0("Working on chl_tp_secchi for ", station_id, "\n"))
 
     df_plot <- data |>
@@ -85,7 +90,7 @@ make_chl_tp_secchi <- function(input_path, output_path) {
         if (sum(!is.na(df_plot$TP_epi)) > 1) {
           geom_line(
             aes(y = TP_epi, group = 1, color = "Phosphorus (µg/L)"),
-            size = 0.8
+            size = 0.65
           )
         }
       } +
@@ -103,7 +108,7 @@ make_chl_tp_secchi <- function(input_path, output_path) {
         if (sum(!is.na(df_plot$CHL_comp)) > 1) {
           geom_line(
             aes(y = CHL_comp, group = 1, color = "Chlorophyll-a (µg/L)"),
-            size = 0.8
+            size = 0.65
           )
         }
       } +
@@ -146,24 +151,11 @@ make_chl_tp_secchi <- function(input_path, output_path) {
       labs(
         title = "Historical Chlorophyll-a, Epilimnetic Phosphorus, \nand Transparency Data",
         x = "Year",
-        fill = NULL,
-        color = NULL,
-        linetype = NULL
+        y = "Chlorophyll-a & Total Phosphorus (µg/L)"
       ) +
 
-      # --- Scales ---
-      scale_fill_manual(
-        values = c("Transparency (m)" = "lightsteelblue2"),
-        guide = guide_legend(
-          override.aes = list(
-            shape = 22,
-            size = 2,
-            fill = "lightsteelblue2",
-            color = "black",
-            linetype = 0
-          )
-        )
-      ) +
+      # --- Scales (no guides) ---
+      scale_fill_manual(values = c("Transparency (m)" = "lightsteelblue2")) +
       scale_color_manual(
         values = c(
           "Phosphorus (µg/L)" = "red4",
@@ -180,27 +172,15 @@ make_chl_tp_secchi <- function(input_path, output_path) {
       ) +
       scale_shape_manual(
         values = c(
-          "Phosphorus (µg/L)" = 17, # triangle
-          "Chlorophyll-a (µg/L)" = 16, # circle
-          "Phos. BTC Threshold" = NA, # no shape
-          "Chlor-a BTC Threshold" = NA # no shape
+          "Phosphorus (µg/L)" = 17,
+          "Chlorophyll-a (µg/L)" = 16
         )
       ) +
 
-      # --- Legend merge fix ---
-      guides(
-        color = guide_legend(
-          override.aes = list(
-            shape = c(17, 16, NA, NA),
-            linetype = c("solid", "solid", "dashed", "dashed"),
-            size = c(2, 2, 0.8, 0.8)
-          )
-        ),
-        shape = "none",
-        linetype = "none"
-      ) +
+      # --- Themes ---
       theme_bw() +
-      theme_chl_tp_secchi()
+      theme_chl_tp_secchi() +
+      theme(legend.position = "none")
 
     if (sum(!is.na(df_plot$SECCHI)) > 1) {
       p <- p +
@@ -226,18 +206,49 @@ make_chl_tp_secchi <- function(input_path, output_path) {
         )
     }
 
-    # Save plot and add full PNG border
-    filename <- paste0(station_id, "_tp_chl_secchi.png")
-    temp_path <- file.path(output_path, filename)
+    # --- Save ggplot (no legend) ---
+    temp_file <- tempfile(fileext = ".png")
+    ggsave(temp_file, plot = p, width = 8, height = 4, dpi = 300, bg = "white")
 
-    ggsave(temp_path, plot = p, width = 8, height = 4, dpi = 300, bg = "white")
+    # --- Reopen and add base R legend ---
+    png(temp_path, width = 8, height = 4, units = "in", res = 300, bg = "white")
+    par(mar = c(0, 0, 0, 0))
+    plot.new()
+    par(usr = c(0, 1, 0, 1))
 
-    img <- magick::image_read(temp_path)
-    img_bordered <- magick::image_border(
-      img,
-      color = "black",
-      geometry = "7x7"
+    # Draw the ggplot image as the background
+    img_raster <- as.raster(
+      magick::image_read(temp_file) %>% magick::image_convert("png")
     )
+
+    rasterImage(img_raster, 0, 0, 1, 1)
+
+    # Add custom legend (Base R)
+    legend(
+      x = "topright", # position of the legend
+      inset = c(0.08, 0.0), #  first = horizontal (left/right), second = vertical (up/down)
+      legend = c(
+        "Transparency (m)",
+        "Chlorophyll a (µg/L)",
+        "Phosphorus (µg/L)",
+        "Chl-a BTC Threshold",
+        "Phos. BTC Threshold"
+      ),
+      pch = c(22, 16, 17, NA, NA), # symbol/point type
+      pt.bg = c("lightsteelblue2", NA, NA, NA, NA), # background/fill color for symbols
+      col = c(NA, "springgreen4", "red4", "springgreen4", "red4"), # color of symbols and/or lines
+      lty = c(0, 1, 1, 2, 2), # line type
+      lwd = c(1, 1.1, 1.1, 1.5, 1.5), # line width
+      pt.cex = c(1.25, 0.8, 0.8, 0.8, 0.8), # size of the point symbols
+      bty = "n", # legend box type
+      y.intersp = 1.2, # vertical spacing between legend entries
+      cex = 0.55 # text size
+    )
+    dev.off()
+
+    # --- Add black border ---
+    img <- magick::image_read(temp_path)
+    img_bordered <- magick::image_border(img, color = "black", geometry = "7x7")
     magick::image_write(img_bordered, path = temp_path, format = "png")
   })
 }
