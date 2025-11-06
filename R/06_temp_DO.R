@@ -51,19 +51,48 @@ make_temp_DO <- function(input_path, output_path) {
       #compute max depth for this station
       max_depth <- max(temp_do_long$Depth, na.rm = TRUE)
 
-      #generate the plot
+      library(ggnewscale)
+
       p <- ggplot(
         temp_do_long,
         aes(
           x = Value,
           y = Depth,
-          color = Variable,
           shape = Month,
           group = interaction(Date, Variable)
         )
       ) +
-        geom_path() +
-        geom_point(size = 2) +
+
+        # Temperature
+        geom_path(
+          data = filter(temp_do_long, Variable == "Temp"),
+          aes(color = Date),
+          show.legend = TRUE # hide color from legend
+        ) +
+        geom_point(
+          data = filter(temp_do_long, Variable == "Temp"),
+          aes(color = Date),
+          size = 2,
+          show.legend = TRUE
+        ) +
+        scale_color_gradient(low = "lightblue", high = "darkblue") + # gradient for Temp
+
+        ggnewscale::new_scale_color() + # new scale for DO
+
+        # DO
+        geom_path(
+          data = filter(temp_do_long, Variable == "DO"),
+          aes(color = Date),
+          show.legend = TRUE
+        ) +
+        geom_point(
+          data = filter(temp_do_long, Variable == "DO"),
+          aes(color = Date),
+          size = 2,
+          show.legend = TRUE
+        ) +
+        scale_color_gradient(low = "lightgreen", high = "darkgreen") + # gradient for DO
+
         scale_y_reverse(breaks = seq(0, ceiling(max_depth), by = 1)) +
         scale_x_continuous(
           breaks = seq(
@@ -72,20 +101,13 @@ make_temp_DO <- function(input_path, output_path) {
             by = 2
           )
         ) +
-        scale_color_manual(
-          values = c("Temp" = "darkblue", "DO" = "darkgreen")
-        ) +
         labs(
           title = "Dissolved Oxygen & Temperature Profiles 2025",
           x = "Temperature (°C) and Dissolved Oxygen (mg/L)",
           y = "Depth (m)",
-          color = "Parameter",
-          shape = "Month"
+          shape = "Month" # keep shapes in legend
         ) +
-        guides(
-          color = guide_legend(order = 1),
-          shape = guide_legend(order = 2)
-        ) +
+        guides(shape = guide_legend(order = 1)) +
         theme_bw(base_size = 14) +
         theme_temp_DO()
 

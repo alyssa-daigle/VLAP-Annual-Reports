@@ -27,6 +27,7 @@ library(stringr)
 library(magick)
 library(png)
 library(grid)
+library(ggnewscale)
 
 # ==========================
 # Paths from .env

@@ -71,11 +71,16 @@ theme_temp_DO <- function() {
       axis.text.x = element_text(size = 10),
       axis.text.y = element_text(size = 10),
       legend.position = "right",
-      legend.text = element_text(size = 9),
-      legend.title = element_text(size = 9)
+      legend.text = element_text(size = 9, face = "bold"),
+      legend.title = element_text(size = 9, face = "bold"),
+      legend.spacing.y = unit(0.1, "cm"), # space between legend items
+      legend.key.height = unit(0.3, "cm"), # height of legend keys
+      legend.margin = margin(t = 0, r = 0, b = 0, l = 0), # reduce space around legend box
+      plot.margin = margin(5, 5, 5, 5) # reduce overall plot margins
     )
   )
 }
+
 
 theme_plankton <- function() {
   list(
