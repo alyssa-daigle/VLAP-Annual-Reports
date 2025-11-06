@@ -236,7 +236,7 @@ make_chl_tp_secchi <- function(input_path, output_path) {
       ),
       pch = c(22, 16, 17, NA, NA), # symbol/point type
       pt.bg = c("lightsteelblue2", NA, NA, NA, NA), # background/fill color for symbols
-      col = c(NA, "springgreen4", "red4", "springgreen4", "red4"), # color of symbols and/or lines
+      col = c("black", "springgreen4", "red4", "springgreen4", "red4"), # color of symbols and/or lines
       lty = c(0, 1, 1, 2, 2), # line type
       lwd = c(1, 1.1, 1.1, 1.5, 1.5), # line width
       pt.cex = c(1.25, 0.8, 0.8, 0.8, 0.8), # size of the point symbols

@@ -16,6 +16,10 @@ make_pH_conduc <- function(input_path, output_path) {
   lapply(
     station_list,
     function(station_id) {
+      temp_path <- file.path(
+        output_path,
+        paste0(station_id, "_pH_conduc.png")
+      )
       message(paste0("working on pH_cond for ", station_id, "\n"))
 
       #select correct station ID + remove NAs
@@ -80,10 +84,7 @@ make_pH_conduc <- function(input_path, output_path) {
         ) +
         theme_bw() +
         theme_pH_conduc() +
-        theme(
-          legend.key.width = unit(0.25, "cm"),
-          legend.key.height = unit(0.25, "cm")
-        ) +
+        theme(legend.position = "none") +
         scale_y_continuous(
           name = "Conductivity (µS/cm)",
           limits = c(0, y_max_left),
@@ -95,12 +96,10 @@ make_pH_conduc <- function(input_path, output_path) {
           )
         )
 
-      # Save plot and add full PNG border
-      filename <- paste0(station_id, "_pH_conduc.png")
-      temp_path <- file.path(output_path, filename)
-
+      # --- Save ggplot (no legend) ---
+      temp_file <- tempfile(fileext = ".png")
       ggsave(
-        temp_path,
+        temp_file,
         plot = p,
         width = 8,
         height = 4,
@@ -108,6 +107,47 @@ make_pH_conduc <- function(input_path, output_path) {
         bg = "white"
       )
 
+      # --- Reopen and add base R legend ---
+      png(
+        temp_path,
+        width = 8,
+        height = 4,
+        units = "in",
+        res = 300,
+        bg = "white"
+      )
+      par(mar = c(0, 0, 0, 0))
+      plot.new()
+      par(usr = c(0, 1, 0, 1))
+
+      # Draw the ggplot image as the background
+      img_raster <- as.raster(
+        magick::image_read(temp_file) %>% magick::image_convert("png")
+      )
+
+      rasterImage(img_raster, 0, 0, 1, 1)
+
+      # Add custom legend (Base R)
+      legend(
+        x = "topright", # position of the legend
+        inset = c(0.07, 0.03), #  first = horizontal (left/right), second = vertical (up/down)
+        legend = c(
+          "pH",
+          "Conductivity"
+        ),
+        pch = c(0, 21), # symbol/point type
+        col = c("black", "red3"), # color of symbols and/or lines
+        pt.bg = c(NA, "red3"), # background/fill color for symbols
+        lty = c(0, 1), # line type
+        lwd = c(1, 1.1), # line width
+        pt.cex = c(1.25, 0.8), # size of the point symbols
+        bty = "n", # legend box type
+        y.intersp = 1.2, # vertical spacing between legend entries
+        cex = 0.55 # text size
+      )
+      dev.off()
+
+      # --- Add black border ---
       img <- magick::image_read(temp_path)
       img_bordered <- magick::image_border(
         img,
