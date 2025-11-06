@@ -39,6 +39,7 @@ reportgen_path <- Sys.getenv("TEMPLATE_PATH")
 # ==========================
 # Source helper scripts
 # ==========================
+source(file.path(project_path, "R", "theme.R"))
 source(file.path(project_path, "R", "01_DBConnect.R"))
 source(file.path(project_path, "R", "02_data_reformat.R"))
 source(file.path(project_path, "R", "03_regression.R"))
