@@ -18,12 +18,15 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       .groups = "drop"
     )
 
-  # ------------------------------------------------------------------------------------------------------------------------
-  #REG dataset
-  DETECTION_LIMIT <- 0.005 # mg/L for TP
-  HALF_DL <- DETECTION_LIMIT / 2 # 0.0025 mg/L
+  # ---------------------------------
+  # REG dataset
+  # ---------------------------------
 
-  #setting start dates for certain lakes with gaps in data
+  # Detection limit handling (convert to µg/L)
+  DETECTION_LIMIT <- 0.005 # mg/L for TP
+  HALF_DL <- DETECTION_LIMIT / 2 #0.0025 mg/L
+
+  # Setting start dates for certain lakes with gaps in data
   lake_start_years <- tibble::tibble(
     stationid = c(
       "ANGSDND",
@@ -67,9 +70,11 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
     )
   )
 
+  # -----------------------------
+  # REG_long processing
+  # -----------------------------
   REG1 <- REG_long |>
     filter(PROJID == "VLAP") |>
-    # keep only proper thermal layers
     select(
       RELLAKE,
       TOWN,
@@ -81,7 +86,16 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       NUMRESULT,
       TEXTRESULT
     ) |>
-    filter(DEPTHZONE %in% c("EPILIMNION", "HYPOLIMNION", "COMPOSITE")) |>
+    # keep standard depth zones or CHL/Secchi regardless of depth
+    filter(
+      DEPTHZONE %in%
+        c("EPILIMNION", "HYPOLIMNION", "COMPOSITE") |
+        WSHEDPARMNAME %in%
+          c(
+            "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN",
+            "SECCHI DISK TRANSPARENCY"
+          )
+    ) |>
     mutate(
       # Handle non-detects for Total Phosphorus
       NUMRESULT = case_when(
@@ -92,13 +106,14 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       # convert TP from mg/L to ug/L
       NUMRESULT = case_when(
         WSHEDPARMNAME == "PHOSPHORUS AS P" ~ NUMRESULT * 1000,
-      TRUE ~ NUMRESULT
-    ),
+        TRUE ~ NUMRESULT
+      ),
+
+      # Assign param_depth for pivoting
       param_depth = case_when(
-        WSHEDPARMNAME == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" &
-          DEPTHZONE == "COMPOSITE" ~ "CHL_comp",
-        WSHEDPARMNAME == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" &
-          DEPTHZONE == "EPILIMNION" ~ "CHL_epi",
+        WSHEDPARMNAME ==
+          "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" ~ "CHL_comp",
+        WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" ~ "SECCHI",
         WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" &
           DEPTHZONE == "EPILIMNION" ~ "SPCD_epi",
         WSHEDPARMNAME == "PH" & DEPTHZONE == "EPILIMNION" ~ "PH_epi",
@@ -106,15 +121,16 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
           DEPTHZONE == "EPILIMNION" ~ "TP_epi",
         WSHEDPARMNAME == "PHOSPHORUS AS P" &
           DEPTHZONE == "HYPOLIMNION" ~ "TP_hypo",
-        WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" ~ "SECCHI",
         TRUE ~ NA_character_
       ),
+      # Standardize station IDs
       stationid = case_when(
         STATIONID %in% c("ROCHLSVLAPD", "ROCHLSD") ~ "ROCHLSVLAPD",
         STATIONID %in% c("PEMMERVLAPD", "PEMMERD") ~ "PEMMERVLAPD",
         STATIONID %in% c("SPEGROVLAPD", "SPEGROD") ~ "SPEGROVLAPD",
         TRUE ~ STATIONID
       ),
+      # Standardize station names
       stationname = case_when(
         STATIONID %in% c("ROCHLSVLAPD", "ROCHLSD") ~ "ROCKY POND-DEEP SPOT",
         STATIONID %in%
@@ -124,6 +140,9 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       )
     )
 
+  # -----------------------------
+  # Pivot wider to get one row per station-date
+  # -----------------------------
   REG2 <- REG1 |>
     filter(!is.na(param_depth)) |>
     pivot_wider(
@@ -137,23 +156,24 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       town = TOWN,
       date = STARTDATE
     ) |>
-    mutate(Year = year(date))
+    mutate(Year = lubridate::year(date))
 
-REG <- REG2 |>
-  # join start-year info (left join keeps all lakes; join if available)
-  left_join(lake_start_years, by = "stationid") |>
-  # if a start_year is defined, remove data before it
-  filter(is.na(start_year) | Year >= start_year) |>
-  group_by(stationid, Year) |>
-  summarise(
-    lake = first(lake),
-    stationname = first(stationname),
-    across(
-      c(CHL_comp, CHL_epi, SPCD_epi, PH_epi, TP_epi, TP_hypo, SECCHI),
-      \(x) mean(x, na.rm = TRUE)
-    ),
-    .groups = "drop"
-  )
+  # -----------------------------
+  # Average per station-year and filter by start year
+  # -----------------------------
+  REG <- REG2 |>
+    left_join(lake_start_years, by = "stationid") |>
+    filter(is.na(start_year) | Year >= start_year) |>
+    group_by(stationid, Year) |>
+    summarise(
+      lake = first(lake),
+      stationname = first(stationname),
+      across(
+        c(CHL_comp, SECCHI, SPCD_epi, PH_epi, TP_epi, TP_hypo),
+        \(x) mean(x, na.rm = TRUE)
+      ),
+      .groups = "drop"
+    )
 
   # ------------------------------------------------------------------------------------------------------------------------
   # CYA (Current Year Averages) processing

@@ -226,7 +226,7 @@ make_chl_tp_secchi <- function(input_path, output_path) {
     # Add custom legend (Base R)
     legend(
       x = "topright", # position of the legend
-      inset = c(0.08, 0.0), #  first = horizontal (left/right), second = vertical (up/down)
+      inset = c(0.08, 0.02), #  first = horizontal (left/right), second = vertical (up/down)
       legend = c(
         "Transparency (m)",
         "Chlorophyll a (µg/L)",
@@ -240,9 +240,10 @@ make_chl_tp_secchi <- function(input_path, output_path) {
       lty = c(0, 1, 1, 2, 2), # line type
       lwd = c(1, 1.1, 1.1, 1.5, 1.5), # line width
       pt.cex = c(1.25, 0.8, 0.8, 0.8, 0.8), # size of the point symbols
-      bty = "n", # legend box type
-      y.intersp = 1.2, # vertical spacing between legend entries
-      cex = 0.55 # text size
+      bty = "o", # legend box type
+      y.intersp = 1.0, # vertical spacing between legend entries
+      cex = 0.55, # text size
+      text.font = 2
     )
     dev.off()
 

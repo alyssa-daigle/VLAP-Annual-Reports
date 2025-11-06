@@ -130,7 +130,7 @@ make_pH_conduc <- function(input_path, output_path) {
       # Add custom legend (Base R)
       legend(
         x = "topright", # position of the legend
-        inset = c(0.07, 0.03), #  first = horizontal (left/right), second = vertical (up/down)
+        inset = c(0.04, 0.03), #  first = horizontal (left/right), second = vertical (up/down)
         legend = c(
           "pH",
           "Conductivity"
@@ -141,9 +141,10 @@ make_pH_conduc <- function(input_path, output_path) {
         lty = c(0, 1), # line type
         lwd = c(1, 1.1), # line width
         pt.cex = c(1.25, 0.8), # size of the point symbols
-        bty = "n", # legend box type
+        bty = "o", # legend box type
         y.intersp = 1.2, # vertical spacing between legend entries
-        cex = 0.55 # text size
+        cex = 0.7, # text size
+        text.font = 2
       )
       dev.off()
 
