@@ -1,12 +1,4 @@
 make_temp_DO <- function(input_path, output_path) {
-  library(readxl)
-  library(dplyr)
-  library(tidyr)
-  library(ggplot2)
-  library(cowplot)
-  library(magick)
-  library(scales)
-
   # Load data
   data <- read_excel(paste0(input_path, "master-DO-2025.xlsm"))
 
@@ -72,7 +64,7 @@ make_temp_DO <- function(input_path, output_path) {
       aes(x = Temp, y = Depth, group = Date, shape = Month, color = Month)
     ) +
       geom_path(aes(color = Month)) +
-      geom_point(aes(fill = Month), size = 1.5, stroke = 0.5) +
+      geom_point(aes(fill = Month), size = 2.0, stroke = 0.5) +
       scale_color_manual(
         values = scales::seq_gradient_pal("lightgreen", "darkgreen")(seq(
           0,
@@ -93,7 +85,10 @@ make_temp_DO <- function(input_path, output_path) {
           override.aes = list(color = "black", fill = "black")
         )
       ) +
-      scale_y_reverse(breaks = seq(0, ceiling(max_depth), by = 1)) +
+      scale_y_reverse(
+        limits = c(max_depth, 0),
+        breaks = seq(0, ceiling(max_depth), by = 1)
+      ) +
       scale_x_continuous(limits = temp_limits) +
       labs(x = "Temperature (°C)", y = "Depth (m)") +
       theme_bw(base_size = 13) +
@@ -103,7 +98,10 @@ make_temp_DO <- function(input_path, output_path) {
         legend.title = element_blank(),
         legend.text = element_text(size = 8),
         plot.title = element_text(hjust = 0.5, face = "bold"),
-        panel.grid.minor = element_blank()
+        panel.grid.minor = element_blank(),
+        legend.margin = margin(t = 0, r = 0, b = 0, l = 0),
+        legend.box.margin = margin(t = 0, r = 0, b = 0, l = 0),
+        axis.title.x = element_text(margin = margin(t = 2))
       )
 
     # DO plot
@@ -112,7 +110,7 @@ make_temp_DO <- function(input_path, output_path) {
       aes(x = DO, y = Depth, group = Date, shape = Month, color = Month)
     ) +
       geom_path(aes(color = Month)) +
-      geom_point(aes(fill = Month), size = 1.5, stroke = 0.5) +
+      geom_point(aes(fill = Month), size = 2.0, stroke = 0.5) +
       scale_color_manual(
         values = scales::seq_gradient_pal("lightblue", "darkblue")(seq(
           0,
@@ -133,7 +131,10 @@ make_temp_DO <- function(input_path, output_path) {
           override.aes = list(color = "black", fill = "black")
         )
       ) +
-      scale_y_reverse(breaks = seq(0, ceiling(max_depth), by = 1)) +
+      scale_y_reverse(
+        limits = c(max_depth, 0),
+        breaks = seq(0, ceiling(max_depth), by = 1)
+      ) +
       scale_x_continuous(limits = DO_limits) +
       labs(x = "Dissolved Oxygen (mg/L)", y = "") +
       theme_bw(base_size = 13) +
@@ -143,7 +144,10 @@ make_temp_DO <- function(input_path, output_path) {
         legend.title = element_blank(),
         legend.text = element_text(size = 8),
         plot.title = element_text(hjust = 0.5, face = "bold"),
-        panel.grid.minor = element_blank()
+        panel.grid.minor = element_blank(),
+        legend.margin = margin(t = 0, r = 0, b = 0, l = 0),
+        legend.box.margin = margin(t = 0, r = 0, b = 0, l = 0),
+        axis.title.x = element_text(margin = margin(t = 2))
       )
 
     # Extract shared legend (black shapes only)
