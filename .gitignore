@@ -40,3 +40,5 @@ tables/
 warnings_log.txt
 
 reports/
+
+data/LAKEMAP.csv
