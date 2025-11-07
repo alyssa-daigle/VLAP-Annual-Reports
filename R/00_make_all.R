@@ -28,6 +28,8 @@ library(magick)
 library(png)
 library(grid)
 library(ggnewscale)
+library(scales)
+
 
 # ==========================
 # Paths from .env
