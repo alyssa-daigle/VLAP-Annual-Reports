@@ -218,7 +218,7 @@ make_chl_tp_secchi <- function(input_path, output_path) {
 
     # Draw the ggplot image as the background
     img_raster <- as.raster(
-      magick::image_read(temp_file) %>% magick::image_convert("png")
+      magick::image_read(temp_file) |> magick::image_convert("png")
     )
 
     rasterImage(img_raster, 0, 0, 1, 1)

@@ -91,7 +91,7 @@ message("All plots completed.")
 # CYA table exports
 # ==========================
 message("Exporting CYA tables...")
-make_CYA_table(CYA, table_path)
+make_CYA_table(CYA, table_path, input_path)
 message("All tables exported.")
 
 # ==========================
