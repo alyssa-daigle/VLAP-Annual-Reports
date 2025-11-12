@@ -17,8 +17,12 @@ report_gen <- function() {
   template_path <- Sys.getenv("TEMPLATE_PATH")
 
   # Verify paths exist
-  if (!dir.exists(input_path)) stop("Input path does not exist: ", input_path)
-  if (!dir.exists(template_path)) stop("Template path does not exist: ", template_path)
+  if (!dir.exists(input_path)) {
+    stop("Input path does not exist: ", input_path)
+  }
+  if (!dir.exists(template_path)) {
+    stop("Template path does not exist: ", template_path)
+  }
 
   # Load LAKEMAP
   LAKEMAP <- read.csv(
@@ -43,7 +47,9 @@ report_gen <- function() {
 
   # Define template path
   template_file <- file.path(template_path, "report_template.Rmd")
-  if (!file.exists(template_file)) stop("Template not found at: ", template_file)
+  if (!file.exists(template_file)) {
+    stop("Template not found at: ", template_file)
+  }
 
   # Loop through each unique DEEP station
   for (i in seq_len(nrow(LAKEMAP_filtered))) {
@@ -51,11 +57,16 @@ report_gen <- function() {
     station <- LAKEMAP_filtered$STATNAME[i]
     station_id <- LAKEMAP_filtered$STATIONID[i]
     town <- LAKEMAP_filtered$TOWN[i]
+    lake_full <- LAKEMAP_filtered$LAKE_FULL[i]
 
     # Clean file name
-    safe_name <- gsub("[^A-Za-z0-9_-]", "_", paste0(station, "_", lake, "_", town))
+    safe_name <- gsub(
+      "[^A-Za-z0-9_-]",
+      "_",
+      paste0(station, "_", town)
+    )
 
-    message("Rendering report for: ", lake, " (", station, ", ", town, ")")
+    message("Rendering report for station: ", station, " (", town, ")")
 
     # Render report
     rmarkdown::render(
@@ -67,7 +78,8 @@ report_gen <- function() {
         lake = lake,
         station = station,
         station_id = station_id,
-        town = town
+        town = town,
+        lake_full = lake_full
       ),
       envir = new.env() # isolate each run
     )

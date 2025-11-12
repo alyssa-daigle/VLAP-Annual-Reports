@@ -8,6 +8,7 @@ params:
   station: NULL
   station_id: NULL
   town: NULL
+  lake_full: NULL
 ---
 
 ```{r setup, include=FALSE}
@@ -47,8 +48,7 @@ library(magrittr)
 
 accent1_60 <- "#DCE6F1"  # same light blue fill
 
-station_id <- params$station_id # change per lake
-
+station_id <- params$station_id 
 # Locate trend CSV
 trend_file <- list.files(
   table_path,
@@ -136,11 +136,11 @@ if (length(plot_files) >= 4) knitr::include_graphics(plot_files[4])
 
 #### Table 1. 2025 Average Water Quality Data for `r toupper(lake)` – `r town`
 ```{r avg water quality}
-lake <- params$lake
+lake_full <- params$lake_full
 accent1_60 <- "#DCE6F1"
 
 # Replace spaces with underscores and escape any regex characters
-lake_clean <- gsub(" ", "_", lake)
+lake_clean <- gsub(" ", "_", lake_full)
 lake_clean <- gsub("([\\(\\)\\[\\]\\+\\?\\*\\.\\^\\$])", "\\\\\\1", lake_clean)
 
 # Search for CYA CSV file
@@ -186,9 +186,9 @@ if (length(cya_file) == 1) {
   
   ft_cya
 } else if (length(cya_file) == 0) {
-  cat("**CYA summary not found for", lake, "**")
+  cat("**CYA summary not found for", lake_full, "**")
 } else {
-  cat("**Multiple CYA files found for", lake, "- please check directory**")
+  cat("**Multiple CYA files found for", lake_full, "- please check directory**")
 }
 ```
 
