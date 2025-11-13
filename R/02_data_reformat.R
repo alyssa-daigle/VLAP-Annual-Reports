@@ -252,10 +252,26 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
   cya_stations <- unique(CYA$STATIONID)
 
   # Subset CYA_full to only include those stations, keeping original STATNAME
-  LAKEMAP <- CYA_full |>
+  LAKEMAP_partial <- CYA_full |>
     filter(STATIONID %in% cya_stations) |>
     select(RELLAKE, STATNAME, STATIONID, TOWN) |>
     distinct()
+
+  lookup_file <- file.path(input_path, "lookup.xlsx")
+  if (!file.exists(lookup_file)) {
+    stop("Lookup table not found at: ", lookup_file)
+  }
+
+  lookup_table <- read_excel(lookup_file) |>
+    distinct(WQDStationID, .keep_all = TRUE) # ensure one lake per station
+
+  LAKEMAP <- LAKEMAP_partial |>
+    left_join(
+      lookup_table |> select(WQDStationID, lake),
+      by = c("STATIONID" = "WQDStationID")
+    ) |>
+    mutate(RELLAKE = ifelse(!is.na(lake), lake, RELLAKE)) |>
+    select(-lake)
 
   write.csv(
     LAKEMAP,

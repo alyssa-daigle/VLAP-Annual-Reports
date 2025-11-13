@@ -8,7 +8,6 @@ params:
   station: NULL
   station_id: NULL
   town: NULL
-  lake_full: NULL
 ---
 
 ```{r setup, include=FALSE}
@@ -136,11 +135,11 @@ if (length(plot_files) >= 4) knitr::include_graphics(plot_files[4])
 
 #### Table 1. 2025 Average Water Quality Data for `r toupper(lake)` – `r town`
 ```{r avg water quality}
-lake_full <- params$lake_full
+lake <- params$lake
 accent1_60 <- "#DCE6F1"
 
 # Replace spaces with underscores and escape any regex characters
-lake_clean <- gsub(" ", "_", lake_full)
+lake_clean <- gsub(" ", "_", lake)
 lake_clean <- gsub("([\\(\\)\\[\\]\\+\\?\\*\\.\\^\\$])", "\\\\\\1", lake_clean)
 
 # Search for CYA CSV file
@@ -186,9 +185,9 @@ if (length(cya_file) == 1) {
   
   ft_cya
 } else if (length(cya_file) == 0) {
-  cat("**CYA summary not found for", lake_full, "**")
+  cat("**CYA summary not found for", lake, "**")
 } else {
-  cat("**Multiple CYA files found for", lake_full, "- please check directory**")
+  cat("**Multiple CYA files found for", lake, "- please check directory**")
 }
 ```
 

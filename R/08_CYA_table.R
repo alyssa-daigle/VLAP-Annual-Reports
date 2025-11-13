@@ -1,30 +1,23 @@
-make_CYA_table <- function(CYA, table_path, input_path) {
+make_CYA_table <- function(CYA, LAKEMAP, table_path, input_path) {
   if (!dir.exists(table_path)) {
     dir.create(table_path, recursive = TRUE)
   }
 
-  lookup_file <- file.path(input_path, "lookup.xlsx")
-  if (!file.exists(lookup_file)) {
-    stop("Lookup table not found at: ", lookup_file)
-  }
-
-  lookup_table <- read_excel(lookup_file) |>
-    distinct(WQDStationID, .keep_all = TRUE) # ensure one lake per station
-
+  # Join with LAKEMAP instead of lookup_table
   CYA_updated <- CYA |>
     left_join(
-      lookup_table |> select(WQDStationID, lake),
-      by = c("STATIONID" = "WQDStationID")
+      LAKEMAP |> select(STATIONID, lake = RELLAKE),
+      by = "STATIONID"
     ) |>
     mutate(RELLAKE = ifelse(!is.na(lake), lake, RELLAKE)) |>
     select(-lake)
 
-  # export CSVs
-  unique_lakes <- unique(CYA_updated$RELLAKE)
+  # Export CSVs for each lake found in LAKEMAP
+  unique_lakes <- unique(LAKEMAP$RELLAKE)
   for (lake in unique_lakes) {
     lake_data <- CYA_updated |> filter(RELLAKE == lake)
 
-    # remove RELLAKE, STATIONID, and TOWN before export
+    # Remove RELLAKE, STATIONID, and TOWN before export
     lake_data_out <- lake_data |> select(-RELLAKE, -STATIONID, -TOWN)
 
     file_name <- paste0(gsub(" ", "_", lake), "_CYA.csv")

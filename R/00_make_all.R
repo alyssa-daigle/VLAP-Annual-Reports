@@ -53,7 +53,7 @@ source(file.path(project_path, "R", "05_pH_cond.R"))
 source(file.path(project_path, "R", "06_temp_DO.R"))
 source(file.path(project_path, "R", "07_plankton.R"))
 source(file.path(project_path, "R", "08_CYA_table.R"))
-source(file.path(reportgen_path, "report_gen.R"))
+source(file.path(project_path, "R", "09_report_gen.R"))
 
 # ==========================
 # Database + data prep
@@ -91,7 +91,7 @@ message("All plots completed.")
 # CYA table exports
 # ==========================
 message("Exporting CYA tables...")
-make_CYA_table(CYA, table_path, input_path)
+make_CYA_table(CYA, LAKEMAP, table_path, input_path)
 message("All tables exported.")
 
 # ==========================

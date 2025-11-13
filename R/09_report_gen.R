@@ -57,7 +57,6 @@ report_gen <- function() {
     station <- LAKEMAP_filtered$STATNAME[i]
     station_id <- LAKEMAP_filtered$STATIONID[i]
     town <- LAKEMAP_filtered$TOWN[i]
-    lake_full <- LAKEMAP_filtered$LAKE_FULL[i]
 
     # Clean file name
     safe_name <- gsub(
@@ -79,7 +78,7 @@ report_gen <- function() {
         station = station,
         station_id = station_id,
         town = town,
-        lake_full = lake_full
+        lake = lake
       ),
       envir = new.env() # isolate each run
     )
