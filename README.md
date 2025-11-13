@@ -27,6 +27,7 @@ The individual scripts called by `make_all.R` include:
 ## Other Important Files
 
 -   **`BTC.xlsx`**: provides the Best Trophic Class ever assigned to each lake.
+-   **`LAKEMAP.csv`**: provides a comprehensive list of all lakes and their stations participating in VLAP.
 -   **`lookup.csv`**: acts as a map for lakes that have multiple deep spots and tributaries associated with different deep spots.
 -   **`master-DO-2025.xlsm`**: copy of the master DO file; needs to be re-copied into this repo annually.
 -   **`phytoplankton-master.xlsm`**: copy of the master phytoplankton file; needs to be re-copied into this repo annually.
