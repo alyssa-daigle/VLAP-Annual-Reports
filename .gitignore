@@ -33,13 +33,10 @@ Thumbs.db
 *.jpg
 *.jpeg
 
-# Ignore regression and table outputs
+# Ignore regression, table, and report outputs
 regression/
 tables/
-
-warnings_log.txt
-
 reports/
 
-data/LAKEMAP.csv
+# other files
 data/pH_conduc.xlsx
