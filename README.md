@@ -8,7 +8,7 @@ This repository contains scripts used to streamline the Annual Report workflow b
 
 ## Functions
 
-The individual scripts called by `make_all.R` include:
+The individual scripts called by **`00_make_all.R`** include:
 
 -   **`01_DBconnect.R`**: Connects to NHDES EMD to pull recent data.
 -   **`02_data_reformat.R`**: Reformats data to rename columns and make data handling easier.
