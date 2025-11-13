@@ -2,9 +2,9 @@
 
 This repository contains scripts used to streamline the Annual Report workflow by performing regressions for trend analysis, generating all plots, and generating a report document for each VLAP sampling station using a single script.
 
-## Main Plotting Script
+## Main Script
 
--   **`00_make_all.R`**: The main "conglomerate" plotting script that can be run to generate all plots and reports at once.
+-   **`00_make_all.R`**: The main "conglomerate" script that can be run to perform all data collection/reformating/analysis, plotting, and report generating at once.
 
 ## Functions
 
