@@ -67,6 +67,7 @@ processed <- data_reformat(db_res$BTC_full, db_res$REG_long, db_res$CYA_full)
 BTC <- processed$BTC
 REG <- processed$REG
 CYA <- processed$CYA
+LAKEMAP <- processed$LAKEMAP
 
 dbDisconnect(con)
 message("Database connection closed.")
