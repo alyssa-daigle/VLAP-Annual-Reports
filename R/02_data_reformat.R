@@ -221,6 +221,13 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
         TRUE ~ STATNAME
       )
     ) |>
+    mutate(
+      NUMRESULT = case_when(
+        WSHEDPARMNAME == "PHOSPHORUS AS P" & is.na(NUMRESULT) ~ -9999,
+        TRUE ~ NUMRESULT
+      )
+    ) |>
+
     filter(!is.na(param_depth)) |>
     group_by(RELLAKE, STATNAME, STATIONID, TOWN, param_depth) |>
     summarise(avg_result = mean(NUMRESULT, na.rm = TRUE), .groups = "drop") |>
@@ -228,11 +235,25 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       names_from = param_depth,
       values_from = avg_result
     ) |>
+    # Convert ND flag to "<5" for TP
+    # Flag TP non-detects (NUMRESULT is NA for 2025 ND)
+    mutate(
+      NUMRESULT = case_when(
+        WSHEDPARMNAME == "PHOSPHORUS AS P" & is.na(NUMRESULT) ~ -9999,
+        TRUE ~ NUMRESULT
+      )
+    ) |>
     arrange(
       RELLAKE,
       factor(STATNAME, levels = c("Epilimnion", "Metalimnion", "Hypolimnion"))
     ) |>
-    mutate(`Total P (μg/L)` = `Total P (μg/L)` * 1000)
+    mutate(
+      `Total P (μg/L)` = ifelse(
+        `Total P (μg/L)` == "<5",
+        "<5",
+        `Total P (μg/L)` * 1000
+      )
+    )
 
   CYA <- CYA |>
     mutate(
@@ -241,7 +262,11 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       `Chloride (mg/L)` = round(`Chloride (mg/L)`, 0),
       `Color (pcu)` = round(`Color (pcu)`, 0),
       `E. coli (mpn/100 mL)` = round(`E. coli (mpn/100 mL)`, 0),
-      `Total P (μg/L)` = round(`Total P (μg/L)`, 0),
+      `Total P (μg/L)` = ifelse(
+        `Total P (μg/L)` == "<5",
+        "<5",
+        round(as.numeric(`Total P (μg/L)`), 0)
+      ),
       `Trans. NVS (m)` = round(`Trans. NVS (m)`, 2),
       `Trans. VS (m)` = round(`Trans. VS (m)`, 2),
       `Turb. (ntu)` = round(`Turb. (ntu)`, 2),
