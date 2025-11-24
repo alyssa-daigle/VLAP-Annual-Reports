@@ -136,21 +136,29 @@ if (length(plot_files) >= 4) knitr::include_graphics(plot_files[4])
 #### Table 1. 2025 Average Water Quality Data for `r toupper(lake)` – `r town`
 ```{r avg water quality}
 lake <- params$lake
+town <- params$town   # NEW: town passed in from params
 accent1_60 <- "#DCE6F1"
 
-# Replace spaces with underscores and escape any regex characters
+# Clean lake & town strings for file matching
 lake_clean <- gsub(" ", "_", lake)
-lake_clean <- gsub("([\\(\\)\\[\\]\\+\\?\\*\\.\\^\\$])", "\\\\\\1", lake_clean)
+town_clean <- gsub(" ", "_", town)
 
-# Search for CYA CSV file
+# Escape regex special characters
+lake_clean <- gsub("([\\(\\)\\[\\]\\+\\?\\*\\.\\^\\$])", "\\\\\\1", lake_clean)
+town_clean <- gsub("([\\(\\)\\[\\]\\+\\?\\*\\.\\^\\$])", "\\\\\\1", town_clean)
+
+# Search pattern: Lake_Town_CYA.csv
+pattern <- paste0("^", lake_clean, "_", town_clean, "_CYA\\.csv$")
+
 cya_file <- list.files(
   table_path,
-  pattern = paste0("^", lake_clean, ".*_CYA\\.csv$"),
+  pattern = pattern,
   full.names = TRUE,
   ignore.case = TRUE
 )
 
 if (length(cya_file) == 1) {
+
   cya_data <- read.csv(cya_file, check.names = FALSE, stringsAsFactors = FALSE)
   
   if ("STATNAME" %in% names(cya_data)) {
@@ -161,7 +169,6 @@ if (length(cya_file) == 1) {
     select(where(~ !all(is.na(.x) | .x == ""))) |>
     mutate(across(where(is.numeric), round, 2))
   
-  # create base flextable
   ft_cya <- flextable(cya_data) |>
     bold(part = "header") |>
     bg(bg = accent1_60, part = "all") |>
@@ -175,7 +182,6 @@ if (length(cya_file) == 1) {
     set_table_properties(layout = "autofit") |>
     font(fontname = "Aptos", part = "all")
   
-  # Conditionally align body rows/columns to avoid out-of-range selections
   if (nrow(cya_data) >= 2) {
     ft_cya <- align(ft_cya, j = 1, i = 2:nrow(cya_data), align = "left", part = "body")
   }
@@ -184,10 +190,15 @@ if (length(cya_file) == 1) {
   }
   
   ft_cya
+
 } else if (length(cya_file) == 0) {
-  cat("**CYA summary not found for", lake, "**")
+
+  cat("**CYA summary not found for ", lake, ", ", town, "**")
+
 } else {
-  cat("**Multiple CYA files found for", lake, "- please check directory**")
+
+  cat("**Multiple CYA files found for ", lake, ", ", town, " – please check directory**")
+
 }
 ```
 
