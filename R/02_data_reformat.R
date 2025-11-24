@@ -190,6 +190,8 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       ANALYTICALMETHOD
     ) |>
     filter(PYEAR == 2025) |>
+
+    # Map parameter names
     mutate(
       param_depth = case_when(
         WSHEDPARMNAME == "GRAN ACID NEUTRALIZING CAPACITY" ~ "Alk. (mg/L)",
@@ -208,6 +210,8 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
         WSHEDPARMNAME == "PH" ~ "pH",
         TRUE ~ NA_character_
       ),
+
+      # Standardize STATNAME depth labels
       STATNAME = case_when(
         str_detect(STATNAME, "DEEP SPOT") ~ case_when(
           toupper(DEPTHZONE) == "COMPOSITE" ~ "Epilimnion",
@@ -221,56 +225,50 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
         TRUE ~ STATNAME
       )
     ) |>
-    mutate(
-      NUMRESULT = case_when(
-        WSHEDPARMNAME == "PHOSPHORUS AS P" & is.na(NUMRESULT) ~ -9999,
-        TRUE ~ NUMRESULT
-      )
-    ) |>
 
     filter(!is.na(param_depth)) |>
+
+    # Average samples (ND stays NA)
     group_by(RELLAKE, STATNAME, STATIONID, TOWN, param_depth) |>
     summarise(avg_result = mean(NUMRESULT, na.rm = TRUE), .groups = "drop") |>
+
+    # Wide format
     pivot_wider(
       names_from = param_depth,
       values_from = avg_result
     ) |>
-    # Convert ND flag to "<5" for TP
-    # Flag TP non-detects (NUMRESULT is NA for 2025 ND)
+
+    # Convert TP nondetect (still NA) → "<5"
     mutate(
-      NUMRESULT = case_when(
-        WSHEDPARMNAME == "PHOSPHORUS AS P" & is.na(NUMRESULT) ~ -9999,
-        TRUE ~ NUMRESULT
+      `Total P (μg/L)` = case_when(
+        is.na(`Total P (μg/L)`) ~ "<5", # all ND
+        TRUE ~ as.character(`Total P (μg/L)` * 1000) # convert mg/L → µg/L
       )
     ) |>
+
     arrange(
       RELLAKE,
       factor(STATNAME, levels = c("Epilimnion", "Metalimnion", "Hypolimnion"))
     ) |>
-    mutate(
-      `Total P (μg/L)` = ifelse(
-        `Total P (μg/L)` == "<5",
-        "<5",
-        `Total P (μg/L)` * 1000
-      )
-    )
 
-  CYA <- CYA |>
+    # Final rounding and formatting
     mutate(
       `Alk. (mg/L)` = round(`Alk. (mg/L)`, 1),
       `Chlor-a (μg/L)` = round(`Chlor-a (μg/L)`, 2),
       `Chloride (mg/L)` = round(`Chloride (mg/L)`, 0),
       `Color (pcu)` = round(`Color (pcu)`, 0),
       `E. coli (mpn/100 mL)` = round(`E. coli (mpn/100 mL)`, 0),
-      `Total P (μg/L)` = ifelse(
-        `Total P (μg/L)` == "<5",
-        "<5",
-        round(as.numeric(`Total P (μg/L)`), 0)
-      ),
       `Trans. NVS (m)` = round(`Trans. NVS (m)`, 2),
       `Trans. VS (m)` = round(`Trans. VS (m)`, 2),
       `Turb. (ntu)` = round(`Turb. (ntu)`, 2),
-      `pH` = round(`pH`, 2)
+      pH = round(pH, 2),
+
+      # Final TP formatting
+      `Total P (μg/L)` = if_else(
+        `Total P (μg/L)` == "<5",
+        "<5",
+        as.character(round(as.numeric(`Total P (μg/L)`), 0))
+      )
     )
 
   # Get the list of station IDs that have 2025 CYA data
