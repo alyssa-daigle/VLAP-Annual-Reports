@@ -60,7 +60,8 @@ DBConnect <- function(dsn = "DESPRD") {
       RESULTUNITS,
       TEXTRESULT,
       ANALYTICALMETHOD,
-      DETLIM
+      DETLIM, 
+      PROJID
   FROM
       WQD_REPORT_VIEW
   WHERE
