@@ -48,6 +48,46 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       "WAUDAND",
       "WILPFDD"
     ),
+    lake = c(
+      "ANGLE POND",
+      "COUNTRY POND",
+      "CRYSTAL LAKE",
+      "DORRS POND",
+      "EMERSON POND",
+      "FLINTS POND",
+      "FRANKLIN PIERCE LAKE",
+      "HOWE RESERVOIR",
+      "JENNESS POND",
+      "LONG POND",
+      "PEMIGEWASSET LAKE",
+      "PHILLIPS POND",
+      "ROCKWOOD POND",
+      "SAWYER LAKE",
+      "LAKE TARLETON",
+      "WARREN LAKE",
+      "WAUKEENA LAKE",
+      "WILD GOOSE POND"
+    ),
+    town = c(
+      "SANDOWN",
+      "KINGSTON",
+      "MANCHESTER",
+      "MANCHESTER",
+      "RINDGE",
+      "HOLLIS",
+      "HILLSBOROUGH",
+      "DUBLIN",
+      "NORTHWOOD",
+      "PELHAM",
+      "MEREDITH",
+      "SANDOWN",
+      "FITZWILLIAM",
+      "GILMANTON",
+      "PIERMONT",
+      "ALSTEAD",
+      "DANBURY",
+      "PITTSFIELD"
+    ),
     start_year = c(
       2005,
       2018,
@@ -284,7 +324,17 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
     ) |>
     rename(
       Year = PYEAR
-    )
+    ) |>
+    # apply lake + town specific start years
+    left_join(
+      lake_start_years,
+      by = c(
+        "RELLAKE" = "lake",
+        "TOWN" = "town"
+      )
+    ) |>
+    filter(is.na(start_year) | Year >= start_year) |>
+    select(-start_year)
 
   # Get the list of station IDs that have 2025 CYA data
   cya_stations <- unique(CYA_2025$STATIONID)
