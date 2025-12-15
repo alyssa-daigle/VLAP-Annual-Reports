@@ -1,10 +1,10 @@
-make_CYA_table <- function(CYA, LAKEMAP, table_path, input_path) {
+make_CYA_table <- function(CYA_2025, LAKEMAP, table_path, input_path) {
   if (!dir.exists(table_path)) {
     dir.create(table_path, recursive = TRUE)
   }
 
   # Join with LAKEMAP to get updated lake names
-  CYA_updated <- CYA |>
+  CYA_updated <- CYA_2025 |>
     left_join(
       LAKEMAP |> select(STATIONID, lake = RELLAKE),
       by = "STATIONID"
@@ -30,7 +30,11 @@ make_CYA_table <- function(CYA, LAKEMAP, table_path, input_path) {
     town_clean <- gsub(" ", "_", town)
     file_name <- paste0(lake_clean, "_", town_clean, "_CYA.csv")
 
-    write_csv(lake_data_out, file.path(table_path, file_name))
+    write_csv(
+      lake_data_out,
+      file.path(table_path, file_name),
+      na = "-"
+    )
   }
 
   message(

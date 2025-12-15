@@ -177,7 +177,7 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
 
   # ------------------------------------------------------------------------------------------------------------------------
   # CYA (Current Year Averages) processing
-  CYA <- CYA_full |>
+  CYA_base <- CYA_full |>
     select(
       RELLAKE,
       STATNAME,
@@ -189,7 +189,6 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       NUMRESULT,
       ANALYTICALMETHOD
     ) |>
-    filter(PYEAR == 2025) |>
 
     # Map parameter names
     mutate(
@@ -226,13 +225,12 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       )
     ) |>
 
-    filter(!is.na(param_depth)) |>
+    filter(!is.na(param_depth))
 
-    # Average samples (ND stays NA)
+  CYA_2025 <- CYA_base |>
+    filter(PYEAR == 2025) |>
     group_by(RELLAKE, STATNAME, STATIONID, TOWN, param_depth) |>
     summarise(avg_result = mean(NUMRESULT, na.rm = TRUE), .groups = "drop") |>
-
-    # Wide format
     pivot_wider(
       names_from = param_depth,
       values_from = avg_result
@@ -271,8 +269,25 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       )
     )
 
+  CYA_long <- CYA_base |>
+    group_by(
+      RELLAKE,
+      STATIONID,
+      STATNAME,
+      TOWN,
+      PYEAR,
+      param_depth
+    ) |>
+    summarise(
+      avg_result = mean(NUMRESULT, na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    rename(
+      Year = PYEAR
+    )
+
   # Get the list of station IDs that have 2025 CYA data
-  cya_stations <- unique(CYA$STATIONID)
+  cya_stations <- unique(CYA_2025$STATIONID)
 
   # Subset CYA_full to only include those stations, keeping original STATNAME
   LAKEMAP_partial <- CYA_full |>
@@ -303,5 +318,11 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
   )
 
   # return list of tidy dataframes
-  list(BTC = BTC, REG = REG, CYA = CYA, LAKEMAP = LAKEMAP)
+  list(
+    BTC = BTC,
+    REG = REG,
+    CYA_2025 = CYA_2025,
+    CYA_long = CYA_long,
+    LAKEMAP = LAKEMAP
+  )
 }

@@ -160,7 +160,7 @@ run_vlap_regressions <- function(
     # save formatted summary
     write_csv(
       display_table,
-      file.path(table_path, paste0("TrendSummary_", st, ".csv"))
+      file.path(table_path, paste0("REG_TrendSummary_", st, ".csv"))
     )
   }
 }

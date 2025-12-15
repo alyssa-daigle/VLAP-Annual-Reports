@@ -54,6 +54,33 @@ theme_pH_conduc <- function() {
   )
 }
 
+theme_chloride <- function() {
+  list(
+    theme(
+      panel.grid = element_blank(),
+      legend.position = "right",
+      legend.background = element_rect(fill = "transparent"),
+      legend.key = element_rect(fill = "white"),
+      legend.spacing.y = unit(0.01, "cm"),
+      legend.margin = margin(t = 2, r = 2, b = 2, l = 1),
+      legend.text = element_text(size = 10),
+      plot.margin = margin(t = 20, r = 5, b = 10, l = 20),
+      plot.title = element_text(
+        hjust = 0.5,
+        face = "bold",
+        margin = margin(b = 20),
+        size = 13
+      ),
+      panel.border = element_blank(),
+      axis.line = element_line(color = "gray40"),
+      axis.title.x = element_text(size = 12, face = "bold"),
+      axis.title.y = element_text(size = 12, face = "bold"),
+      axis.text.y = element_text(size = 10),
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 8)
+    )
+  )
+}
+
 theme_temp_DO <- function() {
   list(
     theme(

@@ -51,7 +51,7 @@ station_id <- params$station_id
 # Locate trend CSV
 trend_file <- list.files(
   table_path,
-  pattern = paste0("TrendSummary_", station_id, ".*\\.csv$"),
+  pattern = paste0("TrendSummary_", station_id, ".*\\.csv$"), #NEED TO EDIT THIS PART DEPENDING ON WHAT TREND (REG VS MK) WE WANT TO INCLUDE
   full.names = TRUE,
   ignore.case = TRUE
 )
