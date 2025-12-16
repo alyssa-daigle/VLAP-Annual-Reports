@@ -78,7 +78,7 @@ if (length(trend_file) == 1) {
     padding(padding.top = 0, padding.bottom = 0, part = "all") |> 
     fontsize(size = 10, part = "all") |>         # smaller text
     set_table_properties(width = 0.4, layout = "autofit") |>
-    font(fontname = "Aptos", part = "all") |>
+    font(fontname = "Calibri", part = "all") |>
     autofit()
   
   ft_trend
@@ -181,7 +181,7 @@ if (length(cya_file) == 1) {
     padding(padding.top = 0, padding.bottom = 0, part = "all") |> 
     fontsize(size = 9.5, part = "all") |>          
     set_table_properties(layout = "autofit") |>
-    font(fontname = "Aptos", part = "all")
+    font(fontname = "Calibri", part = "all")
   
   if (nrow(cya_data) >= 2) {
     ft_cya <- align(ft_cya, j = 1, i = 2:nrow(cya_data), align = "left", part = "body")
@@ -253,7 +253,7 @@ ft_median <- flextable(median_values) |>
     padding(padding.top = 0, padding.bottom = 0, part = "all") |> 
   fontsize(size = 10, part = "all") |>          # smaller text
   set_table_properties(width = 0.35, layout = "autofit") |>
-  font(fontname = "Aptos", part = "all") |>
+  font(fontname = "Calibri", part = "all") |>
   autofit()
 
 ft_median
@@ -289,7 +289,7 @@ ft_standards <- flextable(water_quality_standards) |>
     padding(padding.top = 0, padding.bottom = 0, part = "all") |> 
   fontsize(size = 10, part = "all") |> 
   set_table_properties(width = 0.5, layout = "autofit") |>
-  font(fontname = "Aptos", part = "all") |>
+  font(fontname = "Calibri", part = "all") |>
   autofit()
 
 ft_standards

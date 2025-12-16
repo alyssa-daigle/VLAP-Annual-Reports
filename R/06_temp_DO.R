@@ -96,8 +96,7 @@ make_temp_DO <- function(input_path, output_path) {
       theme(
         legend.position = "bottom",
         legend.title = element_blank(),
-        legend.text = element_text(size = 8),
-        plot.title = element_text(hjust = 0.5, face = "bold"),
+        legend.text = element_text(size = 10),
         panel.grid.minor = element_blank(),
         legend.margin = margin(t = 0, r = 0, b = 0, l = 0),
         legend.box.margin = margin(t = 0, r = 0, b = 0, l = 0),
@@ -143,7 +142,6 @@ make_temp_DO <- function(input_path, output_path) {
         legend.position = "bottom",
         legend.title = element_blank(),
         legend.text = element_text(size = 8),
-        plot.title = element_text(hjust = 0.5, face = "bold"),
         panel.grid.minor = element_blank(),
         legend.margin = margin(t = 0, r = 0, b = 0, l = 0),
         legend.box.margin = margin(t = 0, r = 0, b = 0, l = 0),
@@ -172,6 +170,7 @@ make_temp_DO <- function(input_path, output_path) {
         draw_label(
           "Temperature and Dissolved Oxygen Profiles (2025)",
           fontface = "bold",
+          fontfamily = "Calibri",
           size = 13,
           x = 0.5,
           hjust = 0.5

@@ -27,15 +27,18 @@ make_plankton <- function(input_path, output_path) {
     plot_data <- data |>
       filter(stationid == station_id)
 
-        # Skip if no data or missing year values
+    # Skip if no data or missing year values
     if (nrow(plot_data) == 0 || all(is.na(plot_data$year))) {
       message("  -> Skipping ", station_id, " (no valid year data)\n")
       return(NULL)
     }
 
     # Get full year range (so gaps show up)
-    all_years <- seq(min(plot_data$year, na.rm = TRUE),
-                     max(plot_data$year, na.rm = TRUE), by = 1)
+    all_years <- seq(
+      min(plot_data$year, na.rm = TRUE),
+      max(plot_data$year, na.rm = TRUE),
+      by = 1
+    )
 
     # Aggregate and ensure full grid of years × divisions
     plot_data <- plot_data |>
@@ -83,7 +86,7 @@ make_plankton <- function(input_path, output_path) {
       scale_fill_manual(
         values = algae_colors,
         labels = algae_labels,
-        breaks = names(algae_labels),
+        breaks = rev(names(algae_labels)), # <-- reverse the order here
         drop = FALSE
       ) +
       labs(fill = NULL) +
