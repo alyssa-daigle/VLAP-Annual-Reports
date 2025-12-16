@@ -58,6 +58,7 @@ source(file.path(project_path, "R", "07_plankton.R"))
 source(file.path(project_path, "R", "08_CYA_table.R"))
 source(file.path(project_path, "R", "09_report_gen.R"))
 source(file.path(project_path, "R", "chloride.R"))
+source(file.path(project_path, "R", "03-55_statcompare.R"))
 
 # ==========================
 # Database + data prep
@@ -118,3 +119,9 @@ message("All reports generated.")
 # ==========================
 message("Generating plots...")
 make_chloride(input_path, file.path(output_path, "chloride"))
+
+
+comparison_results <- compare_reg_mk_trends(
+  tables_path = "tables",
+  output_path = "tables"
+)

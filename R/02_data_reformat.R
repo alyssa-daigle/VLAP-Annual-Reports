@@ -202,11 +202,13 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
   # Average per station-year and filter by start year
   # -----------------------------
   REG <- REG2 |>
-    left_join(lake_start_years, by = "stationid") |>
+    left_join(
+      lake_start_years |> select(stationid, start_year),
+      by = "stationid"
+    ) |>
     filter(is.na(start_year) | Year >= start_year) |>
-    group_by(stationid, Year) |>
+    group_by(lake, stationid, Year) |>
     summarise(
-      lake = first(lake),
       stationname = first(stationname),
       across(
         c(CHL_comp, SECCHI, SPCD_epi, PH_epi, TP_epi, TP_hypo),
