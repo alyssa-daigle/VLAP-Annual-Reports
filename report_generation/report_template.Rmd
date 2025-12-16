@@ -39,6 +39,7 @@ library(magrittr)
 
 ### **INDIVIDUAL REPORT: `r toupper(lake)` – `r town`**
 
+**WATER QUALITY SUMMARY:**
 
 **RECOMMENDED ACTIONS:**
 
@@ -51,7 +52,7 @@ station_id <- params$station_id
 # Locate trend CSV
 trend_file <- list.files(
   table_path,
-  pattern = paste0("TrendSummary_", station_id, ".*\\.csv$"), #NEED TO EDIT THIS PART DEPENDING ON WHAT TREND (REG VS MK) WE WANT TO INCLUDE
+  pattern = paste0("MK_TrendSummary_", station_id, ".*\\.csv$"), #NEED TO EDIT THIS PART DEPENDING ON WHAT TREND (REG VS MK) WE WANT TO INCLUDE
   full.names = TRUE,
   ignore.case = TRUE
 )
@@ -205,7 +206,7 @@ if (length(cya_file) == 1) {
 
 ### **OBSERVATIONS** *(Refer to Table 1 and Historical Deep Spot Data Graphics)*:
 
-- **Chlorophyll-a (Chlor-A):** 
+- **Chlorophyll-a (Chlor-a):** 
 
 - **Conductivity (Cond.) / Chloride:**
 
