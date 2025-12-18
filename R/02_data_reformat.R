@@ -144,28 +144,36 @@ data_reformat <- function(input_path) {
           )
     ) |>
     mutate(
-      NUMRESULT = case_when(
+      ## ---- identify phosphorus non-detects ----
+      TP_cens = case_when(
         WSHEDPARMNAME == "PHOSPHORUS AS P" &
-          str_detect(toupper(TEXTRESULT), "ND") ~ HALF_DL,
+          (str_detect(toupper(TEXTRESULT), "ND|<") |
+            is.na(NUMRESULT) |
+            NUMRESULT < DETECTION_LIMIT) ~ TRUE,
+        WSHEDPARMNAME == "PHOSPHORUS AS P" ~ FALSE,
+        TRUE ~ NA
+      ),
+
+      ## ---- numeric value for NADA ----
+      RESULT = case_when(
+        WSHEDPARMNAME == "PHOSPHORUS AS P" & TP_cens ~ DETECTION_LIMIT,
+        WSHEDPARMNAME == "PHOSPHORUS AS P" ~ NUMRESULT,
         TRUE ~ NUMRESULT
       ),
-      NUMRESULT = case_when(
-        WSHEDPARMNAME == "PHOSPHORUS AS P" ~ NUMRESULT * 1000,
-        TRUE ~ NUMRESULT
-      ),
+
+      ## ---- parameter-depth mapping ----
       param_depth = case_when(
         WSHEDPARMNAME ==
           "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" ~ "CHL_comp",
         WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" ~ "SECCHI",
-        WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" &
-          DEPTHZONE == "EPILIMNION" ~ "SPCD_epi",
-        WSHEDPARMNAME == "PH" & DEPTHZONE == "EPILIMNION" ~ "PH_epi",
         WSHEDPARMNAME == "PHOSPHORUS AS P" &
           DEPTHZONE == "EPILIMNION" ~ "TP_epi",
         WSHEDPARMNAME == "PHOSPHORUS AS P" &
           DEPTHZONE == "HYPOLIMNION" ~ "TP_hypo",
         TRUE ~ NA_character_
       ),
+
+      ## ---- station cleanup ----
       stationid = case_when(
         STATIONID %in% c("ROCHLSVLAPD", "ROCHLSD") ~ "ROCHLSVLAPD",
         STATIONID %in% c("PEMMERVLAPD", "PEMMERD") ~ "PEMMERVLAPD",
@@ -173,8 +181,7 @@ data_reformat <- function(input_path) {
         TRUE ~ STATIONID
       ),
       stationname = case_when(
-        STATIONID %in% c("ROCHLSVLAPD", "ROCHLSD") ~
-          "ROCKY POND-DEEP SPOT",
+        STATIONID %in% c("ROCHLSVLAPD", "ROCHLSD") ~ "ROCKY POND-DEEP SPOT",
         STATIONID %in% c("PEMMERVLAPD", "PEMMERD") ~
           "PEMIGEWASSET LAKE-DEEP SPOT",
         STATIONID %in% c("SPEGROVLAPD", "SPEGROD") ~
@@ -183,16 +190,28 @@ data_reformat <- function(input_path) {
       )
     )
 
+  REG1 <- REG1 |>
+    mutate(
+      RESULT = if_else(
+        WSHEDPARMNAME == "PHOSPHORUS AS P",
+        RESULT * 1000, # mg/L → µg/L
+        RESULT
+      )
+    )
+
   REG2 <- REG1 |>
     filter(!is.na(param_depth)) |>
     pivot_wider(
       id_cols = c(RELLAKE, TOWN, stationid, stationname, STARTDATE),
       names_from = param_depth,
-      values_from = NUMRESULT,
+      values_from = RESULT,
       values_fn = \(x) mean(x, na.rm = TRUE)
     ) |>
     rename(lake = RELLAKE, town = TOWN, date = STARTDATE) |>
     mutate(Year = year(date))
+
+  ## STOPPED HERE -- NEED TO GET TP_CENS INTO THIS DF
+  # NEED TO NOT FILTER OUT DATA BY START YEAR FOR TREND ANALYSIS PURPOSES
 
   REG <- REG2 |>
     left_join(
