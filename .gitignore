@@ -34,10 +34,9 @@ Thumbs.db
 *.jpeg
 
 # Ignore regression, table, and report outputs
-tables/
+tables/REG_TrendSummary*
 regression/
 reports/
-
 
 # other files
 data/pH_conduc.xlsx

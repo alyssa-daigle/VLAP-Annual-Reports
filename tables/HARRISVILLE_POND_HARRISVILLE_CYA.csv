@@ -1,0 +1,7 @@
+STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
+Epilimnion,3,4.46,3,34,22.12,8,6.12,6.5,0.5,6.42,-
+Metalimnion,-,-,-,-,25.22,12,-,-,1.73,6.09,-
+Hypolimnion,-,-,-,-,29.145000000000003,13,-,-,3.46,5.92,-
+Cemetery Inlet,-,-,69,-,290.40000000000003,11,-,-,7.51,6.98,-
+Jane Dunn Inlet,-,-,-,-,20.68,11,-,-,0.72,5.79,-
+Library Outlet,-,-,-,-,27.03,44,-,-,5.45,6.18,-

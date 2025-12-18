@@ -1,0 +1,8 @@
+STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
+Epilimnion,4.7,4.87,10,44,61.089999999999996,9,3.85,4.24,0.93,6.62,-
+Metalimnion,-,-,-,-,63.263333333333335,14,-,-,2.52,6.11,-
+Hypolimnion,-,-,-,-,72.15,25,-,-,4.01,6.25,-
+Boat Launch,-,-,-,-,-,<5,-,-,-,-,2
+Inlet 2,-,-,11,-,62.906666666666666,9,-,-,0.54,6.61,-
+Outlet,-,-,10,-,60.88,8,-,-,0.65,6.65,-
+Smoke Rise Cove,-,-,-,-,-,<5,-,-,-,-,3
