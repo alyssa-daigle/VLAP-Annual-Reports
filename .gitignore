@@ -35,6 +35,7 @@ Thumbs.db
 
 # Ignore regression, table, and report outputs
 tables/REG_TrendSummary*
+tables/NA_*
 regression/
 reports/
 
