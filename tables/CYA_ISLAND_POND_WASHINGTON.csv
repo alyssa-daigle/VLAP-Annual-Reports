@@ -1,0 +1,9 @@
+STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
+Epilimnion,2.3,4.29,7,36,41.59,7,4,4.7,0.65,6.39,-
+Metalimnion,-,-,-,-,41.730000000000004,9,-,-,0.57,5.71,-
+Hypolimnion,-,-,-,-,42.22,8,-,-,0.7,5.68,-
+Beach,-,-,-,-,-,<5,-,-,-,-,4
+Boathouse Inlet,-,-,-,-,58.086666666666666,24,-,-,1,5.74,31
+Bodnars Cove,-,-,-,-,40.175,7,-,-,0.5,6.31,-
+Dam Outlet,-,-,-,-,47.665000000000006,9,-,-,0.76,6.11,-
+Journeys End Inlet,-,-,-,-,22.035,6,-,-,0.64,6.53,18

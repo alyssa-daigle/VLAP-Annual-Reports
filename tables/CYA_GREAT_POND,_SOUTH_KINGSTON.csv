@@ -1,0 +1,8 @@
+STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
+Epilimnion,13,3.29,48,68,220.775,14,3.19,3.31,0.93,7.12,-
+Metalimnion,-,-,-,-,208.675,16,-,-,1.84,6.49,-
+Hypolimnion,-,-,-,-,207.42000000000002,21,-,-,6.75,6.43,-
+Kelley Brook Inlet,-,-,50,-,248.1,21,-,-,2.32,6.81,-
+Outlet,-,-,43,-,225.8,12,-,-,0.99,6.94,-
+Park Rd,-,-,38,-,196,36,-,-,1.45,6.22,-
+Thayer Rd Inlet,-,-,36,-,188.45,60,-,-,6.4,6.52,-

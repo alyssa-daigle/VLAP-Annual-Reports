@@ -1,0 +1,7 @@
+STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
+Epilimnion,34.5,14.48,234,198,824.2666666666667,36,1.14,1.29,7.17,7.19,-
+Hypolimnion,-,-,-,-,916.2,48,-,-,9.15,7.02,-
+E Ii Inlet,-,-,269,-,1051.65,27,-,-,1.67,7.5,-
+Juniper St Inlet,-,-,184,-,698.5333333333334,34,-,-,12.28,6.93,-
+Lessard Inlet,-,-,450,-,1579.5,32,-,-,8.99,7.29,-
+Outlet,-,-,206,-,793.25,42,-,-,6.32,7.36,-

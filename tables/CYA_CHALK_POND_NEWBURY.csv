@@ -1,0 +1,6 @@
+STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
+Epilimnion,5,3.41,5,37,40.855000000000004,11,3.2,3.2,1.53,6.55,-
+Inlet,-,-,3,-,18.41,7,-,-,3.36,6.5,-
+Main Beach,-,-,-,-,42.51,8,-,-,0.94,6.47,2
+Outlet,-,-,6,-,40.88,8,-,-,1.1,6.48,-
+South Beach,-,-,-,-,41.95,8,-,-,0.75,6.61,-

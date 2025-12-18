@@ -1,0 +1,9 @@
+STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
+Epilimnion,9.9,3.99,39,82,160,11,2.23,2.83,1.11,6.92,-
+Hypolimnion,-,-,-,82,159.25,16,-,-,1.07,7.03,-
+Dam Outlet,-,-,-,-,159.55,11,-,-,0.69,7.05,3
+Inlet,-,-,44,-,207.5,31,-,-,2.69,6.6,34
+Island Road,-,-,37,-,166.3,10,-,-,0.81,7.04,1
+No Name Inlet,-,-,72,-,294.6,13,-,-,0.82,7.11,153
+Sandy Cove,-,-,39,-,159.5,11,-,-,0.8,7.08,1
+Seannikki,-,-,37,-,159.6,11,-,-,0.75,6.98,1

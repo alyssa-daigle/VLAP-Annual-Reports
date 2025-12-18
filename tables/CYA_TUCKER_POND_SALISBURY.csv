@@ -1,0 +1,10 @@
+STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
+Epilimnion,5.5,5.31,6,30,38.32833333333333,9,4.49,4.79,0.97,6.81,-
+Hypolimnion,-,-,-,-,39.91833333333334,13,-,-,0.99,6.5,-
+Dead Mans Inlet,-,-,3,-,25.03,7,-,-,0.19,6.31,-
+Inlet #1,-,-,3,-,22.88,39,-,-,0.2,6.55,-
+Inlet #2 Logging,-,-,7,-,46.27,11,-,-,0.27,6.1,-
+Inlet #3 Darling,-,-,3,-,20.17,14,-,-,0.31,5.7,-
+Inlet #4 Brennan,-,-,12,-,63.47,11,-,-,0.5,6.55,-
+Inlet #5 Baker,-,-,26,-,113.2,17,-,-,0.46,6.37,-
+Outlet,-,-,5,-,39.745000000000005,11,-,-,1.09,6.39,-

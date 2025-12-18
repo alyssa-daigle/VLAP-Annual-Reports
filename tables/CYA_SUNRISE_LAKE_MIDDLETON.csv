@@ -1,0 +1,13 @@
+STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
+Epilimnion,6.7,7.68,17,55,85.8475,11,1.89,2.32,1.45,6.8,-
+Hypolimnion,-,-,-,-,89.35,12,-,-,1.9,6.6,-
+Bartletts Cove,-,-,17,-,89.19,16,-,-,1.53,6.69,-
+Hampshire Brook,-,-,18,-,91.585,10,-,-,0.36,6.48,-
+Hampshire Shores,-,-,17,-,90.17,12,-,-,0.95,6.68,-
+Lakelands Assoc Dd,-,-,-,-,-,<5,-,-,-,-,56
+Main Beach,-,-,16,-,89.22,11,-,-,1.59,6.8,9
+Nicola Beach,-,-,17,-,83.34,11,-,-,0.82,6.81,-
+Nicola Beach 1,-,-,17,-,86.01333333333334,10,-,-,1.48,6.87,-
+Pinkham Cove,-,-,17,-,87.48333333333333,13,-,-,1.36,6.68,-
+Tanglewood Brook,-,-,11,-,78.60000000000001,26,-,-,3.42,6.55,-
+Town Beach,-,-,17,-,90.63,11,-,-,2.25,6.67,8

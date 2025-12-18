@@ -1,0 +1,12 @@
+STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
+Epilimnion,5.6,3.49,24,65,108.2,15,2.5,3.4,1.07,-,-
+Hypolimnion,-,-,-,-,109.3,13,3.5,2,1.28,6.72,-
+Bridge Inlet,-,-,18,-,93.265,36,-,-,1.64,6.59,-
+Flat Meadows Brook Inlet,-,-,-,-,105.795,40,-,-,2.9,6.4,-
+Horse Farm,-,-,18,-,260.7,164,-,-,5.35,7.34,803
+Lower Wtc Inlet,-,-,5,-,35.975,39,-,-,1.83,6.1,-
+Lynn Grove Inlet,-,-,23,-,110,12,-,-,0.86,6.8,-
+Outlet,-,-,23,-,109.55,15,-,-,1.44,6.62,-
+Pleasant Pd Inlet (Baker Ave),-,-,24,-,117.94,18,-,-,0.64,6.44,-
+Rt 107 Inlet (Sleepy Hollow),-,-,22,-,110.3,14,-,-,0.95,6.92,-
+Rte 4 E Inlet,-,-,32,-,151.1,48,-,-,3.06,6.48,-

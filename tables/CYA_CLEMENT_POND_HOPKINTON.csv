@@ -1,0 +1,6 @@
+STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
+Epilimnion,9.9,6.28,4,54,44.2425,10,3.05,3.7,0.96,6.77,-
+Metalimnion,-,-,-,-,47.2775,11,-,-,1.36,6.46,-
+Hypolimnion,-,-,-,-,45.446,18,-,-,2.17,6.52,-
+Hardy Brook Outlet,-,-,4,-,42.82333333333334,15,-,-,2.52,7,-
+Hopkinton Inlet,-,-,4,-,43.15,37,-,-,1.6,6.15,-

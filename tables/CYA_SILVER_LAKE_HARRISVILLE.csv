@@ -1,0 +1,10 @@
+STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
+Epilimnion,2.5,1.58,3,12,22.505,8,7.55,8.32,0.34,6.82,-
+Metalimnion,-,-,-,-,22.725,7,-,-,0.52,6.61,-
+Hypolimnion,-,-,-,-,23.023333333333333,7,-,-,0.33,6.09,-
+Eastside Inlet,-,-,-,-,19.13,5,-,-,0.3,6,-
+Lead Mine Inlet 1,-,-,-,-,26.58,10,-,-,0.26,6.52,-
+Lead Mine Inlet 2,-,-,3,-,14.4,<5,-,-,0.23,5.82,-
+Outlet In Stream,-,-,-,-,23.14666666666667,5,-,-,0.54,6.6,-
+Sandy Bch Inlet 1,-,-,-,-,25.23,18,-,-,5.56,6.17,-
+Sucker Brook,-,-,-,-,20.18,9,-,-,0.54,6.2,-

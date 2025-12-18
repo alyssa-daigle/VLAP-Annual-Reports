@@ -1,0 +1,7 @@
+STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
+Epilimnion,20.7,8.45,43,84,248.8,24,1.75,2.25,1.72,7.3,-
+Metalimnion,-,-,-,-,236.4,28,-,-,2.46,6.88,-
+Hypolimnion,-,-,-,-,248.64999999999998,73,-,-,3.28,6.88,-
+Buzzell Cove,-,-,44,-,243.6,26,-,-,3.25,7.03,-
+Inlet,-,-,44,-,240.10000000000002,23,-,-,2.62,7.21,-
+Outlet,-,-,-,-,242.8,26,-,-,1.8,6.98,-

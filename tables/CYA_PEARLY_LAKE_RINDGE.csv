@@ -1,0 +1,9 @@
+STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
+Epilimnion,3.1,9.92,16,194,81.49000000000001,26,1.01,1.53,2.27,6.36,-
+Metalimnion,-,-,-,-,83.67500000000001,25,-,-,2.55,6.27,-
+Hypolimnion,-,-,-,-,81.50333333333333,31,-,-,3.09,6.01,-
+Bower Inlet,-,-,3,-,21.4,26,-,-,1.5,5.94,-
+Bower Inlet Upstream,-,-,-,-,17.82,30,-,-,0.99,5.62,-
+College Rd Inlet,-,-,64,-,259.25,169,-,-,5.06,6,-
+Mountain Rd,-,-,7,-,50.76,48,-,-,0.79,5.58,-
+Outlet,-,-,15,-,79.5975,29,-,-,1.83,6.25,-

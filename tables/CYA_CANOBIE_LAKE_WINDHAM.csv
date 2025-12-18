@@ -1,0 +1,6 @@
+STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
+Epilimnion,32.5,1.47,83,20,392.6666666666667,9,5.42,5.42,0.68,7.81,-
+Metalimnion,-,-,-,-,399.3666666666667,17,-,-,2.37,7.08,-
+Hypolimnion,-,-,-,-,409.95,46,-,-,1.35,6.96,-
+Inlet,-,-,82,-,400.6,17,-,-,0.97,7.65,-
+South Shore Drainage,-,-,77,-,413.29999999999995,12,-,-,0.7,7.72,-

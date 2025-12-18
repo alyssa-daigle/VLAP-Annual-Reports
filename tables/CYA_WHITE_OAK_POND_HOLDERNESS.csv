@@ -1,0 +1,10 @@
+STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
+Epilimnion,6.6,4.79,6,74,49.825,30,3.88,3.9,0.83,6.83,-
+Metalimnion,-,-,-,-,48.91,13,-,-,0.98,6.56,-
+Hypolimnion,-,-,-,-,53.535,21,-,-,1.71,6.18,-
+#2 Lamb Swamp Inlet,-,-,15,-,84.005,18,-,-,1.34,6.43,-
+#3 Dump Inlet,-,-,6,-,53.26,13,-,-,0.63,6.58,-
+#3 Dump Trib,-,-,45,-,234.55,150,-,-,18.75,6.75,-
+#4 Outlet (Dam),-,-,-,-,49.29,12,-,-,1.92,6.92,-
+#6 Stone Bridge Inlet,-,-,5,-,44.49,27,-,-,10.22,6.77,-
+#9 E Holderness Rd Trib,-,-,25,-,155.65,23,-,-,4.69,6.99,-

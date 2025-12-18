@@ -149,7 +149,7 @@ lake_clean <- gsub("([\\(\\)\\[\\]\\+\\?\\*\\.\\^\\$])", "\\\\\\1", lake_clean)
 town_clean <- gsub("([\\(\\)\\[\\]\\+\\?\\*\\.\\^\\$])", "\\\\\\1", town_clean)
 
 # Search pattern: Lake_Town_CYA.csv
-pattern <- paste0("^", lake_clean, "_", town_clean, "_CYA\\.csv$")
+pattern <- paste0("^CYA_", lake_clean, "_", town_clean, "\\.csv$")
 
 cya_file <- list.files(
   table_path,

@@ -1,0 +1,7 @@
+STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
+Epilimnion,5.7,1.46,16,6,71.15,<5,8.25,7.75,0.39,7.1,-
+Metalimnion,-,-,-,-,71.10000000000001,<5,-,-,0.4,7.08,-
+Hypolimnion,-,-,-,-,70.105,<5,-,-,0.6,6.72,-
+Boat Landing,-,-,-,-,73.96000000000001,8,-,-,2.02,7.12,70
+Dublin Lake Club,-,-,-,-,75.17,5,-,-,0.47,7.02,141
+Womens Club,-,-,-,-,72.55,9,-,-,1.09,6.99,6
