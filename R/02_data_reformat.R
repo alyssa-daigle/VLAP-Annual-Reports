@@ -1,13 +1,21 @@
-data_reformat <- function(BTC_full, REG_long, CYA_full) {
-  # BTC (best Trophic Class) processing
-  # set factors where 1 = "best" and 3 = "worst"
+data_reformat <- function(input_path) {
+  BTC_file <- file.path(input_path, "BTC_full.csv")
+  REG_file <- file.path(input_path, "REG_long.csv")
+  CYA_file <- file.path(input_path, "CYA_full.csv")
+
+  BTC_full <- read_csv(BTC_file, show_col_types = FALSE)
+  REG_long <- read_csv(REG_file, show_col_types = FALSE)
+  CYA_full <- read_csv(CYA_file, show_col_types = FALSE)
+
+  # -----------------------------
+  # BTC (Best Trophic Class)
+  # -----------------------------
   trophic_map <- c(
     "OLIGOTROPHIC" = 1,
     "MESOTROPHIC" = 2,
     "EUTROPHIC" = 3
   )
 
-  # reformat so only the "best" trophic class is retained per lake
   BTC <- BTC_full |>
     select(RELLAKE, BEST_TROPHIC_CLASS) |>
     rename(lake = RELLAKE, BTC = BEST_TROPHIC_CLASS) |>
@@ -18,15 +26,15 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       .groups = "drop"
     )
 
-  # ---------------------------------
-  # REG dataset
-  # ---------------------------------
+  # -----------------------------
+  # Detection limit handling
+  # -----------------------------
+  DETECTION_LIMIT <- 0.005
+  HALF_DL <- DETECTION_LIMIT / 2
 
-  # Detection limit handling (convert to µg/L)
-  DETECTION_LIMIT <- 0.005 # mg/L for TP
-  HALF_DL <- DETECTION_LIMIT / 2 #0.0025 mg/L
-
-  # Setting start dates for certain lakes with gaps in data
+  # -----------------------------
+  # Station-specific start years
+  # -----------------------------
   lake_start_years <- tibble::tibble(
     stationid = c(
       "ANGSDND",
@@ -111,7 +119,7 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
   )
 
   # -----------------------------
-  # REG_long processing
+  # REG processing
   # -----------------------------
   REG1 <- REG_long |>
     filter(PROJID == "VLAP") |>
@@ -126,7 +134,6 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       NUMRESULT,
       TEXTRESULT
     ) |>
-    # keep standard depth zones or CHL/Secchi regardless of depth
     filter(
       DEPTHZONE %in%
         c("EPILIMNION", "HYPOLIMNION", "COMPOSITE") |
@@ -137,19 +144,15 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
           )
     ) |>
     mutate(
-      # Handle non-detects for Total Phosphorus
       NUMRESULT = case_when(
         WSHEDPARMNAME == "PHOSPHORUS AS P" &
           str_detect(toupper(TEXTRESULT), "ND") ~ HALF_DL,
         TRUE ~ NUMRESULT
       ),
-      # convert TP from mg/L to ug/L
       NUMRESULT = case_when(
         WSHEDPARMNAME == "PHOSPHORUS AS P" ~ NUMRESULT * 1000,
         TRUE ~ NUMRESULT
       ),
-
-      # Assign param_depth for pivoting
       param_depth = case_when(
         WSHEDPARMNAME ==
           "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" ~ "CHL_comp",
@@ -163,26 +166,23 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
           DEPTHZONE == "HYPOLIMNION" ~ "TP_hypo",
         TRUE ~ NA_character_
       ),
-      # Standardize station IDs
       stationid = case_when(
         STATIONID %in% c("ROCHLSVLAPD", "ROCHLSD") ~ "ROCHLSVLAPD",
         STATIONID %in% c("PEMMERVLAPD", "PEMMERD") ~ "PEMMERVLAPD",
         STATIONID %in% c("SPEGROVLAPD", "SPEGROD") ~ "SPEGROVLAPD",
         TRUE ~ STATIONID
       ),
-      # Standardize station names
       stationname = case_when(
-        STATIONID %in% c("ROCHLSVLAPD", "ROCHLSD") ~ "ROCKY POND-DEEP SPOT",
-        STATIONID %in%
-          c("PEMMERVLAPD", "PEMMERD") ~ "PEMIGEWASSET LAKE-DEEP SPOT",
-        STATIONID %in% c("SPEGROVLAPD", "SPEGROD") ~ "SPECTACLE POND-DEEP SPOT",
+        STATIONID %in% c("ROCHLSVLAPD", "ROCHLSD") ~
+          "ROCKY POND-DEEP SPOT",
+        STATIONID %in% c("PEMMERVLAPD", "PEMMERD") ~
+          "PEMIGEWASSET LAKE-DEEP SPOT",
+        STATIONID %in% c("SPEGROVLAPD", "SPEGROD") ~
+          "SPECTACLE POND-DEEP SPOT",
         TRUE ~ str_trim(toupper(STATNAME))
       )
     )
 
-  # -----------------------------
-  # Pivot wider to get one row per station-date
-  # -----------------------------
   REG2 <- REG1 |>
     filter(!is.na(param_depth)) |>
     pivot_wider(
@@ -191,16 +191,9 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       values_from = NUMRESULT,
       values_fn = \(x) mean(x, na.rm = TRUE)
     ) |>
-    rename(
-      lake = RELLAKE,
-      town = TOWN,
-      date = STARTDATE
-    ) |>
-    mutate(Year = lubridate::year(date))
+    rename(lake = RELLAKE, town = TOWN, date = STARTDATE) |>
+    mutate(Year = year(date))
 
-  # -----------------------------
-  # Average per station-year and filter by start year
-  # -----------------------------
   REG <- REG2 |>
     left_join(
       lake_start_years |> select(stationid, start_year),
@@ -217,8 +210,9 @@ data_reformat <- function(BTC_full, REG_long, CYA_full) {
       .groups = "drop"
     )
 
-  # ------------------------------------------------------------------------------------------------------------------------
+  # -----------------------------
   # CYA (Current Year Averages) processing
+  # -----------------------------
   CYA_base <- CYA_full |>
     select(
       RELLAKE,

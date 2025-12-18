@@ -12,7 +12,7 @@ The individual scripts called by **`00_make_all.R`** include:
 
 -   **`01_DBconnect.R`**: Connects to NHDES EMD to pull recent data.
 -   **`02_data_reformat.R`**: Reformats data to rename columns and make data handling easier.
--   **`03_regressions.R`**: Runs regression on EMD data to determine whether significant parameter trends are increasing, decreasing, or stable.
+-   **`03_mannkendall.R`**: Runs Mann-Kendall and Sen's Slope analysis on EMD data to determine whether significant parameter trends are increasing, decreasing, or stable.
 -   **`04_chl_tp_secchi.R`**: Contains the function to generate historical Chlorophyll-a, Total Phosphorus, and Secchi Disk transparency plots for each station (uses data from EMD connection)
 -   **`05_ph_cond.R`**: Contains the function to generate historical pH and Conductivity plots for each station (uses data from EMD connection).
 -   **`06_temp_DO.R`**: Contains the function to generate seasonal Temperature/Dissolved Oxygen profile plots for each station (currently requires Excel data sheet).

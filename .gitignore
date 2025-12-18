@@ -42,3 +42,8 @@ reports/
 data/pH_conduc.xlsx
 *excerpt.docx
 lake_excerpts
+R/regression-OLD.R
+R/statcompare.R
+R/chloride.R
+data/CYA_full.csv  
+data/REG_long.csv 

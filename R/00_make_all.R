@@ -49,40 +49,40 @@ mk_path <- Sys.getenv("MK_PATH")
 source(file.path(project_path, "R", "theme.R"))
 source(file.path(project_path, "R", "01_DBConnect.R"))
 source(file.path(project_path, "R", "02_data_reformat.R"))
-source(file.path(project_path, "R", "03_regression.R"))
-source(file.path(project_path, "R", "03-5_mannkendall.R"))
+source(file.path(project_path, "R", "03_mannkendall.R"))
 source(file.path(project_path, "R", "04_chl_tp_secchi.R"))
 source(file.path(project_path, "R", "05_pH_cond.R"))
 source(file.path(project_path, "R", "06_temp_DO.R"))
 source(file.path(project_path, "R", "07_plankton.R"))
 source(file.path(project_path, "R", "08_CYA_table.R"))
 source(file.path(project_path, "R", "09_report_gen.R"))
-source(file.path(project_path, "R", "chloride.R"))
-source(file.path(project_path, "R", "03-55_statcompare.R"))
+# source(file.path(project_path, "R", "chloride.R"))
+# source(file.path(project_path, "R", "statcompare.R"))
+# source(file.path(project_path, "R", "regression-OLD.R"))
 
-# ==========================
-# Database + data prep
-# ==========================
-message("Opening DB connection...")
-db_res <- DBConnect()
-con <- db_res$con
+# ========================================
+# Database connection to pull newest data
+# ========================================
+# uncomment when new data need to be pulled from EMD
+# message("Opening DB connection...")
+# db_res <- DBConnect(
+#   dsn = "DESPRD",
+#   input_path = input_path
+# )
+# con <- db_res$con
+# dbDisconnect(con)
+# message("Database connection closed.")
 
+# ====================
+# reformatting data
+# ====================
 message("Reformatting data...")
-processed <- data_reformat(db_res$BTC_full, db_res$REG_long, db_res$CYA_full)
+processed <- data_reformat(input_path)
 BTC <- processed$BTC
 REG <- processed$REG
 CYA_2025 <- processed$CYA_2025
 CYA_long <- processed$CYA_long
 LAKEMAP <- processed$LAKEMAP
-
-dbDisconnect(con)
-message("Database connection closed.")
-
-# ==========================
-# Regression analysis
-# ==========================
-message("Running regressions...")
-run_vlap_regressions(REG, reg_path, table_path)
 
 # ==========================
 # Mann-Kendall and Sen's SLope analysis
@@ -114,17 +114,20 @@ message("Starting report generation...")
 report_gen()
 message("All reports generated.")
 
-
 #not currently using below this line:
+# ==========================
+# Regression analysis- USE MK INSTEAD NOW
+# ==========================
+# message("Running regressions...")
+# run_vlap_regressions(REG, reg_path, table_path)
 
 # ==========================
 # Chloride plot generation
 # ==========================
-message("Generating plots...")
-make_chloride(input_path, file.path(output_path, "chloride"))
+# message("Generating plots...")
+# make_chloride(input_path, file.path(output_path, "chloride"))
 
-
-comparison_results <- compare_reg_mk_trends(
-  tables_path = "tables",
-  output_path = "tables"
-)
+# comparison_results <- compare_reg_mk_trends(
+#   tables_path = "tables",
+#   output_path = "tables"
+# )

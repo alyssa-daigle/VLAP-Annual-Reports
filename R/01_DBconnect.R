@@ -1,7 +1,8 @@
-DBConnect <- function(dsn = "DESPRD") {
+DBConnect <- function(dsn = "DESPRD", input_path) {
   library(DBI)
   library(odbc)
   library(dotenv)
+  library(readr)
 
   # Load environment variables
   if (file.exists(".env")) {
@@ -46,7 +47,7 @@ DBConnect <- function(dsn = "DESPRD") {
   "
 
   CYA_QUERY <- "
-  SELECT
+    SELECT
       RELLAKE_WBID,
       RELLAKE,
       STATNAME,
@@ -62,9 +63,9 @@ DBConnect <- function(dsn = "DESPRD") {
       ANALYTICALMETHOD,
       DETLIM, 
       PROJID
-  FROM
+    FROM
       WQD_REPORT_VIEW
-  WHERE
+    WHERE
       PROJID = 'VLAP'
       AND (VALID = 'Y' OR VALID IS NULL)
       AND WSHEDPARMNAME IN (
@@ -84,11 +85,21 @@ DBConnect <- function(dsn = "DESPRD") {
       )
   "
 
-  # Run queries
+  # --- Run queries ---
   BTC_full <- dbGetQuery(con, BTC_QUERY)
   REG_long <- dbGetQuery(con, REG_QUERY)
   CYA_full <- dbGetQuery(con, CYA_QUERY)
 
+  # --- Write CSVs ---
+  write_csv(BTC_full, file.path(input_path, "BTC_full.csv"))
+  write_csv(REG_long, file.path(input_path, "REG_long.csv"))
+  write_csv(CYA_full, file.path(input_path, "CYA_full.csv"))
+
   # Return list of dataframes and connection
-  list(BTC_full = BTC_full, REG_long = REG_long, con = con, CYA_full = CYA_full)
+  list(
+    BTC_full = BTC_full,
+    REG_long = REG_long,
+    CYA_full = CYA_full,
+    con = con
+  )
 }
