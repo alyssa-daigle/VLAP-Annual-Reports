@@ -1,8 +1,0 @@
-STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
-Epilimnion,2.1,6.75,5,50,32.35,9,3.41,3.81,0.79,6.19,-
-Hypolimnion,-,-,-,-,36.33,17,-,-,4.23,5.8,-
-Beach Inlet,-,-,3,-,18.13,15,-,-,0.42,4.66,12
-Holman Inlet,-,-,12,-,62.07,37,-,-,0.94,5.3,43
-Little Rock Inlet,-,-,-,-,32.71,8,-,-,0.6,6.27,1
-Outlet,-,-,-,-,32.8925,8,-,-,0.68,6.32,3
-Tommila Inlet,-,-,-,-,28.8825,9,-,-,0.58,5.97,2

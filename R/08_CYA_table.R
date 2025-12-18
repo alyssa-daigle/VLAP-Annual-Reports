@@ -28,7 +28,7 @@ make_CYA_table <- function(CYA_2025, LAKEMAP, table_path, input_path) {
     # Clean file name: Lake_Town_CYA.csv
     lake_clean <- gsub(" ", "_", lake)
     town_clean <- gsub(" ", "_", town)
-    file_name <- paste0(lake_clean, "_", town_clean, "_CYA.csv")
+    file_name <- paste0("CYA_", lake_clean, "_", town_clean, ".csv")
 
     write_csv(
       lake_data_out,
