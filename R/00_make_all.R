@@ -31,6 +31,7 @@ library(ggnewscale)
 library(scales)
 library(Kendall)
 library(trend)
+library(NADA)
 
 # ==========================
 # Paths from .env
@@ -90,7 +91,7 @@ LAKEMAP <- processed$LAKEMAP
 # Mann-Kendall and Sen's SLope analysis
 # ==========================
 message("Running Mann-Kendall...")
-run_vlap_mannkendall(REG, mk_path, table_path)
+run_vlap_mannkendall(REG_MK, mk_path, table_path)
 
 # ==========================
 # Plot generation
