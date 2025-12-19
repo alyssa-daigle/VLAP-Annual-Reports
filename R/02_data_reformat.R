@@ -122,7 +122,8 @@ data_reformat <- function(input_path) {
   ## REG preprocessing
   ## -------------------------------
 
-  REG1 <- REG_long |>
+  # Base VLAP dataset filtered for relevant depth zones and parameters
+  REG_base <- REG_long |>
     filter(PROJID == "VLAP") |>
     select(
       RELLAKE,
@@ -145,21 +146,19 @@ data_reformat <- function(input_path) {
           )
     ) |>
     mutate(
-      ## ---- identify phosphorus non-detects ----
-      TP_cens = case_when(
-        WSHEDPARMNAME == "PHOSPHORUS AS P" &
-          (str_detect(toupper(TEXTRESULT), "ND|<") |
-            is.na(NUMRESULT) |
-            NUMRESULT < DETECTION_LIMIT) ~ TRUE,
-        WSHEDPARMNAME == "PHOSPHORUS AS P" ~ FALSE,
-        TRUE ~ NA
+      ## ---- station cleanup ----
+      stationid = case_when(
+        STATIONID %in% c("ROCHLSVLAPD", "ROCHLSD") ~ "ROCHLSVLAPD",
+        STATIONID %in% c("PEMMERVLAPD", "PEMMERD") ~ "PEMMERVLAPD",
+        STATIONID %in% c("SPEGROVLAPD", "SPEGROD") ~ "SPEGROVLAPD",
+        TRUE ~ STATIONID
       ),
-
-      ## ---- numeric value for censored TP (for NADA) ----
-      RESULT = case_when(
-        WSHEDPARMNAME == "PHOSPHORUS AS P" & TP_cens ~ DETECTION_LIMIT,
-        WSHEDPARMNAME == "PHOSPHORUS AS P" ~ NUMRESULT,
-        TRUE ~ NUMRESULT
+      stationname = case_when(
+        STATIONID %in% c("ROCHLSVLAPD", "ROCHLSD") ~ "ROCKY POND-DEEP SPOT",
+        STATIONID %in%
+          c("PEMMERVLAPD", "PEMMERD") ~ "PEMIGEWASSET LAKE-DEEP SPOT",
+        STATIONID %in% c("SPEGROVLAPD", "SPEGROD") ~ "SPECTACLE POND-DEEP SPOT",
+        TRUE ~ str_trim(toupper(STATNAME))
       ),
 
       ## ---- parameter-depth mapping ----
@@ -175,54 +174,29 @@ data_reformat <- function(input_path) {
         WSHEDPARMNAME == "PHOSPHORUS AS P" &
           DEPTHZONE == "HYPOLIMNION" ~ "TP_hypo",
         TRUE ~ NA_character_
-      ),
-
-      ## ---- depth-specific TP censor flags ----
-      TP_cens_epi = WSHEDPARMNAME == "PHOSPHORUS AS P" &
-        DEPTHZONE == "EPILIMNION" &
-        TP_cens,
-
-      TP_cens_hypo = WSHEDPARMNAME == "PHOSPHORUS AS P" &
-        DEPTHZONE == "HYPOLIMNION" &
-        TP_cens,
-
-      ## ---- station cleanup ----
-      stationid = case_when(
-        STATIONID %in% c("ROCHLSVLAPD", "ROCHLSD") ~ "ROCHLSVLAPD",
-        STATIONID %in% c("PEMMERVLAPD", "PEMMERD") ~ "PEMMERVLAPD",
-        STATIONID %in% c("SPEGROVLAPD", "SPEGROD") ~ "SPEGROVLAPD",
-        TRUE ~ STATIONID
-      ),
-      stationname = case_when(
-        STATIONID %in% c("ROCHLSVLAPD", "ROCHLSD") ~ "ROCKY POND-DEEP SPOT",
-        STATIONID %in% c("PEMMERVLAPD", "PEMMERD") ~
-          "PEMIGEWASSET LAKE-DEEP SPOT",
-        STATIONID %in% c("SPEGROVLAPD", "SPEGROD") ~
-          "SPECTACLE POND-DEEP SPOT",
-        TRUE ~ str_trim(toupper(STATNAME))
       )
-    ) |>
+    )
+
+  ## -------------------------------
+  ## REG_MK: MK analysis with NDs replaced by 0.5 DL (no censor columns)
+  ## -------------------------------
+  REG_MK <- REG_base |>
     mutate(
-      ## ---- convert TP to µg/L ----
+      RESULT = case_when(
+        WSHEDPARMNAME == "PHOSPHORUS AS P" &
+          (str_detect(toupper(TEXTRESULT), "ND|<") |
+            NUMRESULT < 0.005 |
+            is.na(NUMRESULT)) ~ 0.0025,
+        WSHEDPARMNAME == "PHOSPHORUS AS P" ~ NUMRESULT,
+        TRUE ~ NUMRESULT
+      ),
+      ## convert TP to µg/L
       RESULT = if_else(
         WSHEDPARMNAME == "PHOSPHORUS AS P",
         RESULT * 1000,
         RESULT
       )
-    )
-
-  ## Collapse TP censor flags by date -------------------------------------
-
-  TP_cens_flags <- REG1 |>
-    group_by(RELLAKE, TOWN, stationid, stationname, STARTDATE) |>
-    summarise(
-      TP_cens_epi = any(TP_cens_epi, na.rm = TRUE),
-      TP_cens_hypo = any(TP_cens_hypo, na.rm = TRUE),
-      .groups = "drop"
-    )
-
-  ## REG_MK: wide table for MK -------------------------------
-  REG_MK <- REG1 |>
+    ) |>
     filter(!is.na(param_depth)) |>
     pivot_wider(
       id_cols = c(RELLAKE, TOWN, stationid, stationname, STARTDATE),
@@ -235,7 +209,56 @@ data_reformat <- function(input_path) {
       town = TOWN,
       date = STARTDATE
     ) |>
-    mutate(Year = year(date)) |>
+    mutate(Year = lubridate::year(date))
+
+  ## -------------------------------
+  ## REG_NADA: MK analysis using NADA with TP censoring columns
+  ## -------------------------------
+  REG1 <- REG_base |>
+    mutate(
+      TP_cens = case_when(
+        WSHEDPARMNAME == "PHOSPHORUS AS P" &
+          (str_detect(toupper(TEXTRESULT), "ND|<") |
+            is.na(NUMRESULT) |
+            NUMRESULT < DETECTION_LIMIT) ~ TRUE,
+        WSHEDPARMNAME == "PHOSPHORUS AS P" ~ FALSE,
+        TRUE ~ NA
+      ),
+      RESULT = case_when(
+        WSHEDPARMNAME == "PHOSPHORUS AS P" & TP_cens ~ DETECTION_LIMIT,
+        WSHEDPARMNAME == "PHOSPHORUS AS P" ~ NUMRESULT,
+        TRUE ~ NUMRESULT
+      ),
+      RESULT = if_else(
+        WSHEDPARMNAME == "PHOSPHORUS AS P",
+        RESULT * 1000,
+        RESULT
+      )
+    )
+
+  # Collapse TP censor flags by date for NADA usage
+  TP_cens_flags <- REG1 |>
+    group_by(RELLAKE, TOWN, stationid, stationname, STARTDATE) |>
+    summarise(
+      TP_cens_epi = any(param_depth == "TP_epi" & TP_cens, na.rm = TRUE),
+      TP_cens_hypo = any(param_depth == "TP_hypo" & TP_cens, na.rm = TRUE),
+      .groups = "drop"
+    )
+
+  REG_NADA <- REG1 |>
+    filter(!is.na(param_depth)) |>
+    pivot_wider(
+      id_cols = c(RELLAKE, TOWN, stationid, stationname, STARTDATE),
+      names_from = param_depth,
+      values_from = RESULT,
+      values_fn = \(x) mean(x, na.rm = TRUE)
+    ) |>
+    rename(
+      lake = RELLAKE,
+      town = TOWN,
+      date = STARTDATE
+    ) |>
+    mutate(Year = lubridate::year(date)) |>
     left_join(
       TP_cens_flags,
       by = c(
@@ -247,8 +270,10 @@ data_reformat <- function(input_path) {
       )
     )
 
-  # REG_plot is the DF necessary for PLOTTING only (includes specific start years for aesthetics purposes)
-  REG_plot <- REG2 |>
+  ## -------------------------------
+  ## REG_plot: for plotting only (applies start_year filters)
+  ## -------------------------------
+  REG_plot <- REG_MK |>
     left_join(
       lake_start_years |> select(stationid, start_year),
       by = "stationid"
@@ -257,10 +282,9 @@ data_reformat <- function(input_path) {
     group_by(lake, stationid, Year) |>
     summarise(
       stationname = first(stationname),
-      across(
-        c(CHL_comp, SECCHI, SPCD_epi, PH_epi, TP_epi, TP_hypo),
-        \(x) mean(x, na.rm = TRUE)
-      ),
+      across(c(CHL_comp, SECCHI, SPCD_epi, PH_epi, TP_epi, TP_hypo), \(x) {
+        mean(x, na.rm = TRUE)
+      }),
       .groups = "drop"
     )
 
@@ -421,6 +445,7 @@ data_reformat <- function(input_path) {
   list(
     BTC = BTC,
     REG_plot = REG_plot,
+    REG_NADA = REG_NADA,
     REG_MK = REG_MK,
     CYA_2025 = CYA_2025,
     CYA_long = CYA_long,

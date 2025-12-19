@@ -3,14 +3,6 @@ run_vlap_mannkendall <- function(
   mk_path = "mannkendall",
   table_path = "tables_mk"
 ) {
-  library(dplyr)
-  library(tidyr)
-  library(Kendall)
-  library(trend)
-  library(NADA)
-  library(purrr)
-  library(readr)
-
   # create output directories if missing
   if (!dir.exists(mk_path)) {
     dir.create(mk_path, recursive = TRUE)
@@ -40,8 +32,9 @@ run_vlap_mannkendall <- function(
     )
 
   # save stations without 10 yrs
+  stations_needing_note <- stations_with_10yrs |> filter(!consecutive_10yrs)
   write_csv(
-    stations_with_10yrs |> filter(!consecutive_10yrs),
+    stations_needing_note,
     file.path(table_path, "Stations_less_than_10yrs.csv")
   )
 
@@ -52,8 +45,8 @@ run_vlap_mannkendall <- function(
       by = "stationid"
     )
 
-  # loop through stations
   stations <- unique(REG_MK_10yrs$stationid)
+
   for (st in stations) {
     station_data <- REG_MK_10yrs |> filter(stationid == st)
 
@@ -65,82 +58,55 @@ run_vlap_mannkendall <- function(
         values_to = "value"
       )
 
-    # Mann-Kendall per parameter
+    # compute MK and Sen's slope per parameter
     mk_summary <- long_data |>
-      group_split(parameter) |>
-      map_dfr(function(df) {
-        param <- df$parameter[1]
-
-        # drop NAs in value (and in censor column if censored)
-        if (param %in% c("TP_epi", "TP_hypo")) {
-          cen_col <- if (param == "TP_epi") "TP_cens_epi" else "TP_cens_hypo"
-          df <- df |> filter(!is.na(value) & !is.na(.data[[cen_col]]))
+      group_by(parameter) |>
+      summarise(
+        non_na_n = sum(!is.na(value)),
+        tau = if (non_na_n >= 10) {
+          Kendall::MannKendall(value[!is.na(value)])$tau
         } else {
-          df <- df |> filter(!is.na(value))
-        }
-
-        n_obs <- nrow(df)
-        if (n_obs < 10) {
-          return(tibble(
-            parameter = param,
-            non_na_n = n_obs,
-            tau = NA_real_,
-            p.value = NA_real_,
-            slope = NA_real_,
-            trend = "insufficient data"
-          ))
-        }
-
-        if (param %in% c("TP_epi", "TP_hypo")) {
-          cen_col <- if (param == "TP_epi") "TP_cens_epi" else "TP_cens_hypo"
-          df[[cen_col]] <- as.logical(df[[cen_col]])
-          mk <- NADA::cenken(y = df$value, x = df$Year, ycen = df[[cen_col]])
-          tau <- mk$tau
-          slope <- mk$sen.slope
-          pval <- NA_real_
+          NA_real_
+        },
+        p.value = if (non_na_n >= 10) {
+          Kendall::MannKendall(value[!is.na(value)])$sl
         } else {
-          mk <- Kendall::MannKendall(df$value)
-          tau <- mk$tau
-          pval <- mk$sl
-          slope <- trend::sens.slope(df$value, df$Year)$estimates
-        }
-
-        slope_dir <- if (tau > 0) {
-          "increasing"
-        } else if (tau < 0) {
-          "decreasing"
+          NA_real_
+        },
+        slope = if (non_na_n >= 10) {
+          trend::sens.slope(value[!is.na(value)], Year[!is.na(value)])$estimates
         } else {
-          "stable"
-        }
-
-        # categorize the trends based on the parameter
-        trend_cat <- case_when(
-          param %in%
+          NA_real_
+        },
+        .groups = "drop"
+      ) |>
+      mutate(
+        significant = !is.na(p.value) & p.value < 0.05,
+        slope_dir = case_when(
+          !significant ~ NA_character_,
+          slope > 0 ~ "increasing",
+          slope < 0 ~ "decreasing",
+          TRUE ~ "none"
+        ),
+        trend = case_when(
+          !significant ~ "Stable",
+          parameter %in%
             c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
             slope_dir == "increasing" ~ "Worsening",
-          param %in%
+          parameter %in%
             c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
             slope_dir == "decreasing" ~ "Improving",
-          param %in%
+          parameter %in%
             c("PH_epi", "SECCHI") &
             slope_dir == "increasing" ~ "Improving",
-          param %in%
+          parameter %in%
             c("PH_epi", "SECCHI") &
             slope_dir == "decreasing" ~ "Worsening",
-          TRUE ~ "Stable"
+          TRUE ~ "insufficient data"
         )
+      )
 
-        tibble(
-          parameter = param,
-          non_na_n = n_obs,
-          tau = tau,
-          p.value = pval,
-          slope = slope,
-          trend = trend_cat
-        )
-      })
-
-    # calculate mean per parameter for % change (slope/mean)
+    # calculate mean per parameter for percent change
     mean_vals <- station_data |>
       summarise(across(
         c(CHL_comp, SPCD_epi, PH_epi, TP_epi, TP_hypo, SECCHI),
@@ -163,7 +129,7 @@ run_vlap_mannkendall <- function(
       file.path(mk_path, paste0("MannKendall_", st, ".csv"))
     )
 
-    # create summary table
+    # create simplified trend table
     display_table <- mk_summary |>
       mutate(
         PARAMETER = recode(
