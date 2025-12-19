@@ -4,7 +4,7 @@ make_pH_conduc <- function(input_path, output_path) {
     dir.create(output_path, recursive = TRUE)
   }
 
-  data <- REG
+  data <- REG_plot
 
   #get unique stationIDs
   station_list <- data |>

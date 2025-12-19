@@ -7,7 +7,7 @@ make_chl_tp_secchi <- function(input_path, output_path) {
   )
 
   # Combine data with thresholds
-  data <- REG |>
+  data <- REG_plot |>
     left_join(BTC, by = "lake") |>
     left_join(trophic_thresholds, by = "BTC")
 

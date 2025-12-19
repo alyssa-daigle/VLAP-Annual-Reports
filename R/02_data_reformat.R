@@ -118,9 +118,10 @@ data_reformat <- function(input_path) {
     )
   )
 
-  # -----------------------------
-  # REG processing
-  # -----------------------------
+  ## -------------------------------
+  ## REG preprocessing
+  ## -------------------------------
+
   REG1 <- REG_long |>
     filter(PROJID == "VLAP") |>
     select(
@@ -154,7 +155,7 @@ data_reformat <- function(input_path) {
         TRUE ~ NA
       ),
 
-      ## ---- numeric value for NADA ----
+      ## ---- numeric value for censored TP (for NADA) ----
       RESULT = case_when(
         WSHEDPARMNAME == "PHOSPHORUS AS P" & TP_cens ~ DETECTION_LIMIT,
         WSHEDPARMNAME == "PHOSPHORUS AS P" ~ NUMRESULT,
@@ -166,12 +167,24 @@ data_reformat <- function(input_path) {
         WSHEDPARMNAME ==
           "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" ~ "CHL_comp",
         WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" ~ "SECCHI",
+        WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" &
+          DEPTHZONE == "EPILIMNION" ~ "SPCD_epi",
+        WSHEDPARMNAME == "PH" & DEPTHZONE == "EPILIMNION" ~ "PH_epi",
         WSHEDPARMNAME == "PHOSPHORUS AS P" &
           DEPTHZONE == "EPILIMNION" ~ "TP_epi",
         WSHEDPARMNAME == "PHOSPHORUS AS P" &
           DEPTHZONE == "HYPOLIMNION" ~ "TP_hypo",
         TRUE ~ NA_character_
       ),
+
+      ## ---- depth-specific TP censor flags ----
+      TP_cens_epi = WSHEDPARMNAME == "PHOSPHORUS AS P" &
+        DEPTHZONE == "EPILIMNION" &
+        TP_cens,
+
+      TP_cens_hypo = WSHEDPARMNAME == "PHOSPHORUS AS P" &
+        DEPTHZONE == "HYPOLIMNION" &
+        TP_cens,
 
       ## ---- station cleanup ----
       stationid = case_when(
@@ -188,18 +201,28 @@ data_reformat <- function(input_path) {
           "SPECTACLE POND-DEEP SPOT",
         TRUE ~ str_trim(toupper(STATNAME))
       )
-    )
-
-  REG1 <- REG1 |>
+    ) |>
     mutate(
+      ## ---- convert TP to µg/L ----
       RESULT = if_else(
         WSHEDPARMNAME == "PHOSPHORUS AS P",
-        RESULT * 1000, # mg/L → µg/L
+        RESULT * 1000,
         RESULT
       )
     )
 
-  REG2 <- REG1 |>
+  ## Collapse TP censor flags by date -------------------------------------
+
+  TP_cens_flags <- REG1 |>
+    group_by(RELLAKE, TOWN, stationid, stationname, STARTDATE) |>
+    summarise(
+      TP_cens_epi = any(TP_cens_epi, na.rm = TRUE),
+      TP_cens_hypo = any(TP_cens_hypo, na.rm = TRUE),
+      .groups = "drop"
+    )
+
+  ## REG_MK: wide table for MK -------------------------------
+  REG_MK <- REG1 |>
     filter(!is.na(param_depth)) |>
     pivot_wider(
       id_cols = c(RELLAKE, TOWN, stationid, stationname, STARTDATE),
@@ -207,13 +230,25 @@ data_reformat <- function(input_path) {
       values_from = RESULT,
       values_fn = \(x) mean(x, na.rm = TRUE)
     ) |>
-    rename(lake = RELLAKE, town = TOWN, date = STARTDATE) |>
-    mutate(Year = year(date))
+    rename(
+      lake = RELLAKE,
+      town = TOWN,
+      date = STARTDATE
+    ) |>
+    mutate(Year = year(date)) |>
+    left_join(
+      TP_cens_flags,
+      by = c(
+        "lake" = "RELLAKE",
+        "town" = "TOWN",
+        "stationid",
+        "stationname",
+        "date" = "STARTDATE"
+      )
+    )
 
-  ## STOPPED HERE -- NEED TO GET TP_CENS INTO THIS DF
-  # NEED TO NOT FILTER OUT DATA BY START YEAR FOR TREND ANALYSIS PURPOSES
-
-  REG <- REG2 |>
+  # REG_plot is the DF necessary for PLOTTING only (includes specific start years for aesthetics purposes)
+  REG_plot <- REG2 |>
     left_join(
       lake_start_years |> select(stationid, start_year),
       by = "stationid"
@@ -385,7 +420,8 @@ data_reformat <- function(input_path) {
   # return list of tidy dataframes
   list(
     BTC = BTC,
-    REG = REG,
+    REG_plot = REG_plot,
+    REG_MK = REG_MK,
     CYA_2025 = CYA_2025,
     CYA_long = CYA_long,
     LAKEMAP = LAKEMAP

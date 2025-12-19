@@ -78,8 +78,10 @@ source(file.path(project_path, "R", "09_report_gen.R"))
 # ====================
 message("Reformatting data...")
 processed <- data_reformat(input_path)
+
 BTC <- processed$BTC
-REG <- processed$REG
+REG_plot <- processed$REG_plot
+REG_MK <- processed$REG_MK
 CYA_2025 <- processed$CYA_2025
 CYA_long <- processed$CYA_long
 LAKEMAP <- processed$LAKEMAP
