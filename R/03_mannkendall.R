@@ -11,7 +11,7 @@ run_vlap_mannkendall <- function(
     dir.create(table_path, recursive = TRUE)
   }
 
-  # check ≥10 consecutive years
+  # check for stations with ≥10 consecutive years
   has_10_consecutive_years <- function(years) {
     years <- sort(unique(years))
     if (length(years) < 10) {
@@ -45,12 +45,13 @@ run_vlap_mannkendall <- function(
       by = "stationid"
     )
 
-  stations <- unique(REG_MK_10yrs$stationid)
+  stations <- sort(unique(REG_MK_10yrs$stationid))
 
+  # loop through all stations
   for (st in stations) {
     station_data <- REG_MK_10yrs |> filter(stationid == st)
 
-    # reshape to long
+    # reshape to long format for parameter-wise analysis
     long_data <- station_data |>
       pivot_longer(
         cols = c(CHL_comp, SPCD_epi, PH_epi, TP_epi, TP_hypo, SECCHI),
@@ -63,6 +64,10 @@ run_vlap_mannkendall <- function(
       group_by(parameter) |>
       summarise(
         non_na_n = sum(!is.na(value)),
+
+        # Mann-Kendall test (Kendall::MannKendall) is used here to:
+        # 1) Calculate 'tau', the rank correlation coefficient, indicating direction/strength of monotonic trend
+        # 2) Calculate 'sl' (p-value) to test whether the observed trend is statistically significant
         tau = if (non_na_n >= 10) {
           Kendall::MannKendall(value[!is.na(value)])$tau
         } else {
@@ -73,6 +78,9 @@ run_vlap_mannkendall <- function(
         } else {
           NA_real_
         },
+
+        # Sen's slope (trend::sens.slope) estimates the magnitude of change per year
+        # This gives the rate at which the parameter increases or decreases over time
         slope = if (non_na_n >= 10) {
           trend::sens.slope(value[!is.na(value)], Year[!is.na(value)])$estimates
         } else {
@@ -81,32 +89,52 @@ run_vlap_mannkendall <- function(
         .groups = "drop"
       ) |>
       mutate(
+        # classify significance based on MK p-value
         significant = !is.na(p.value) & p.value < 0.05,
+
+        # determine slope direction if significant
         slope_dir = case_when(
-          !significant ~ NA_character_,
           slope > 0 ~ "increasing",
           slope < 0 ~ "decreasing",
-          TRUE ~ "none"
+          TRUE ~ NA_character_
         ),
+
+        # map slope direction into context-specific trend labels
         trend = case_when(
-          !significant ~ "Stable",
-          parameter %in%
-            c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
-            slope_dir == "increasing" ~ "Worsening",
-          parameter %in%
-            c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
-            slope_dir == "decreasing" ~ "Improving",
-          parameter %in%
-            c("PH_epi", "SECCHI") &
-            slope_dir == "increasing" ~ "Improving",
-          parameter %in%
-            c("PH_epi", "SECCHI") &
-            slope_dir == "decreasing" ~ "Worsening",
-          TRUE ~ "insufficient data"
+          # significant trends
+          significant &
+            parameter %in% c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
+            slope_dir == "increasing" ~ "Worsening (significant)",
+          significant &
+            parameter %in% c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
+            slope_dir == "decreasing" ~ "Improving (significant)",
+          significant &
+            parameter %in% c("PH_epi", "SECCHI") &
+            slope_dir == "increasing" ~ "Improving (significant)",
+          significant &
+            parameter %in% c("PH_epi", "SECCHI") &
+            slope_dir == "decreasing" ~ "Worsening (significant)",
+
+          # weak trends (non-significant)
+          !significant &
+            parameter %in% c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
+            slope_dir == "increasing" ~ "Worsening (weak)",
+          !significant &
+            parameter %in% c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
+            slope_dir == "decreasing" ~ "Improving (weak)",
+          !significant &
+            parameter %in% c("PH_epi", "SECCHI") &
+            slope_dir == "increasing" ~ "Improving (weak)",
+          !significant &
+            parameter %in% c("PH_epi", "SECCHI") &
+            slope_dir == "decreasing" ~ "Worsening (weak)",
+
+          # no slope or NA slope
+          TRUE ~ "Stable"
         )
       )
 
-    # calculate mean per parameter for percent change
+    # calculate mean per parameter for percent change calculation
     mean_vals <- station_data |>
       summarise(across(
         c(CHL_comp, SPCD_epi, PH_epi, TP_epi, TP_hypo, SECCHI),
@@ -129,7 +157,7 @@ run_vlap_mannkendall <- function(
       file.path(mk_path, paste0("MannKendall_", st, ".csv"))
     )
 
-    # create simplified trend table
+    # create simplified trend table for reporting
     display_table <- mk_summary |>
       mutate(
         PARAMETER = recode(

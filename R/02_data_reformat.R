@@ -190,7 +190,7 @@ data_reformat <- function(input_path) {
         WSHEDPARMNAME == "PHOSPHORUS AS P" ~ NUMRESULT,
         TRUE ~ NUMRESULT
       ),
-      ## convert TP to µg/L
+      # convert TP to µg/L
       RESULT = if_else(
         WSHEDPARMNAME == "PHOSPHORUS AS P",
         RESULT * 1000,
@@ -202,7 +202,8 @@ data_reformat <- function(input_path) {
       id_cols = c(RELLAKE, TOWN, stationid, stationname, STARTDATE),
       names_from = param_depth,
       values_from = RESULT,
-      values_fn = \(x) mean(x, na.rm = TRUE)
+      # calculate mean parameter value per year
+      values_fn = \(x) median(x, na.rm = TRUE)
     ) |>
     rename(
       lake = RELLAKE,
@@ -283,7 +284,7 @@ data_reformat <- function(input_path) {
     summarise(
       stationname = first(stationname),
       across(c(CHL_comp, SECCHI, SPCD_epi, PH_epi, TP_epi, TP_hypo), \(x) {
-        mean(x, na.rm = TRUE)
+        median(x, na.rm = TRUE)
       }),
       .groups = "drop"
     )
