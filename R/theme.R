@@ -162,3 +162,28 @@ theme_plankton_legend <- function() {
     )
   )
 }
+
+#plankton color palette and renaming
+algae_colors <- c(
+  "UNKNOWN" = "#772c2a",
+  "GREEN" = "#2c4d75",
+  "GOLDEN-BROWN" = "#4bacc6",
+  "EUGLENOID" = "#9bbb59",
+  "DINOFLAGELLATE" = "#e46c0a",
+  "DIATOM" = "#7f7f7f",
+  "CYANOBACTERIA" = "#604a7b",
+  "CRYPTOMONAD" = "#4f6228",
+  "XANTHOPHYTE" = "#c0504d"
+)
+
+algae_labels <- c(
+  "UNKNOWN" = "Unknown",
+  "GREEN" = "Greens",
+  "GOLDEN-BROWN" = "Golden-Browns",
+  "EUGLENOID" = "Euglenoids",
+  "DINOFLAGELLATE" = "Dinoflagellates",
+  "DIATOM" = "Diatoms",
+  "CYANOBACTERIA" = "Cyanobacteria",
+  "CRYPTOMONAD" = "Cryptomonads",
+  "XANTHOPHYTE" = "Xanthophytes"
+)
