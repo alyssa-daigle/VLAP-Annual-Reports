@@ -32,5 +32,5 @@ Note that the CSVs generated in `01_DBconnect.R` and used in `02_data_reformat.R
 -   **`LAKEMAP.csv`**: provides a comprehensive list of all lakes and their stations participating in VLAP.
 -   **`lookup.xlsx`**: acts as a map for lakes that have multiple deep spots and tributaries associated with different deep spots.
 -   **`master-DO-2025.xlsm`**: copy of the master DO file; needs to be re-copied into this repo annually.
--   **`phytoplankton-master.xlsm`**: copy of the master phytoplankton file; needs to be re-copied into this repo annually.
+-   **`Historical_Phytoplankton_Data_Thru2025.xlsm`**: copy of the master phytoplankton file; needs to be re-copied into this repo annually.
 
