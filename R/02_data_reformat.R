@@ -442,6 +442,35 @@ data_reformat <- function(input_path) {
     row.names = FALSE
   )
 
+  # -----------------------------
+  # plankton data processing
+  # -----------------------------
+  data <- read_excel(paste0(
+    input_path,
+    "Historical_Phytoplankton_Data_Thru2025.xlsm"
+  ))
+
+  data <- data |>
+    mutate(
+      year = year(date),
+      month = month(date)
+    ) |>
+    select(-date)
+
+  rel_abund <- data |>
+    group_by(stationID, year, group) |>
+    summarise(
+      total_count = sum(count, na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    group_by(stationID, year) |>
+    mutate(
+      rel_abundance = total_count / sum(total_count)
+    ) |>
+    ungroup()
+
+  PLANKTON <- rel_abund
+
   # return list of tidy dataframes
   list(
     BTC = BTC,
@@ -450,6 +479,7 @@ data_reformat <- function(input_path) {
     REG_MK = REG_MK,
     CYA_2025 = CYA_2025,
     CYA_long = CYA_long,
-    LAKEMAP = LAKEMAP
+    LAKEMAP = LAKEMAP,
+    PLANKTON = PLANKTON
   )
 }

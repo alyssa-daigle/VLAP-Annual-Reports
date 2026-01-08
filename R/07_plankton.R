@@ -1,67 +1,49 @@
-make_plankton <- function(input_path, output_path) {
-  library(ggplot2)
-  library(dplyr)
-  library(tidyr)
-  library(forcats)
-  library(cowplot)
-  library(magick)
-  library(readxl)
-  library(scales)
-
-  # Load data
-  data <- read_excel(paste0(input_path, "phytoplankton-master.xlsm"))
-
+make_plankton <- function(PLANKTON, output_path) {
   # Ensure output directory exists
   if (!dir.exists(output_path)) {
     dir.create(output_path, recursive = TRUE)
   }
 
-  # Get list of stations
-  stations <- sort(unique(data$stationid))
+  data <- PLANKTON
 
-  # Loop over stations
+  # Get list of stations
+  stations <- sort(unique(data$stationID))
+
   lapply(stations, function(station_id) {
     message(paste0("Working on plankton for ", station_id, "\n"))
 
-    # Subset for the station
+    # Subset for station
     plot_data <- data |>
-      filter(stationid == station_id)
+      filter(stationID == station_id)
 
-    # Skip if no data or missing year values
+    # Skip if no usable data
     if (nrow(plot_data) == 0 || all(is.na(plot_data$year))) {
       message("  -> Skipping ", station_id, " (no valid year data)\n")
       return(NULL)
     }
 
-    # Get full year range (so gaps show up)
+    # Full year range (so gaps show)
     all_years <- seq(
       min(plot_data$year, na.rm = TRUE),
       max(plot_data$year, na.rm = TRUE),
       by = 1
     )
 
-    # Aggregate and ensure full grid of years × divisions
+    # Ensure full grid of years × groups
     plot_data <- plot_data |>
-      group_by(year, division) |>
-      summarise(
-        total_cells = sum(count, na.rm = TRUE),
-        .groups = "drop_last"
-      ) |>
       mutate(
-        rel_abund = total_cells / sum(total_cells),
-        division = factor(division, levels = names(algae_colors))
+        group = factor(group, levels = names(algae_colors))
       ) |>
-      ungroup() |>
       complete(
         year = all_years,
-        division = names(algae_colors),
-        fill = list(total_cells = 0, rel_abund = 0)
+        group = names(algae_colors),
+        fill = list(rel_abundance = 0)
       )
 
-    # Main plot
+    # Main stacked bar plot
     p_main <- ggplot(
       plot_data,
-      aes(x = factor(year), y = rel_abund, fill = division)
+      aes(x = factor(year), y = rel_abundance, fill = group)
     ) +
       geom_bar(stat = "identity") +
       scale_y_continuous(
@@ -81,12 +63,12 @@ make_plankton <- function(input_path, output_path) {
       theme_plankton()
 
     # Legend-only plot
-    p_legend <- ggplot(plot_data, aes(x = 1, y = 1, fill = division)) +
+    p_legend <- ggplot(plot_data, aes(x = 1, y = 1, fill = group)) +
       geom_bar(stat = "identity") +
       scale_fill_manual(
         values = algae_colors,
         labels = algae_labels,
-        breaks = rev(names(algae_labels)), # <-- reverse the order here
+        breaks = rev(names(algae_labels)),
         drop = FALSE
       ) +
       labs(fill = NULL) +
@@ -97,10 +79,10 @@ make_plankton <- function(input_path, output_path) {
     # Extract legend
     legend <- get_legend(p_legend)
 
-    # Combine main plot and legend
+    # Combine plot + legend
     final_plot <- plot_grid(p_main, legend, rel_widths = c(6, 1.5))
 
-    # Save plot and add full PNG border
+    # Save plot
     filename <- paste0(station_id, "_plankton.png")
     temp_path <- file.path(output_path, filename)
 
@@ -113,6 +95,7 @@ make_plankton <- function(input_path, output_path) {
       bg = "white"
     )
 
+    # Add PNG border
     img <- magick::image_read(temp_path)
     img_bordered <- magick::image_border(
       img,

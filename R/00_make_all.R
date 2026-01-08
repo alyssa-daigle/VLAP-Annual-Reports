@@ -88,6 +88,7 @@ REG_MK <- processed$REG_MK
 CYA_2025 <- processed$CYA_2025
 CYA_long <- processed$CYA_long
 LAKEMAP <- processed$LAKEMAP
+PLANKTON <- processed$PLANKTON
 
 # ==========================
 # Mann-Kendall and Sen's SLope analysis
@@ -103,7 +104,7 @@ message("Generating plots...")
 make_chl_tp_secchi(input_path, file.path(output_path, "chl_tp_secchi"))
 make_pH_conduc(input_path, file.path(output_path, "pH_conduc"))
 make_temp_DO(input_path, file.path(output_path, "temp_DO"))
-make_plankton(input_path, file.path(output_path, "plankton"))
+make_plankton(PLANKTON, file.path(output_path, "plankton"))
 message("All plots completed.")
 
 # ==========================
