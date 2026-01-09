@@ -1,7 +1,7 @@
 PARAMETER,TREND
-Chlorophyll-a,Improving (weak)
-pH (epilimnion),Worsening (weak)
-Transparency,Improving (weak)
-Conductivity,Worsening (significant)
+Chlorophyll-a,Stable
+pH (epilimnion),Stable
+Transparency,Stable
+Conductivity,Worsening
 Phosphorus (epilimnion),Stable
-Phosphorus (hypolimnion),Improving (weak)
+Phosphorus (hypolimnion),Stable

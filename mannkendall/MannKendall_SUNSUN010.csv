@@ -1,7 +1,7 @@
-parameter,non_na_n,tau,p.value,slope,significant,slope_dir,trend,mean_value,percent_change
-CHL_comp,231,0.03267894312739372,0.4632070064544678,2.3696682464454996e-4,FALSE,increasing,Worsening (weak),1.8114718614718615,0.013081452143121291
-PH_epi,0,NA,NA,NA,FALSE,NA,Stable,NA,NA
-SECCHI,226,0.017809007316827774,0.69667816162109375,0,FALSE,NA,Stable,7.289845132743363,0
-SPCD_epi,0,NA,NA,NA,FALSE,NA,Stable,NA,NA
-TP_epi,0,NA,NA,NA,FALSE,NA,Stable,NA,NA
-TP_hypo,0,NA,NA,NA,FALSE,NA,Stable,NA,NA
+parameter,non_na_n,tau,p.value,slope,trend,mean_value,percent_change
+CHL_comp,231,0.03267894312739372,0.4632070064544678,2.3696682464454996e-4,Stable,1.8114718614718615,0.013081452143121291
+PH_epi,0,NA,NA,NA,insufficient data,NA,NA
+SECCHI,226,0.017809007316827774,0.69667816162109375,0,Stable,7.289845132743363,0
+SPCD_epi,0,NA,NA,NA,insufficient data,NA,NA
+TP_epi,0,NA,NA,NA,insufficient data,NA,NA
+TP_hypo,0,NA,NA,NA,insufficient data,NA,NA
