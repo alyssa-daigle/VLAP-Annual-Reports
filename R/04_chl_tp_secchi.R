@@ -214,30 +214,79 @@ make_chl_tp_secchi <- function(input_path, output_path) {
       add_mk_line("SECCHI", "blue4")
     }
 
-    # Legend
+    # --- Dynamic legend ---
     par(xpd = NA)
+
+    # First legend: points
     legend(
-      "top",
+      x = "top",
       inset = -0.18,
       legend = c(
         "Transparency (m)",
-        "Trans. Trend",
         "Chlorophyll a (µg/L)",
-        "Chl-a Trend",
-        "Phosphorus (µg/L)",
-        "Phos. Trend"
+        "Phosphorus (µg/L)"
       ),
-      pch = c(22, NA, 16, NA, 17, NA),
-      pt.bg = c("lightsteelblue2", NA, NA, NA, NA, NA),
-      col = c("black", "blue4", "springgreen4", "green4", "red4", "red4"),
-      lty = c(0, 2, 1, 2, 1, 2),
-      lwd = c(1, 1.5, 1.1, 1.5, 1.1, 1.5),
-      pt.cex = c(1.25, NA, 0.8, NA, 0.8, NA),
+      pch = c(22, 16, 17),
+      pt.bg = c("lightsteelblue2", NA, NA),
+      col = c("black", "springgreen4", "red4"),
+      lty = c(0, 1, 1),
+      lwd = c(1, 1.1, 1.1),
+      pt.cex = c(1.25, 0.8, 0.8),
       bty = "n",
       ncol = 3,
       cex = 0.6,
       text.font = 2
     )
+
+    # Second legend: trends
+    trend_items <- c()
+    col_items <- c()
+    lty_items <- c()
+    lwd_items <- c()
+
+    if (has_MK) {
+      # Transparency trend
+      slope_sec <- MK_table |> filter(parameter == "SECCHI") |> pull(slope)
+      if (!is.na(slope_sec) & length(slope_sec) > 0) {
+        trend_items <- c(trend_items, "Transparency Trend")
+        col_items <- c(col_items, "blue4")
+        lty_items <- c(lty_items, 2)
+        lwd_items <- c(lwd_items, 1.5)
+      }
+
+      # Chl trend
+      slope_chl <- MK_table |> filter(parameter == "CHL_comp") |> pull(slope)
+      if (!is.na(slope_chl) & length(slope_chl) > 0) {
+        trend_items <- c(trend_items, "Chlorophyll-a Trend")
+        col_items <- c(col_items, "green4")
+        lty_items <- c(lty_items, 2)
+        lwd_items <- c(lwd_items, 1.5)
+      }
+
+      # TP trend
+      slope_tp <- MK_table |> filter(parameter == "TP_epi") |> pull(slope)
+      if (!is.na(slope_tp) & length(slope_tp) > 0) {
+        trend_items <- c(trend_items, "Phosphorus Trend")
+        col_items <- c(col_items, "red4")
+        lty_items <- c(lty_items, 2)
+        lwd_items <- c(lwd_items, 1.5)
+      }
+    }
+
+    if (length(trend_items) > 0) {
+      legend(
+        x = "top",
+        inset = c(-0.18, -0.12), # adjust vertical spacing below first legend
+        legend = trend_items,
+        col = col_items,
+        lty = lty_items,
+        lwd = lwd_items,
+        bty = "n",
+        ncol = 3,
+        cex = 0.6,
+        text.font = 2
+      )
+    }
 
     dev.off()
 
@@ -249,3 +298,5 @@ make_chl_tp_secchi <- function(input_path, output_path) {
 
   message("All plots saved to: ", output_path)
 }
+
+make_chl_tp_secchi(input_path, file.path(output_path, "chl_tp_secchi"))
