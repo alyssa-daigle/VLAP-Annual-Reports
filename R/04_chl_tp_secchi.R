@@ -1,6 +1,7 @@
-make_chl_tp_secchi_test <- function(input_path, output_path) {
+make_chl_tp_secchi <- function(input_path, output_path) {
   library(dplyr)
   library(tidyr)
+  library(magick)
 
   if (!dir.exists(output_path)) {
     dir.create(output_path, recursive = TRUE)
@@ -37,20 +38,26 @@ make_chl_tp_secchi_test <- function(input_path, output_path) {
     has_MK <- file.exists(mk_file)
     MK_table <- if (has_MK) read.csv(mk_file) else NULL
 
-    png_filename <- file.path(
+    temp_path <- file.path(
       output_path,
       paste0(station_id, "_chl_tp_secchi.png")
     )
-    png(png_filename, width = 10, height = 6, units = "in", res = 120)
 
-    # Symmetric margins
-    par(mar = c(5, 5, 5, 5) + 0.1)
+    # --- Create plot ---
+    png(temp_path, width = 8, height = 4, units = "in", res = 120)
+    par(family = "Calibri")
+    par(mar = c(3.8, 4, 4, 3.8)) # reduce margins for more plotting area
 
-    # --- Base plot ---
+    # Base plot x-axis limits (no automatic padding)
+    n_years <- length(unique(df_plot$Year))
+    x_min <- min(df_plot$Year)
+    x_max <- max(df_plot$Year)
+
     plot(
       df_plot$Year,
       df_plot$TP_epi,
       type = "n",
+      xlim = c(x_min, x_max),
       ylim = c(0, y_max_left),
       xlab = "",
       ylab = "",
@@ -58,31 +65,34 @@ make_chl_tp_secchi_test <- function(input_path, output_path) {
       axes = FALSE,
       yaxs = "i"
     )
-
     box()
 
     # Plot title
     title(
       main = "Historical Chlorophyll-a, Epilimnetic Phosphorus, and Transparency Data",
-      line = 3
+      line = 2.5,
+      cex.main = 1.05
     )
 
     # Left y-axis
-    y_left_breaks <- seq(0, ceiling(y_max_left / 5) * 5, by = 5)
-    axis(side = 2, at = y_left_breaks, font.axis = 2, las = 1, cex.axis = 0.95)
+    axis(
+      side = 2,
+      at = seq(0, ceiling(y_max_left / 5) * 5, by = 5),
+      font.axis = 2,
+      las = 1,
+      cex.axis = 0.75
+    )
     mtext(
       "Chlorophyll-a & Total Phosphorus (µg/L)",
       side = 2,
-      line = 3,
-      cex = 0.95,
+      line = 2.5,
+      cex = 0.85,
       font = 2
     )
 
-    # X-axis ticks (no labels yet)
+    # X-axis
     axis(side = 1, at = df_plot$Year, labels = FALSE)
-
-    # X-axis labels rotated, slightly below ticks
-    y_pos <- par("usr")[3] - 0.045 * diff(par("usr")[3:4])
+    y_pos <- par("usr")[3] - 0.06 * diff(par("usr")[3:4])
     text(
       x = df_plot$Year + 0.15,
       y = y_pos,
@@ -91,13 +101,11 @@ make_chl_tp_secchi_test <- function(input_path, output_path) {
       adj = 1,
       xpd = TRUE,
       font = 2,
-      cex = 0.85
+      cex = 0.65
     )
+    mtext("Year", side = 1, line = 2, cex = 0.85, font = 2)
 
-    # X-axis label
-    mtext("Year", side = 1, line = 3, cex = 0.95, font = 2)
-
-    # --- Secchi bars ---
+    # Secchi bars
     par(new = TRUE)
     plot(
       df_plot$Year,
@@ -109,117 +117,108 @@ make_chl_tp_secchi_test <- function(input_path, output_path) {
       ylim = c(y_max_right, 0),
       yaxs = "i"
     )
-    bar_half_width <- 0.35
-    secchi_col <- adjustcolor("lightsteelblue2", alpha.f = 0.5)
+
+    # Dynamic bar width: narrower if fewer than 10 years
+    bar_width <- if (n_years < 10) 0.18 else 0.28
+
     with(
       df_plot,
       rect(
-        Year - bar_half_width,
+        Year - bar_width,
         0,
-        Year + bar_half_width,
+        Year + bar_width,
         SECCHI,
-        col = secchi_col,
+        col = adjustcolor("lightsteelblue2", alpha.f = 0.5),
         border = "gray20"
       )
     )
 
-    # Right y-axis
-    y_right_breaks <- seq(0, ceiling(y_max_right), by = 1)
     axis(
       side = 4,
-      at = y_right_breaks,
-      labels = y_right_breaks,
+      at = seq(0, ceiling(y_max_right), by = 1),
+      labels = seq(0, ceiling(y_max_right), by = 1),
       font.axis = 2,
-      cex.axis = 0.95,
+      cex.axis = 0.75,
       las = 2
     )
-
-    # Right y-axis title
-    usr <- par("usr")
-    par(xpd = NA)
-    # Right y-axis title using mtext()
     mtext(
-      "Transparency (m)", # label
-      side = 4, # right side
-      line = 2.5, # distance from axis (adjust as needed)
-      cex = 0.95, # font size
+      "Transparency (m)",
+      side = 4,
+      line = 1.8,
+      cex = 0.85,
       font = 2,
       las = 3
     )
 
-    # --- Foreground TP & Chl-a ---
+    # Foreground TP & Chl-a
     par(new = TRUE)
     plot(
       df_plot$Year,
       df_plot$TP_epi,
-      type = "b",
+      type = "o",
       pch = 17,
       col = "red4",
+      cex = 1.2,
       axes = FALSE,
       xlab = "",
       ylab = "",
       ylim = c(0, y_max_left),
-      yaxs = "i"
+      yaxs = "i",
+      lwd = 2
     )
-    lines(df_plot$Year, df_plot$CHL_comp, type = "b", pch = 16, col = "green4")
+    lines(
+      df_plot$Year,
+      df_plot$CHL_comp,
+      type = "o",
+      pch = 16,
+      col = "green4",
+      cex = 1.2,
+      lwd = 2
+    )
 
-    # --- MK trend lines ---
+    # MK trend lines
     if (has_MK) {
-      # TP & Chl-a trend lines (left y-axis)
-      add_mk_line <- function(var, col, ylim) {
+      add_mk_line <- function(var, col) {
         slope <- MK_table |> filter(parameter == var) |> pull(slope)
-        if (length(slope) == 0 || is.na(slope)) {
-          return()
-        }
-        df_var <- df_plot |> filter(!is.na(.data[[var]]))
-        if (nrow(df_var) < 2) {
-          return()
-        }
-        med_year <- median(df_var$Year)
-        med_val <- median(df_var[[var]])
-        intercept <- med_val - slope * med_year
-        x_vals <- range(df_var$Year, na.rm = TRUE)
-        y_vals <- intercept + slope * x_vals
-        lines(x_vals, y_vals, col = col, lty = 2, lwd = 1.5)
-      }
-      add_mk_line("TP_epi", "red4", c(0, y_max_left))
-      add_mk_line("CHL_comp", "green4", c(0, y_max_left))
-
-      # Secchi trend line on right y-axis
-      secchi_slope <- MK_table |> filter(parameter == "SECCHI") |> pull(slope)
-      if (length(secchi_slope) > 0 && !is.na(secchi_slope)) {
-        df_secchi <- df_plot |> filter(!is.na(SECCHI))
-        if (nrow(df_secchi) >= 2) {
-          med_year <- median(df_secchi$Year)
-          med_val <- median(df_secchi$SECCHI)
-          intercept <- med_val - secchi_slope * med_year
-          x_vals <- range(df_secchi$Year, na.rm = TRUE)
-          y_vals <- intercept + secchi_slope * x_vals
-
-          # Plot on right axis
-          par(new = TRUE)
-          plot(
-            x_vals,
-            y_vals,
-            type = "l",
-            col = "blue4",
-            lty = 2,
-            lwd = 1.5,
-            axes = FALSE,
-            xlab = "",
-            ylab = "",
-            ylim = c(y_max_right, 0),
-            yaxs = "i"
-          )
+        if (length(slope) > 0 && !is.na(slope)) {
+          df_var <- df_plot |> filter(!is.na(.data[[var]]))
+          if (nrow(df_var) >= 2) {
+            med_year <- median(df_var$Year)
+            med_val <- median(df_var[[var]])
+            intercept <- med_val - slope * med_year
+            x_vals <- range(df_var$Year, na.rm = TRUE)
+            y_vals <- intercept + slope * x_vals
+            if (var == "SECCHI") {
+              par(new = TRUE)
+              plot(
+                x_vals,
+                y_vals,
+                type = "l",
+                col = "blue4",
+                lty = 2,
+                lwd = 1.5,
+                axes = FALSE,
+                xlab = "",
+                ylab = "",
+                ylim = c(y_max_right, 0),
+                yaxs = "i"
+              )
+            } else {
+              lines(x_vals, y_vals, col = col, lty = 2, lwd = 1.5)
+            }
+          }
         }
       }
+      add_mk_line("TP_epi", "red4")
+      add_mk_line("CHL_comp", "green4")
+      add_mk_line("SECCHI", "blue4")
     }
 
-    # --- Legend ---
+    # Legend
     par(xpd = NA)
     legend(
       "top",
-      inset = -0.13,
+      inset = -0.18,
       legend = c(
         "Transparency (m)",
         "Trans. Trend",
@@ -241,6 +240,11 @@ make_chl_tp_secchi_test <- function(input_path, output_path) {
     )
 
     dev.off()
+
+    # Add black border via magick
+    img <- magick::image_read(temp_path)
+    img_bordered <- magick::image_border(img, color = "black", geometry = "3x3")
+    magick::image_write(img_bordered, path = temp_path, format = "png")
   }
 
   message("All plots saved to: ", output_path)
