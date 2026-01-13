@@ -10,19 +10,19 @@ run_vlap_mannkendallNADA2 <- function(
     dir.create(table_path, recursive = TRUE)
   }
 
+  # ---- Helper: check for 10 consecutive years ----
   has_10_consecutive_years <- function(years) {
     years <- sort(unique(years))
     if (length(years) < 10) {
       return(FALSE)
     }
-
     diffs <- c(0, diff(years))
     runs <- rle(diffs == 1)
     max_run <- max(runs$lengths[runs$values], 0)
-
-    max_run + 1 >= 10
+    return(max_run + 1 >= 10)
   }
 
+  # ---- Identify eligible stations ----
   stations_with_10yrs <- REG_NADA |>
     group_by(stationid) |>
     summarise(
@@ -35,17 +35,17 @@ run_vlap_mannkendallNADA2 <- function(
     file.path(table_path, "Stations_less_than_10yrs.csv")
   )
 
-  REG_NADA_10yrs <- REG_NADA |>
-    inner_join(
-      stations_with_10yrs |> filter(consecutive_10yrs),
-      by = "stationid"
-    )
+  eligible_stations <- stations_with_10yrs |>
+    filter(consecutive_10yrs) |>
+    pull(stationid)
 
-  stations <- unique(REG_NADA_10yrs$stationid)
+  # ---- Loop through stations ----
+  for (st in eligible_stations) {
+    message("Processing station: ", st)
 
-  for (st in stations) {
-    station_data <- REG_NADA_10yrs |> filter(stationid == st)
+    station_data <- REG_NADA |> filter(stationid == st)
 
+    # ---- Pivot longer for parameter-wise MK ----
     long_data <- station_data |>
       pivot_longer(
         cols = c(CHL_comp, SPCD_epi, PH_epi, TP_epi, TP_hypo, SECCHI),
@@ -53,84 +53,59 @@ run_vlap_mannkendallNADA2 <- function(
         values_to = "value"
       )
 
-    mk_summary <- long_data |>
-      group_split(parameter) |>
-      map_dfr(function(df) {
-        param <- df$parameter[1]
+    mk_summary <- map_dfr(unique(long_data$parameter), function(param) {
+      df <- long_data |> filter(parameter == param) |> select(Year, value)
 
-        if (param %in% c("TP_epi", "TP_hypo")) {
-          cen_col <- if (param == "TP_epi") "TP_cens_epi" else "TP_cens_hypo"
-          df <- df |> filter(!is.na(value) & !is.na(.data[[cen_col]]))
-        } else {
-          df <- df |> filter(!is.na(value))
-        }
+      # ---- Remove NAs ----
+      df <- df |> filter(!is.na(value))
 
-        n_obs <- nrow(df)
-
-        if (n_obs < 10) {
-          return(tibble(
-            parameter = param,
-            non_na_n = n_obs,
-            tau = NA_real_,
-            p.value = NA_real_,
-            slope = NA_real_,
-            trend = "insufficient data"
-          ))
-        }
-
-        # ---- run MK ----
-        if (param %in% c("TP_epi", "TP_hypo")) {
-          cen_col <- if (param == "TP_epi") "TP_cens_epi" else "TP_cens_hypo"
-          df[[cen_col]] <- as.logical(df[[cen_col]])
-
-          mk <- NADA2::cenken(
-            y = df$value,
-            ycen = df[[cen_col]],
-            x = df$Year
-          )
-
-          tau <- mk$tau
-          slope <- mk$slope
-          pval <- mk$p
-        } else {
-          mk <- Kendall::MannKendall(df$value)
-
-          tau <- mk$tau
-          pval <- mk$sl
-          slope <- trend::sens.slope(df$value, df$Year)$estimates
-        }
-
-        # ---- significance gate ----
-        significant <- !is.na(pval) & pval < 0.05
-
-        trend_cat <- case_when(
-          !significant ~ "Stable",
-
-          param %in%
-            c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
-            tau > 0 ~ "Worsening",
-
-          param %in%
-            c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
-            tau < 0 ~ "Improving",
-
-          param %in% c("PH_epi", "SECCHI") & tau > 0 ~ "Improving",
-
-          param %in% c("PH_epi", "SECCHI") & tau < 0 ~ "Worsening",
-
-          TRUE ~ "Stable"
-        )
-
-        tibble(
+      n_obs <- nrow(df)
+      if (n_obs < 10) {
+        return(tibble(
           parameter = param,
           non_na_n = n_obs,
-          tau = tau,
-          p.value = pval,
-          slope = slope,
-          trend = trend_cat
-        )
-      })
+          tau = NA_real_,
+          p.value = NA_real_,
+          slope = NA_real_,
+          trend = "insufficient data"
+        ))
+      }
 
+      df <- df |> arrange(Year)
+      df$Year <- as.numeric(df$Year)
+
+      # ---- Run MK ----
+      mk <- Kendall::MannKendall(df$value)
+      tau <- mk$tau
+      pval <- mk$sl
+      slope <- trend::sens.slope(df$value, df$Year)$estimates
+
+      # ---- Trend category ----
+      significant <- !is.na(pval) & pval < 0.05
+      trend_cat <- case_when(
+        !significant ~ "Stable",
+        param %in%
+          c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
+          tau > 0 ~ "Worsening",
+        param %in%
+          c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
+          tau < 0 ~ "Improving",
+        param %in% c("PH_epi", "SECCHI") & tau > 0 ~ "Improving",
+        param %in% c("PH_epi", "SECCHI") & tau < 0 ~ "Worsening",
+        TRUE ~ "Stable"
+      )
+
+      tibble(
+        parameter = param,
+        non_na_n = n_obs,
+        tau = tau,
+        p.value = pval,
+        slope = slope,
+        trend = trend_cat
+      )
+    })
+
+    # ---- Add mean values and percent change ----
     mean_vals <- station_data |>
       summarise(across(
         c(CHL_comp, SPCD_epi, PH_epi, TP_epi, TP_hypo, SECCHI),
@@ -147,6 +122,7 @@ run_vlap_mannkendallNADA2 <- function(
       left_join(mean_vals, by = "parameter") |>
       mutate(percent_change = (slope / mean_value) * 100)
 
+    # ---- Write CSVs ----
     write_csv(
       mk_summary,
       file.path(mk_path, paste0("MannKendall_", st, ".csv"))
@@ -171,4 +147,6 @@ run_vlap_mannkendallNADA2 <- function(
       file.path(table_path, paste0("MK_TrendSummary_", st, ".csv"))
     )
   }
+
+  message("Mann-Kendall analysis complete for eligible stations.")
 }

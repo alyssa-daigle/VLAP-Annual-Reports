@@ -1,8 +1,4 @@
 make_chl_tp_secchi <- function(input_path, output_path) {
-  library(dplyr)
-  library(tidyr)
-  library(magick)
-
   if (!dir.exists(output_path)) {
     dir.create(output_path, recursive = TRUE)
   }
@@ -298,3 +294,5 @@ make_chl_tp_secchi <- function(input_path, output_path) {
 
   message("All plots saved to: ", output_path)
 }
+
+make_chl_tp_secchi(input_path, file.path(output_path, "chl_tp_secchi"))
