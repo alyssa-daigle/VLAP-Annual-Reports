@@ -46,5 +46,6 @@ lake_excerpts
 R/regression-OLD.R
 R/statcompare.R
 R/chloride.R
+R/03_mannkendall.R
 data/CYA_full.csv  
 data/REG_long.csv 
