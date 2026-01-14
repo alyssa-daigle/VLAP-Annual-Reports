@@ -12,11 +12,11 @@ The individual scripts called by **`00_make_all.R`** include:
 
 -   **`01_DBconnect.R`**: Connects to NHDES EMD to pull recent data.
 -   **`02_data_reformat.R`**: Reformats data to rename columns and make data handling easier.
--   **`03_mannkendall.R`**: Runs Mann-Kendall and Sen's Slope analysis on EMD data to determine whether significant parameter trends are increasing, decreasing, or stable.
--   **`04_chl_tp_secchi.R`**: Contains the function to generate historical Chlorophyll-a, Total Phosphorus, and Secchi Disk transparency plots for each station (uses data from EMD connection)
--   **`05_ph_cond.R`**: Contains the function to generate historical pH and Conductivity plots for each station (uses data from EMD connection).
--   **`06_temp_DO.R`**: Contains the function to generate seasonal Temperature/Dissolved Oxygen profile plots for each station (currently requires Excel data sheet).
--   **`07_plankton.R`**: Contains the function to generate seasonal Phytoplankton Population plots for each station (currently requires Excel data sheet).
+-   **`03_mannkendallNADA.R`**: Runs Mann-Kendall analysis on EMD data to determine whether significant parameter trends are increasing, decreasing, or stable. Uses R package NADA2 for handling non-detect total phosphorus data.
+-   **`04_chl_tp_secchi.R`**: Contains the function to generate historical Chlorophyll-a, Total Phosphorus, and Secchi Disk transparency plots for each station. Annual medians plotted with ATS trend line from MK test.
+-   **`05_ph_cond.R`**: Contains the function to generate historical pH and Conductivity plots for each station. Annual medians plotted with ATS trend line from MK test.
+-   **`06_temp_DO.R`**: Contains the function to generate seasonal Temperature/Dissolved Oxygen profile plots for each station (currently requires master Excel data sheet).
+-   **`07_plankton.R`**: Contains the function to generate seasonal Phytoplankton Population plots for each station (currently requires master Excel data sheet).
 -   **`08_CYA_table.R`**: Contains the function to generate Current Year Average tables for each lake.
 -   **`09_report_gen.R`**: Contains the function to generate a report according to **`report_template.Rmd`** for each sampling station by looping through a lake map. Uses **`template.docx`** as a template Word document, including NHDES headings and contact info. A .docx is generated for each station that pulls together all plots and tables. Leaves room to manually enter observations and recommendations (typically lake-specific).
 
