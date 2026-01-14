@@ -8,30 +8,34 @@ if (file.exists(".env")) {
 }
 
 # Libraries
-library(ggplot2)
-library(dplyr)
-library(readxl)
-library(tidyr)
-library(tibble)
-library(parallel)
-library(forcats)
-library(cowplot)
-library(DBI)
-library(odbc)
-library(lubridate)
-library(purrr)
-library(broom)
-library(readr)
-library(fs)
-library(stringr)
-library(magick)
-library(png)
-library(grid)
-library(ggnewscale)
-library(scales)
-library(Kendall)
-library(trend)
-library(NADA)
+libs <- c(
+  "ggplot2",
+  "dplyr",
+  "readxl",
+  "tidyr",
+  "tibble",
+  "parallel",
+  "forcats",
+  "cowplot",
+  "DBI",
+  "odbc",
+  "lubridate",
+  "purrr",
+  "broom",
+  "readr",
+  "fs",
+  "stringr",
+  "magick",
+  "png",
+  "grid",
+  "ggnewscale",
+  "scales",
+  "Kendall",
+  "trend",
+  "NADA"
+)
+
+invisible(lapply(libs, library, character.only = TRUE))
 
 # ==========================
 # Paths from .env
@@ -50,7 +54,6 @@ mk_path <- Sys.getenv("MK_PATH")
 source(file.path(project_path, "R", "theme.R"))
 source(file.path(project_path, "R", "01_DBConnect.R"))
 source(file.path(project_path, "R", "02_data_reformat.R"))
-source(file.path(project_path, "R", "03_mannkendall.R"))
 source(file.path(project_path, "R", "03-5_mannkendallNADA.R"))
 source(file.path(project_path, "R", "04_chl_tp_secchi.R"))
 source(file.path(project_path, "R", "05_pH_cond.R"))
@@ -58,6 +61,7 @@ source(file.path(project_path, "R", "06_temp_DO.R"))
 source(file.path(project_path, "R", "07_plankton.R"))
 source(file.path(project_path, "R", "08_CYA_table.R"))
 source(file.path(project_path, "R", "09_report_gen.R"))
+#source(file.path(project_path, "R", "03_mannkendall.R"))
 # source(file.path(project_path, "R", "chloride.R"))
 # source(file.path(project_path, "R", "statcompare.R"))
 # source(file.path(project_path, "R", "regression-OLD.R"))
@@ -91,7 +95,7 @@ LAKEMAP <- processed$LAKEMAP
 PLANKTON <- processed$PLANKTON
 
 # ==========================
-# Mann-Kendall and Sen's SLope analysis
+# Mann-Kendall and Sen's Slope analysis
 # ==========================
 message("Running Mann-Kendall...")
 #run_vlap_mannkendall(REG_MK, mk_path, table_path)
