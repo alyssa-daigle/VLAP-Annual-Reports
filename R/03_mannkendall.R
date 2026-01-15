@@ -146,6 +146,3 @@ run_vlap_mannkendall <- function(
 
   invisible(mk_summary)
 }
-
-
-run_vlap_mannkendall(REG_MK, mk_path, table_path)
