@@ -9,6 +9,9 @@ if (file.exists(".env")) {
 
 # Libraries
 libs <- c(
+  "DBI",
+  "odbc",
+  "dotenv",
   "ggplot2",
   "dplyr",
   "readxl",
