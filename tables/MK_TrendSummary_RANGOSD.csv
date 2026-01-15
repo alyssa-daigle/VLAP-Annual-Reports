@@ -1,7 +1,19 @@
 PARAMETER,TREND
 Chlorophyll-a,Stable
-pH (epilimnion),Stable
+Chlorophyll-a,Stable
+Chlorophyll-a,Stable
+pH (epilimnion),Improving (weak)
+pH (epilimnion),Improving (weak)
+pH (epilimnion),Improving (weak)
 Transparency,Stable
-Conductivity,Stable
+Transparency,Stable
+Transparency,Stable
+Conductivity,Improving (weak)
+Conductivity,Improving (weak)
+Conductivity,Improving (weak)
 Phosphorus (epilimnion),Stable
+Phosphorus (epilimnion),Stable
+Phosphorus (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Phosphorus (hypolimnion),Stable
 Phosphorus (hypolimnion),Stable

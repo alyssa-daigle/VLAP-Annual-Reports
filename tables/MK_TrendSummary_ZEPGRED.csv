@@ -1,7 +1,930 @@
 PARAMETER,TREND
-Chlorophyll-a,Stable
-pH (epilimnion),Stable
-Transparency,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Worsening
 Conductivity,Worsening
-Phosphorus (epilimnion),Stable
+pH (epilimnion),Improving
 Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Stable
+Conductivity,Improving
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Improving
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Worsening
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Worsening
+Conductivity,Stable
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Improving
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Worsening
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Worsening
+Conductivity,Worsening
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Worsening
+Conductivity,Worsening
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Worsening
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Improving
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Worsening
+Conductivity,Worsening
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Worsening
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Worsening
+Conductivity,Improving
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Improving
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Worsening
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Improving
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Improving
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Worsening
+Conductivity,Worsening
+pH (epilimnion),Worsening
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Worsening
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Improving
+Phosphorus (epilimnion),Stable
+Conductivity,Improving
+pH (epilimnion),Worsening
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Worsening
+Conductivity,Stable
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Worsening
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Worsening
+Conductivity,Improving
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Improving
+Phosphorus (epilimnion),Worsening
+Conductivity,Worsening
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Improving
+Phosphorus (epilimnion),Worsening
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Worsening
+Conductivity,Stable
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Improving
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Improving
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Improving
+Phosphorus (epilimnion),Stable
+Conductivity,Improving
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Improving
+Conductivity,Stable
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Worsening
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Improving
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Worsening
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Improving
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Worsening
+Conductivity,Improving
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Worsening
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Improving
+Conductivity,Improving
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Worsening
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Worsening
+Conductivity,Worsening
+pH (epilimnion),Worsening
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Improving
+Conductivity,Improving
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Improving
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Improving
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Worsening
+Conductivity,Worsening
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Worsening
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Improving
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Improving
+Phosphorus (epilimnion),Improving
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Improving
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Worsening
+Conductivity,Worsening
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Worsening
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Worsening
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Worsening
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Worsening
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Worsening
+Conductivity,Stable
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Worsening
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Improving
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Worsening
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Worsening
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Improving
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Worsening
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Worsening
+Conductivity,Stable
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Worsening
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Worsening
+Phosphorus (hypolimnion),Improving
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Improving
+Conductivity,Improving
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Improving
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Improving
+Conductivity,Stable
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Improving
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Worsening
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Worsening
+Conductivity,Stable
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Improving
+Conductivity,Worsening
+pH (epilimnion),Worsening
+Phosphorus (hypolimnion),Improving
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Improving
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Worsening
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Improving
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Worsening
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Worsening
+Conductivity,Stable
+pH (epilimnion),Improving
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Worsening
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Improving
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Improving
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Stable
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Worsening
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Worsening
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Improving
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Worsening
+Chlorophyll-a,Worsening
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Improving
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Improving
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Worsening
+Phosphorus (epilimnion),Stable
+Conductivity,Worsening
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable
+Transparency,Stable
+Phosphorus (epilimnion),Stable
+Conductivity,Improving
+pH (epilimnion),Stable
+Phosphorus (hypolimnion),Stable
+Chlorophyll-a,Stable
+Year,Stable

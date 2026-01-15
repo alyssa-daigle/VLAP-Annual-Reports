@@ -30,7 +30,6 @@ libs <- c(
   "grid",
   "ggnewscale",
   "scales",
-  "Kendall",
   "trend",
   "NADA"
 )
@@ -54,14 +53,15 @@ mk_path <- Sys.getenv("MK_PATH")
 source(file.path(project_path, "R", "theme.R"))
 source(file.path(project_path, "R", "01_DBConnect.R"))
 source(file.path(project_path, "R", "02_data_reformat.R"))
-source(file.path(project_path, "R", "03_mannkendallNADA.R"))
+source(file.path(project_path, "R", "03_mannkendall.R"))
 source(file.path(project_path, "R", "04_chl_tp_secchi.R"))
 source(file.path(project_path, "R", "05_pH_cond.R"))
 source(file.path(project_path, "R", "06_temp_DO.R"))
 source(file.path(project_path, "R", "07_plankton.R"))
 source(file.path(project_path, "R", "08_CYA_table.R"))
 source(file.path(project_path, "R", "09_report_gen.R"))
-#source(file.path(project_path, "R", "03_mannkendall.R"))
+
+#source(file.path(project_path, "R", "03_mannkendallNADA.R"))
 # source(file.path(project_path, "R", "chloride.R"))
 # source(file.path(project_path, "R", "statcompare.R"))
 # source(file.path(project_path, "R", "regression-OLD.R"))
@@ -98,8 +98,8 @@ PLANKTON <- processed$PLANKTON
 # Mann-Kendall and Sen's Slope analysis
 # ==========================
 message("Running Mann-Kendall...")
-#run_vlap_mannkendall(REG_MK, mk_path, table_path)
-run_vlap_mannkendallNADA2(REG_NADA, mk_path, table_path)
+run_vlap_mannkendall(REG_MK, mk_path, table_path)
+#run_vlap_mannkendallNADA2(REG_NADA, mk_path, table_path)
 
 # ==========================
 # Plot generation

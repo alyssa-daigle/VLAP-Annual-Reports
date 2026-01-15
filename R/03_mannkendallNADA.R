@@ -169,7 +169,7 @@ run_vlap_mannkendallNADA2 <- function(
     # ---- Write full MK summary CSV ----
     write_csv(
       mk_summary,
-      file.path(mk_path, paste0("MannKendall_", st, ".csv"))
+      file.path(mk_path, paste0("NADA2MannKendall_", st, ".csv"))
     )
 
     # ---- Write simplified trend summary for reporting ----
@@ -189,7 +189,7 @@ run_vlap_mannkendallNADA2 <- function(
 
     write_csv(
       display_table,
-      file.path(table_path, paste0("MK_TrendSummary_", st, ".csv"))
+      file.path(table_path, paste0("NADA2MK_TrendSummary_", st, ".csv"))
     )
   }
 
