@@ -4,7 +4,34 @@ make_plankton <- function(PLANKTON, output_path) {
     dir.create(output_path, recursive = TRUE)
   }
 
-  data <- PLANKTON
+  # -----------------------------
+  # plankton data processing
+  # -----------------------------
+  data <- read_excel(paste0(
+    input_path,
+    "Historical_Phytoplankton_Data_Thru2025.xlsm"
+  ))
+
+  data <- data |>
+    mutate(
+      year = year(date),
+      month = month(date)
+    ) |>
+    select(-date)
+
+  rel_abund <- data |>
+    group_by(stationID, year, group) |>
+    summarise(
+      total_count = sum(count, na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    group_by(stationID, year) |>
+    mutate(
+      rel_abundance = total_count / sum(total_count)
+    ) |>
+    ungroup()
+
+  data <- rel_abund
 
   # Get list of stations
   stations <- sort(unique(data$stationID))

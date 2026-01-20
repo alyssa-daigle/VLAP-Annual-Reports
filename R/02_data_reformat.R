@@ -1,42 +1,173 @@
 data_reformat <- function(input_path) {
-  BTC_file <- file.path(input_path, "BTC_full.csv")
-  REG_file <- file.path(input_path, "REG_long.csv")
-  CYA_file <- file.path(input_path, "CYA_full.csv")
+  # load the SQL pull data, update annually
+  data <- read_csv("C:/Users/alyssa.n.daigle/Desktop/testSQLpull.csv")
 
-  BTC_full <- read_csv(BTC_file, show_col_types = FALSE)
-  REG_long <- read_csv(REG_file, show_col_types = FALSE)
-  CYA_full <- read_csv(CYA_file, show_col_types = FALSE)
-
-  # -----------------------------
-  # BTC (Best Trophic Class)
-  # -----------------------------
-  trophic_map <- c(
-    "OLIGOTROPHIC" = 1,
-    "MESOTROPHIC" = 2,
-    "EUTROPHIC" = 3
+  # define the parameters relevant for VLAP
+  params_keep <- c(
+    "ALKALINITY, CARBONATE AS CACO3",
+    "ALKALINITY, TOTAL",
+    "APPARENT COLOR",
+    "CHLORIDE",
+    "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN",
+    "ESCHERICHIA COLI",
+    "GRAN ACID NEUTRALIZING CAPACITY",
+    "PH",
+    "PHOSPHORUS AS P",
+    "SECCHI DISK TRANSPARENCY",
+    "SPECIFIC CONDUCTANCE",
+    "TURBIDITY"
   )
 
-  BTC <- BTC_full |>
-    select(RELLAKE, BEST_TROPHIC_CLASS) |>
-    rename(lake = RELLAKE, BTC = BEST_TROPHIC_CLASS) |>
-    mutate(BTC_num = trophic_map[BTC]) |>
-    group_by(lake) |>
-    summarise(
-      BTC = BTC[which.min(BTC_num)],
-      .groups = "drop"
+  # map old station IDs to standardized IDs and names
+  station_map <- list(
+    STATIONID = c(
+      "ROCHLSVLAPD",
+      "ROCHLSD",
+      "PEMMERVLAPD",
+      "PEMMERD",
+      "SPEGROVLAPD",
+      "SPEGROD"
+    ),
+    new_id = c(
+      "ROCHLSVLAPD",
+      "ROCHLSVLAPD",
+      "PEMMERVLAPD",
+      "PEMMERVLAPD",
+      "SPEGROVLAPD",
+      "SPEGROVLAPD"
+    ),
+    statname = c(
+      "ROCKY POND-DEEP SPOT",
+      "ROCKY POND-DEEP SPOT",
+      "PEMIGEWASSET LAKE-DEEP SPOT",
+      "PEMIGEWASSET LAKE-DEEP SPOT",
+      "SPECTACLE POND-DEEP SPOT",
+      "SPECTACLE POND-DEEP SPOT"
+    )
+  )
+
+  # map depth zones to parameter-specific names
+  depth_params <- list(
+    SPCD = c(
+      "EPILIMNION" = "SPCD_epi",
+      "METALIMNION" = "SPCD_meta",
+      "HYPOLIMNION" = "SPCD_hypo"
+    ),
+    PH = c(
+      "EPILIMNION" = "PH_epi",
+      "METALIMNION" = "PH_meta",
+      "HYPOLIMNION" = "PH_hypo"
+    ),
+    TP = c(
+      "EPILIMNION" = "TP_epi",
+      "METALIMNION" = "TP_meta",
+      "HYPOLIMNION" = "TP_hypo"
+    ),
+    color = c(
+      "EPILIMNION" = "color_epi",
+      "METALIMNION" = "color_meta",
+      "HYPOLIMNION" = "color_hypo"
+    ),
+    turb = c(
+      "EPILIMNION" = "turb_epi",
+      "METALIMNION" = "turb_meta",
+      "HYPOLIMNION" = "turb_hypo"
+    ),
+    chloride = c(
+      "EPILIMNION" = "chloride_epi",
+      "METALIMNION" = "chloride_meta",
+      "HYPOLIMNION" = "chloride_hypo"
+    )
+  )
+
+  # clean and filter the raw data
+  data_clean <- data |>
+    select(
+      STATIONID,
+      STATNAME,
+      TOWN,
+      RELLAKE,
+      DEPTHZONE,
+      DEPTH,
+      STARTDATE,
+      WSHEDPARMNAME,
+      NUMRESULT,
+      TEXTRESULT,
+      QUALIFIER,
+      ANALYTICALMETHOD,
+      CURRENT_TROPHIC_STATUS,
+      BEST_TROPHIC_CLASS,
+      ACTCMTS,
+      ACTIVE
+    ) |>
+    filter(WSHEDPARMNAME %in% params_keep, ACTIVE != "N") |>
+    mutate(
+      # standardize station IDs and names
+      idx = match(STATIONID, station_map$STATIONID),
+      STATIONID = ifelse(!is.na(idx), station_map$new_id[idx], STATIONID),
+      STATNAM = ifelse(
+        !is.na(idx),
+        station_map$statname[idx],
+        str_trim(toupper(STATNAME))
+      ),
+
+      # assign a param_depth value for each measurement
+      param_depth = case_when(
+        WSHEDPARMNAME ==
+          "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" ~ "CHL_comp",
+        grepl("ALKALINITY", WSHEDPARMNAME, ignore.case = TRUE) |
+          WSHEDPARMNAME == "GRAN ACID NEUTRALIZING CAPACITY" ~ "alk_epi",
+        WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" &
+          ANALYTICALMETHOD == "SECCHI-SCOPE" ~ "SECCHI",
+        WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" &
+          ANALYTICALMETHOD != "SECCHI-SCOPE" ~ "SECCHI_NVS",
+        WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" ~ depth_params$SPCD[DEPTHZONE],
+        WSHEDPARMNAME == "PH" ~ depth_params$PH[DEPTHZONE],
+        WSHEDPARMNAME == "PHOSPHORUS AS P" ~ depth_params$TP[DEPTHZONE],
+        WSHEDPARMNAME == "APPARENT COLOR" ~ depth_params$color[DEPTHZONE],
+        WSHEDPARMNAME == "TURBIDITY" ~ depth_params$turb[DEPTHZONE],
+        WSHEDPARMNAME == "CHLORIDE" ~ depth_params$chloride[DEPTHZONE],
+        WSHEDPARMNAME == "ESCHERICHIA COLI" ~ "ecoli",
+        TRUE ~ NA_character_
+      ),
+
+      # adjust numeric results: half the value if flagged as less than, convert phosphorus to ug/L
+      NUMRESULT = if_else(QUALIFIER == "<", NUMRESULT / 2, NUMRESULT),
+      NUMRESULT = if_else(
+        param_depth %in% c("TP_epi", "TP_meta", "TP_hypo"),
+        NUMRESULT * 1000,
+        NUMRESULT
+      )
     )
 
-  # -----------------------------
-  # Detection limit handling
-  # -----------------------------
-  DETECTION_LIMIT <- 0.005
-  HALF_DL <- DETECTION_LIMIT / 2
+  # summarize and reshape the data for analysis
+  data_wide <- data_clean |>
+    select(
+      RELLAKE,
+      STATIONID,
+      TOWN,
+      STATNAM,
+      STARTDATE,
+      param_depth,
+      NUMRESULT
+    ) |>
+    filter(!is.na(param_depth)) |>
+    group_by(RELLAKE, STATIONID, TOWN, STATNAM, STARTDATE, param_depth) |>
+    summarise(NUMRESULT = mean(NUMRESULT, na.rm = TRUE), .groups = "drop") |>
+    pivot_wider(
+      id_cols = c(RELLAKE, STATIONID, TOWN, STATNAM, STARTDATE),
+      names_from = param_depth,
+      values_from = NUMRESULT
+    ) |>
+    mutate(
+      STARTDATE = as.Date(STARTDATE, format = "%d-%b-%y"),
+      year = year(STARTDATE)
+    ) |>
+    (\(df) df[df$RELLAKE %in% df$RELLAKE[df$year == 2025], ])()
 
-  # -----------------------------
-  # Station-specific start years
-  # -----------------------------
+  # create a lookup table for lakes for plotting purposes
   lake_start_years <- tibble::tibble(
-    stationid = c(
+    STATIONID = c(
       "ANGSDND",
       "COUKIND",
       "CRYMAND",
@@ -56,7 +187,7 @@ data_reformat <- function(input_path) {
       "WAUDAND",
       "WILPFDD"
     ),
-    lake = c(
+    lake_name = c(
       "ANGLE POND",
       "COUNTRY POND",
       "CRYSTAL LAKE",
@@ -76,7 +207,7 @@ data_reformat <- function(input_path) {
       "WAUKEENA LAKE",
       "WILD GOOSE POND"
     ),
-    town = c(
+    lake_town = c(
       "SANDOWN",
       "KINGSTON",
       "MANCHESTER",
@@ -118,368 +249,11 @@ data_reformat <- function(input_path) {
     )
   )
 
-  ## -------------------------------
-  ## REG preprocessing
-  ## -------------------------------
+  # join plotting metadata and filter for years after the start year
+  data_plot <- data_wide |>
+    left_join(lake_start_years, by = "STATIONID") |>
+    filter(!is.na(start_year), year >= start_year)
 
-  # Base VLAP dataset filtered for relevant depth zones and parameters
-  REG_base <- REG_long |>
-    filter(PROJID == "VLAP") |>
-    select(
-      RELLAKE,
-      TOWN,
-      STATIONID,
-      STATNAME,
-      STARTDATE,
-      DEPTHZONE,
-      WSHEDPARMNAME,
-      NUMRESULT,
-      TEXTRESULT
-    ) |>
-    filter(
-      DEPTHZONE %in%
-        c("EPILIMNION", "HYPOLIMNION", "COMPOSITE") |
-        WSHEDPARMNAME %in%
-          c(
-            "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN",
-            "SECCHI DISK TRANSPARENCY"
-          )
-    ) |>
-    mutate(
-      ## ---- station cleanup ----
-      stationid = case_when(
-        STATIONID %in% c("ROCHLSVLAPD", "ROCHLSD") ~ "ROCHLSVLAPD",
-        STATIONID %in% c("PEMMERVLAPD", "PEMMERD") ~ "PEMMERVLAPD",
-        STATIONID %in% c("SPEGROVLAPD", "SPEGROD") ~ "SPEGROVLAPD",
-        TRUE ~ STATIONID
-      ),
-      stationname = case_when(
-        STATIONID %in% c("ROCHLSVLAPD", "ROCHLSD") ~ "ROCKY POND-DEEP SPOT",
-        STATIONID %in%
-          c("PEMMERVLAPD", "PEMMERD") ~ "PEMIGEWASSET LAKE-DEEP SPOT",
-        STATIONID %in% c("SPEGROVLAPD", "SPEGROD") ~ "SPECTACLE POND-DEEP SPOT",
-        TRUE ~ str_trim(toupper(STATNAME))
-      ),
-
-      ## ---- parameter-depth mapping ----
-      param_depth = case_when(
-        WSHEDPARMNAME ==
-          "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" ~ "CHL_comp",
-        WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" ~ "SECCHI",
-        WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" &
-          DEPTHZONE == "EPILIMNION" ~ "SPCD_epi",
-        WSHEDPARMNAME == "PH" & DEPTHZONE == "EPILIMNION" ~ "PH_epi",
-        WSHEDPARMNAME == "PHOSPHORUS AS P" &
-          DEPTHZONE == "EPILIMNION" ~ "TP_epi",
-        WSHEDPARMNAME == "PHOSPHORUS AS P" &
-          DEPTHZONE == "HYPOLIMNION" ~ "TP_hypo",
-        TRUE ~ NA_character_
-      )
-    )
-
-  ## -------------------------------
-  ## REG_MK: MK analysis with NDs replaced by 0.5 DL (no censor columns)
-  ## -------------------------------
-  REG_MK <- REG_base |>
-    mutate(
-      RESULT = case_when(
-        WSHEDPARMNAME == "PHOSPHORUS AS P" &
-          (str_detect(toupper(TEXTRESULT), "ND|<") |
-            NUMRESULT < 0.005 |
-            is.na(NUMRESULT)) ~ 0.0025,
-        WSHEDPARMNAME == "PHOSPHORUS AS P" ~ NUMRESULT,
-        TRUE ~ NUMRESULT
-      ),
-      # convert TP to µg/L
-      RESULT = if_else(
-        WSHEDPARMNAME == "PHOSPHORUS AS P",
-        RESULT * 1000,
-        RESULT
-      )
-    ) |>
-    filter(!is.na(param_depth)) |>
-    pivot_wider(
-      id_cols = c(RELLAKE, TOWN, stationid, stationname, STARTDATE),
-      names_from = param_depth,
-      values_from = RESULT,
-      # calculate mean parameter value per year
-      values_fn = \(x) median(x, na.rm = TRUE)
-    ) |>
-    rename(
-      lake = RELLAKE,
-      town = TOWN,
-      date = STARTDATE
-    ) |>
-    mutate(Year = lubridate::year(date))
-
-  ## -------------------------------
-  ## REG_NADA: MK analysis using NADA with TP censoring columns
-  ## -------------------------------
-  REG1 <- REG_base |>
-    mutate(
-      TP_cens = case_when(
-        WSHEDPARMNAME == "PHOSPHORUS AS P" &
-          (str_detect(toupper(TEXTRESULT), "ND|<") |
-            is.na(NUMRESULT) |
-            NUMRESULT < DETECTION_LIMIT) ~ TRUE,
-        WSHEDPARMNAME == "PHOSPHORUS AS P" ~ FALSE,
-        TRUE ~ NA
-      ),
-      RESULT = case_when(
-        WSHEDPARMNAME == "PHOSPHORUS AS P" & TP_cens ~ DETECTION_LIMIT,
-        WSHEDPARMNAME == "PHOSPHORUS AS P" ~ NUMRESULT,
-        TRUE ~ NUMRESULT
-      ),
-      RESULT = if_else(
-        WSHEDPARMNAME == "PHOSPHORUS AS P",
-        RESULT * 1000,
-        RESULT
-      )
-    )
-
-  # Collapse TP censor flags by date for NADA usage
-  TP_cens_flags <- REG1 |>
-    group_by(RELLAKE, TOWN, stationid, stationname, STARTDATE) |>
-    summarise(
-      TP_cens_epi = any(param_depth == "TP_epi" & TP_cens, na.rm = TRUE),
-      TP_cens_hypo = any(param_depth == "TP_hypo" & TP_cens, na.rm = TRUE),
-      .groups = "drop"
-    )
-
-  REG_NADA <- REG1 |>
-    filter(!is.na(param_depth)) |>
-    pivot_wider(
-      id_cols = c(RELLAKE, TOWN, stationid, stationname, STARTDATE),
-      names_from = param_depth,
-      values_from = RESULT,
-      values_fn = \(x) mean(x, na.rm = TRUE)
-    ) |>
-    rename(
-      lake = RELLAKE,
-      town = TOWN,
-      date = STARTDATE
-    ) |>
-    mutate(Year = lubridate::year(date)) |>
-    left_join(
-      TP_cens_flags,
-      by = c(
-        "lake" = "RELLAKE",
-        "town" = "TOWN",
-        "stationid",
-        "stationname",
-        "date" = "STARTDATE"
-      )
-    )
-
-  ## -------------------------------
-  ## REG_plot: for plotting only (applies start_year filters)
-  ## -------------------------------
-  REG_plot <- REG_MK |>
-    left_join(
-      lake_start_years |> select(stationid, start_year),
-      by = "stationid"
-    ) |>
-    filter(is.na(start_year) | Year >= start_year) |>
-    group_by(lake, stationid, Year) |>
-    summarise(
-      stationname = first(stationname),
-      across(c(CHL_comp, SECCHI, SPCD_epi, PH_epi, TP_epi, TP_hypo), \(x) {
-        median(x, na.rm = TRUE)
-      }),
-      .groups = "drop"
-    )
-
-  # -----------------------------
-  # CYA (Current Year Averages) processing
-  # -----------------------------
-  CYA_base <- CYA_full |>
-    select(
-      RELLAKE,
-      STATNAME,
-      STATIONID,
-      TOWN,
-      DEPTHZONE,
-      PYEAR,
-      WSHEDPARMNAME,
-      NUMRESULT,
-      ANALYTICALMETHOD
-    ) |>
-
-    # Map parameter names
-    mutate(
-      param_depth = case_when(
-        WSHEDPARMNAME == "GRAN ACID NEUTRALIZING CAPACITY" ~ "Alk. (mg/L)",
-        WSHEDPARMNAME ==
-          "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" ~ "Chlor-a (μg/L)",
-        WSHEDPARMNAME == "CHLORIDE" ~ "Chloride (mg/L)",
-        WSHEDPARMNAME == "APPARENT COLOR" ~ "Color (pcu)",
-        WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" ~ "Cond. (μS/cm)",
-        WSHEDPARMNAME == "ESCHERICHIA COLI" ~ "E. coli (mpn/100 mL)",
-        WSHEDPARMNAME == "PHOSPHORUS AS P" ~ "Total P (μg/L)",
-        WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" &
-          ANALYTICALMETHOD == "SECCHI" ~ "Trans. NVS (m)",
-        WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" &
-          ANALYTICALMETHOD == "SECCHI-SCOPE" ~ "Trans. VS (m)",
-        WSHEDPARMNAME == "TURBIDITY" ~ "Turb. (ntu)",
-        WSHEDPARMNAME == "PH" ~ "pH",
-        TRUE ~ NA_character_
-      ),
-
-      # Standardize STATNAME depth labels
-      STATNAME = case_when(
-        str_detect(STATNAME, "DEEP SPOT") ~ case_when(
-          toupper(DEPTHZONE) == "COMPOSITE" ~ "Epilimnion",
-          TRUE ~ str_to_title(DEPTHZONE)
-        ),
-        str_detect(STATNAME, "-") ~ str_trim(str_to_title(str_split_fixed(
-          STATNAME,
-          "-",
-          2
-        )[, 2])),
-        TRUE ~ STATNAME
-      )
-    ) |>
-
-    filter(!is.na(param_depth))
-
-  CYA_2025 <- CYA_base |>
-    filter(PYEAR == 2025) |>
-    group_by(RELLAKE, STATNAME, STATIONID, TOWN, param_depth) |>
-    summarise(avg_result = mean(NUMRESULT, na.rm = TRUE), .groups = "drop") |>
-    pivot_wider(
-      names_from = param_depth,
-      values_from = avg_result
-    ) |>
-
-    # Convert TP nondetect (still NA) → "<5"
-    mutate(
-      `Total P (μg/L)` = case_when(
-        is.na(`Total P (μg/L)`) ~ "<5", # all ND
-        TRUE ~ as.character(`Total P (μg/L)` * 1000) # convert mg/L → µg/L
-      )
-    ) |>
-
-    arrange(
-      RELLAKE,
-      factor(STATNAME, levels = c("Epilimnion", "Metalimnion", "Hypolimnion"))
-    ) |>
-
-    # Final rounding and formatting
-    mutate(
-      `Alk. (mg/L)` = round(`Alk. (mg/L)`, 1),
-      `Chlor-a (μg/L)` = round(`Chlor-a (μg/L)`, 2),
-      `Chloride (mg/L)` = round(`Chloride (mg/L)`, 0),
-      `Color (pcu)` = round(`Color (pcu)`, 0),
-      `E. coli (mpn/100 mL)` = round(`E. coli (mpn/100 mL)`, 0),
-      `Trans. NVS (m)` = round(`Trans. NVS (m)`, 2),
-      `Trans. VS (m)` = round(`Trans. VS (m)`, 2),
-      `Turb. (ntu)` = round(`Turb. (ntu)`, 2),
-      pH = round(pH, 2),
-
-      # Final TP formatting
-      `Total P (μg/L)` = if_else(
-        `Total P (μg/L)` == "<5",
-        "<5",
-        as.character(round(as.numeric(`Total P (μg/L)`), 0))
-      )
-    )
-
-  CYA_long <- CYA_base |>
-    group_by(
-      RELLAKE,
-      STATIONID,
-      STATNAME,
-      TOWN,
-      PYEAR,
-      param_depth
-    ) |>
-    summarise(
-      avg_result = mean(NUMRESULT, na.rm = TRUE),
-      .groups = "drop"
-    ) |>
-    rename(
-      Year = PYEAR
-    ) |>
-    # apply lake + town specific start years
-    left_join(
-      lake_start_years,
-      by = c(
-        "RELLAKE" = "lake",
-        "TOWN" = "town"
-      )
-    ) |>
-    filter(is.na(start_year) | Year >= start_year) |>
-    select(-start_year)
-
-  # Get the list of station IDs that have 2025 CYA data
-  cya_stations <- unique(CYA_2025$STATIONID)
-
-  # Subset CYA_full to only include those stations, keeping original STATNAME
-  LAKEMAP_partial <- CYA_full |>
-    filter(STATIONID %in% cya_stations) |>
-    select(RELLAKE, STATNAME, STATIONID, TOWN) |>
-    distinct()
-
-  lookup_file <- file.path(input_path, "lookup.xlsx")
-  if (!file.exists(lookup_file)) {
-    stop("Lookup table not found at: ", lookup_file)
-  }
-
-  lookup_table <- read_excel(lookup_file) |>
-    distinct(WQDStationID, .keep_all = TRUE) # ensure one lake per station
-
-  LAKEMAP <- LAKEMAP_partial |>
-    left_join(
-      lookup_table |> select(WQDStationID, lake),
-      by = c("STATIONID" = "WQDStationID")
-    ) |>
-    mutate(RELLAKE = ifelse(!is.na(lake), lake, RELLAKE)) |>
-    select(-lake)
-
-  write.csv(
-    LAKEMAP,
-    file = file.path(input_path, "LAKEMAP.csv"),
-    row.names = FALSE
-  )
-
-  # -----------------------------
-  # plankton data processing
-  # -----------------------------
-  data <- read_excel(paste0(
-    input_path,
-    "Historical_Phytoplankton_Data_Thru2025.xlsm"
-  ))
-
-  data <- data |>
-    mutate(
-      year = year(date),
-      month = month(date)
-    ) |>
-    select(-date)
-
-  rel_abund <- data |>
-    group_by(stationID, year, group) |>
-    summarise(
-      total_count = sum(count, na.rm = TRUE),
-      .groups = "drop"
-    ) |>
-    group_by(stationID, year) |>
-    mutate(
-      rel_abundance = total_count / sum(total_count)
-    ) |>
-    ungroup()
-
-  PLANKTON <- rel_abund
-
-  # return list of tidy dataframes
-  list(
-    BTC = BTC,
-    REG_plot = REG_plot,
-    REG_NADA = REG_NADA,
-    REG_MK = REG_MK,
-    CYA_2025 = CYA_2025,
-    CYA_long = CYA_long,
-    LAKEMAP = LAKEMAP,
-    PLANKTON = PLANKTON
-  )
+  # return both dataframes in a list
+  return(list(data_wide = data_wide, data_plot = data_plot))
 }

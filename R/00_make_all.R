@@ -88,14 +88,8 @@ source(file.path(project_path, "R", "09_report_gen.R"))
 message("Reformatting data...")
 processed <- data_reformat(input_path)
 
-BTC <- processed$BTC
-REG_plot <- processed$REG_plot
-REG_MK <- processed$REG_MK
-REG_NADA <- processed$REG_NADA
-CYA_2025 <- processed$CYA_2025
-CYA_long <- processed$CYA_long
-LAKEMAP <- processed$LAKEMAP
-PLANKTON <- processed$PLANKTON
+data_wide <- processed$data_wide
+data_plot <- processed$data_plot
 
 # ==========================
 # Mann-Kendall and Sen's Slope analysis
