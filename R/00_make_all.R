@@ -95,7 +95,7 @@ data_plot <- processed$data_plot
 # Mann-Kendall and Sen's Slope analysis
 # ==========================
 message("Running Mann-Kendall...")
-run_vlap_mannkendall(REG_MK, mk_path, table_path)
+run_vlap_mannkendall(data_wide, mk_path, table_path)
 #run_vlap_mannkendallNADA2(REG_NADA, mk_path, table_path)
 
 # ==========================
