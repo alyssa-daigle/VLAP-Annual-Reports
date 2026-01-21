@@ -131,9 +131,15 @@ data_reformat <- function(input_path) {
         TRUE ~ NA_character_
       ),
 
-      # adjust numeric results: half the value if flagged as less than, convert phosphorus to ug/L
+      # adjust numeric results:
+      # - half the value if flagged as "<"
+      # - for TP, set NUMRESULT to 0.0025 if TEXTRESULT == "ND"
+      # - convert phosphorus to µg/L
       NUMRESULT = case_when(
         QUALIFIER == "<" ~ NUMRESULT / 2,
+        param_depth %in%
+          c("TP_epi", "TP_meta", "TP_hypo") &
+          TEXTRESULT == "ND" ~ 0.0025,
         TRUE ~ NUMRESULT
       ),
       NUMRESULT = if_else(

@@ -154,7 +154,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       type = "o",
       pch = 17,
       col = "red4",
-      cex = 1.2,
+      cex = 1.0,
       axes = FALSE,
       xlab = "",
       ylab = "",
@@ -168,7 +168,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       type = "o",
       pch = 16,
       col = "green4",
-      cex = 1.2,
+      cex = 1.0,
       lwd = 2
     )
 
@@ -192,7 +192,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
                 type = "l",
                 col = "blue4",
                 lty = 2,
-                lwd = 1.5,
+                lwd = 2.0,
                 axes = FALSE,
                 xlab = "",
                 ylab = "",
@@ -200,7 +200,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
                 yaxs = "i"
               )
             } else {
-              lines(x_vals, y_vals, col = col, lty = 2, lwd = 1.5)
+              lines(x_vals, y_vals, col = col, lty = 2, lwd = 2.0)
             }
           }
         }
@@ -249,7 +249,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
         trend_items <- c(trend_items, "Transparency Trend")
         col_items <- c(col_items, "blue4")
         lty_items <- c(lty_items, 2)
-        lwd_items <- c(lwd_items, 1.5)
+        lwd_items <- c(lwd_items, 2.0)
       }
 
       # Chl trend
@@ -260,7 +260,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
         trend_items <- c(trend_items, "Chlorophyll-a Trend")
         col_items <- c(col_items, "green4")
         lty_items <- c(lty_items, 2)
-        lwd_items <- c(lwd_items, 1.5)
+        lwd_items <- c(lwd_items, 2.0)
       }
 
       # TP trend
@@ -269,7 +269,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
         trend_items <- c(trend_items, "Total Phosphorus Trend")
         col_items <- c(col_items, "red4")
         lty_items <- c(lty_items, 2)
-        lwd_items <- c(lwd_items, 1.5)
+        lwd_items <- c(lwd_items, 2.0)
       }
     }
 
