@@ -1,6 +1,6 @@
 # VLAP Annual Report Generating Scripts
 
-This repository contains scripts used to streamline the Annual Report workflow by performing regressions for trend analysis, generating all plots, and generating a report document for each VLAP sampling station using a single script.
+This repository contains scripts used to streamline the Annual Report workflow by performing Mann-Kendall for trend analysis, generating all plots, and generating a report document for each VLAP sampling station using a single script.
 
 ## Main Script
 
@@ -10,11 +10,11 @@ This repository contains scripts used to streamline the Annual Report workflow b
 
 The individual scripts called by **`00_make_all.R`** include:
 
--   **`01_DBconnect.R`**: Connects to NHDES EMD to pull recent data.
+-   **`01_DBconnect.R`**: Connects to NHDES EMD to pull recent data. Not needed if obtaining data directly from SQL Developer. 
 -   **`02_data_reformat.R`**: Reformats data to rename columns and make data handling easier.
--   **`03_mannkendallNADA.R`**: Runs Mann-Kendall analysis on EMD data to determine whether significant parameter trends are increasing, decreasing, or stable. Uses R package NADA2 for handling non-detect total phosphorus data.
--   **`04_chl_tp_secchi.R`**: Contains the function to generate historical Chlorophyll-a, Total Phosphorus, and Secchi Disk transparency plots for each station. Annual medians plotted with ATS trend line from MK test.
--   **`05_ph_cond.R`**: Contains the function to generate historical pH and Conductivity plots for each station. Annual medians plotted with ATS trend line from MK test.
+-   **`03_mannkendall.R`**: Runs Mann-Kendall analysis to determine whether significant parameter trends are increasing, decreasing, or stable. Uses R package trend.
+-   **`04_chl_tp_secchi.R`**: Contains the function to generate historical Chlorophyll-a, Total Phosphorus, and Secchi Disk transparency plots for each station. Annual medians plotted with Sen's Slope from MK test.
+-   **`05_ph_cond.R`**: Contains the function to generate historical pH and Conductivity plots for each station. Annual medians plotted with Sen's Slope from MK test.
 -   **`06_temp_DO.R`**: Contains the function to generate seasonal Temperature/Dissolved Oxygen profile plots for each station (currently requires master Excel data sheet).
 -   **`07_plankton.R`**: Contains the function to generate seasonal Phytoplankton Population plots for each station (currently requires master Excel data sheet).
 -   **`08_CYA_table.R`**: Contains the function to generate Current Year Average tables for each lake.
@@ -26,9 +26,8 @@ The individual scripts called by **`00_make_all.R`** include:
 
 ## Data Files
 
-Note that the CSVs generated in `01_DBconnect.R` and used in `02_data_reformat.R` for REG (historical annual averages) and CYA (current year averages) are stored locally due to their large sizes. Contact me to obtain files.
+Note that the master data file for all chemical data is stored locally due to its large sizes. Contact me to obtain files.
 
--   **`BTC.xlsx`/`BTC_full.csv`**: provides the Best Trophic Class ever assigned to each lake.
 -   **`LAKEMAP.csv`**: provides a comprehensive list of all lakes and their stations participating in VLAP.
 -   **`lookup.xlsx`**: acts as a map for lakes that have multiple deep spots and tributaries associated with different deep spots.
 -   **`master-DO-2025.xlsm`**: copy of the master DO file; needs to be re-copied into this repo annually.
