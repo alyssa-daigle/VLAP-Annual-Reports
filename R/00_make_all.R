@@ -90,12 +90,13 @@ processed <- data_reformat(input_path)
 
 data_wide <- processed$data_wide
 data_plot <- processed$data_plot
+data_year_median <- processed$data_year_median
 
 # ==========================
 # Mann-Kendall and Sen's Slope analysis
 # ==========================
 message("Running Mann-Kendall...")
-run_vlap_mannkendall(data_wide, mk_path, table_path)
+run_vlap_mannkendall(data_year_median, mk_path, table_path)
 #run_vlap_mannkendallNADA2(REG_NADA, mk_path, table_path)
 
 # ==========================
