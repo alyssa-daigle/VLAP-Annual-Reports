@@ -113,9 +113,15 @@ make_chl_tp_secchi(
   input_path,
   file.path(output_path, "chl_tp_secchi")
 )
-make_pH_conduc(input_path, file.path(output_path, "pH_conduc"))
+
+make_pH_conduc(
+  data_plot,
+  input_path,
+  file.path(output_path, "pH_conduc")
+)
+
 make_temp_DO(input_path, file.path(output_path, "temp_DO"))
-make_plankton(PLANKTON, file.path(output_path, "plankton"))
+make_plankton(file.path(output_path, "plankton"))
 message("All plots completed.")
 
 # ==========================

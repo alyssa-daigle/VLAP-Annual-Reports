@@ -1,4 +1,4 @@
-make_plankton <- function(PLANKTON, output_path) {
+make_plankton <- function(output_path) {
   # Ensure output directory exists
   if (!dir.exists(output_path)) {
     dir.create(output_path, recursive = TRUE)
