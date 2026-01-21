@@ -264,7 +264,11 @@ make_pH_conduc <- function(data_plot, input_path, output_path) {
 
     # ---- Black border ----
     img <- magick::image_read(temp_path)
-    img_bordered <- magick::image_border(img, color = "black", geometry = "3x3")
+    img_bordered <- magick::image_border(
+      img,
+      color = "black",
+      geometry = "3.5x3.5"
+    )
     magick::image_write(img_bordered, temp_path)
   }
 

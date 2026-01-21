@@ -1,4 +1,30 @@
-report_gen <- function(input_path, report_path, template_path) {
+report_gen <- function() {
+  library(rmarkdown)
+  library(dplyr)
+
+  # Load env file if present
+  if (file.exists(".env")) {
+    if (!requireNamespace("dotenv", quietly = TRUE)) {
+      install.packages("dotenv")
+    }
+    library(dotenv)
+    load_dot_env(".env")
+  }
+
+  # Define paths from .env
+  input_path <- Sys.getenv("INPUT_PATH")
+  report_path <- Sys.getenv("REPORT_PATH")
+  template_path <- Sys.getenv("TEMPLATE_PATH")
+  table_path <- Sys.getenv("TABLE_PATH")
+
+  # Verify paths exist
+  if (!dir.exists(input_path)) {
+    stop("Input path does not exist: ", input_path)
+  }
+  if (!dir.exists(template_path)) {
+    stop("Template path does not exist: ", template_path)
+  }
+
   # Load LAKEMAP
   LAKEMAP <- read.csv(
     file = file.path(input_path, "LAKEMAP.csv"),
@@ -53,7 +79,8 @@ report_gen <- function(input_path, report_path, template_path) {
         station = station,
         station_id = station_id,
         town = town,
-        lake = lake
+        lake = lake,
+        table_path = table_path
       ),
       envir = new.env() # isolate each run
     )

@@ -1,6 +1,6 @@
 STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
-Epilimnion,4.4,3.07,9,48,55.769999999999996,5.9125,4.77,5.81,0.39,6.86,-
-Metalimnion,-,-,-,-,55.6275,8.03,-,-,0.51,6.74,-
-Hypolimnion,-,-,-,-,58.156,16.8775,-,-,0.66,6.35,-
+Epilimnion,4.4,3.07,9,48,55.8,6,4.77,5.81,0.39,6.86,-
+Metalimnion,-,-,-,-,55.6,8,-,-,0.51,6.74,-
+Hypolimnion,-,-,-,-,58.2,17,-,-,0.66,6.35,-
 North Beach,-,-,-,-,-,-,-,-,-,-,4
 Swim Club,-,-,-,-,-,-,-,-,-,-,2

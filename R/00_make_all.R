@@ -138,7 +138,7 @@ message("All tables exported.")
 # generate reports
 # ==========================
 message("Starting report generation...")
-report_gen(input_path, report_path, template_path)
+report_gen()
 message("All reports generated.")
 
 #not currently using below this line:

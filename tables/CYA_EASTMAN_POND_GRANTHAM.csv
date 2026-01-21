@@ -1,13 +1,13 @@
 STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
-Epilimnion,9.2,3.3,39,40,189.85999999999999,8.6,3.2,4.22,0.82,7.09,-
-Metalimnion,-,-,-,38,187.08,10.4,-,-,1.45,6.69,-
-Hypolimnion,-,-,-,53,191.12,13.4,-,-,2.71,6.35,-
-Anderson Pond,-,-,3,68,45,0.015,-,-,10.9,6.95,-
+Epilimnion,9.2,3.3,39,40,189.9,9,3.2,4.22,0.82,7.09,-
+Metalimnion,-,-,-,38,187.1,10,-,-,1.45,6.69,-
+Hypolimnion,-,-,-,53,191.1,13,-,-,2.71,6.35,-
+Anderson Pond,-,-,3,68,45,0,-,-,10.9,6.95,-
 Boat Launch,-,-,-,-,-,-,-,-,-,-,9
 East Cove,-,-,-,-,-,-,-,-,-,-,3
 East Cove Beach,-,-,-,-,-,-,-,-,-,-,0
 East Lake Beach,-,-,-,-,-,-,-,-,-,-,9
-Grass Pond,-,-,139,186,614.5600000000001,0.014,-,-,9,7,-
+Grass Pond,-,-,139,186,614.6,0,-,-,9,7,-
 North Cove,-,-,-,-,-,-,-,-,-,-,7
 S Cove Inner Harbor Bch,-,-,-,-,-,-,-,-,-,-,12
 South Cove Beach,-,-,-,-,-,-,-,-,-,-,2

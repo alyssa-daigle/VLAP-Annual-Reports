@@ -8,6 +8,7 @@ params:
   station: NULL
   station_id: NULL
   town: NULL
+  table_path: NULL
 ---
 
 ```{r setup, include=FALSE}
@@ -25,8 +26,6 @@ if (file.exists(".env")) {
 # Access environment variables
 project_path <- Sys.getenv("PROJECT_PATH")
 plot_path <- Sys.getenv("OUTPUT_PATH")
-reg_path <- Sys.getenv("REG_PATH")
-table_path <- Sys.getenv("TABLE_PATH")
 
 # Load libraries
 library(knitr)
@@ -48,11 +47,13 @@ library(magrittr)
 
 accent1_60 <- "#DCE6F1"  # same light blue fill
 
-station_id <- params$station_id 
-# Locate trend CSV
+# clean and escape station id for regex
+station_clean <- gsub(" ", "_", station_id)
+station_clean <- gsub("([\\(\\)\\[\\]\\+\\?\\*\\.\\^\\$])", "\\\\\\1", station_clean)
+
 trend_file <- list.files(
-  table_path,
-  pattern = paste0("MK_TrendSummary_", station_id, ".*\\.csv$"), #NEED TO EDIT THIS PART DEPENDING ON WHAT TREND (REG VS MK) WE WANT TO INCLUDE
+  path = table_path,
+  pattern = paste0("^MK_TrendSummary_", station_clean, "\\.csv$"),
   full.names = TRUE,
   ignore.case = TRUE
 )

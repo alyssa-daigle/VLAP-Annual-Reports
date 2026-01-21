@@ -1,6 +1,6 @@
 STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
-Epilimnion,21.6,6.56,47,72,223.65,14.950000000000001,2.62,3.44,0.86,7.29,-
-Metalimnion,-,-,-,-,209.5,16.55,-,-,1.48,6.74,-
-Hypolimnion,-,-,-,-,217.36,46.225,-,-,2.4,6.74,-
-Lakeview Ramp,-,-,55,-,273.6,0.0408,-,-,2.25,6.75,-
-Smith Inlet,-,-,115,-,498.1,0.0601,-,-,4.3,6.65,-
+Epilimnion,21.6,6.56,47,72,223.7,15,2.62,3.44,0.86,7.29,-
+Metalimnion,-,-,-,-,209.5,17,-,-,1.48,6.74,-
+Hypolimnion,-,-,-,-,217.4,46,-,-,2.4,6.74,-
+Lakeview Ramp,-,-,55,-,273.6,0,-,-,2.25,6.75,-
+Smith Inlet,-,-,115,-,498.1,0,-,-,4.3,6.65,-

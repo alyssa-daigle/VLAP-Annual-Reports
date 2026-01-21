@@ -302,7 +302,11 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
 
     # Add black border via magick
     img <- magick::image_read(temp_path)
-    img_bordered <- magick::image_border(img, color = "black", geometry = "3x3")
+    img_bordered <- magick::image_border(
+      img,
+      color = "black",
+      geometry = "3.5x3.5"
+    )
     magick::image_write(img_bordered, path = temp_path, format = "png")
   }
 
