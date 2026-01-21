@@ -30,6 +30,16 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
     y_max_left <- max(c(df_plot$TP_epi, df_plot$CHL_comp), na.rm = TRUE) * 1.5
     y_max_right <- max(df_plot$SECCHI_NVS, na.rm = TRUE) * 1.5
 
+    # Skip station if there are no finite plotting values
+    if (!is.finite(y_max_left) || !is.finite(y_max_right)) {
+      warning(
+        "Skipping station ",
+        station_id,
+        ": no finite values for plotting"
+      )
+      next
+    }
+
     mk_file <- paste0("mannkendall/MannKendall_", station_id, ".csv")
     has_MK <- file.exists(mk_file)
     MK_table <- if (has_MK) read.csv(mk_file) else NULL
@@ -40,7 +50,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
     )
 
     # --- Create plot ---
-    png(temp_path, width = 8, height = 4, units = "in", res = 120)
+    png(temp_path, width = 8, height = 4, units = "in", res = 200)
     par(family = "Calibri")
     par(mar = c(3.8, 4, 4, 3.8)) # reduce margins for more plotting area
 
@@ -160,7 +170,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       ylab = "",
       ylim = c(0, y_max_left),
       yaxs = "i",
-      lwd = 2
+      lwd = 1.75
     )
     lines(
       df_plot$year,
@@ -169,7 +179,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       pch = 16,
       col = "green4",
       cex = 1.0,
-      lwd = 2
+      lwd = 1.75
     )
 
     # MK trend lines
@@ -192,7 +202,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
                 type = "l",
                 col = "blue4",
                 lty = 2,
-                lwd = 2.0,
+                lwd = 1.75,
                 axes = FALSE,
                 xlab = "",
                 ylab = "",
@@ -200,7 +210,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
                 yaxs = "i"
               )
             } else {
-              lines(x_vals, y_vals, col = col, lty = 2, lwd = 2.0)
+              lines(x_vals, y_vals, col = col, lty = 2, lwd = 1.75)
             }
           }
         }
@@ -249,7 +259,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
         trend_items <- c(trend_items, "Transparency Trend")
         col_items <- c(col_items, "blue4")
         lty_items <- c(lty_items, 2)
-        lwd_items <- c(lwd_items, 2.0)
+        lwd_items <- c(lwd_items, 1.75)
       }
 
       # Chl trend
@@ -260,7 +270,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
         trend_items <- c(trend_items, "Chlorophyll-a Trend")
         col_items <- c(col_items, "green4")
         lty_items <- c(lty_items, 2)
-        lwd_items <- c(lwd_items, 2.0)
+        lwd_items <- c(lwd_items, 1.75)
       }
 
       # TP trend
@@ -269,7 +279,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
         trend_items <- c(trend_items, "Total Phosphorus Trend")
         col_items <- c(col_items, "red4")
         lty_items <- c(lty_items, 2)
-        lwd_items <- c(lwd_items, 2.0)
+        lwd_items <- c(lwd_items, 1.75)
       }
     }
 

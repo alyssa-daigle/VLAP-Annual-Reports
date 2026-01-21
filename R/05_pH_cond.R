@@ -1,44 +1,51 @@
-make_pH_conduc <- function(input_path, output_path) {
+make_pH_conduc <- function(data_plot, input_path, output_path) {
   if (!dir.exists(output_path)) {
     dir.create(output_path, recursive = TRUE)
   }
 
-  station_list <- REG_plot |> distinct(stationid) |> pull(stationid)
+  station_list <- data_plot |> distinct(STATIONID) |> pull(STATIONID)
 
   for (station_id in station_list) {
     message("Processing station: ", station_id)
 
-    df_plot <- REG_plot |>
-      filter(stationid == station_id) |>
+    df_plot <- data_plot |>
+      filter(STATIONID == station_id) |>
       filter(!is.na(PH_epi) | !is.na(SPCD_epi)) |>
-      arrange(Year)
+      arrange(year)
 
-    if (nrow(df_plot) == 0 || !any(df_plot$Year == 2025)) {
+    if (nrow(df_plot) == 0 || !any(df_plot$year == 2025)) {
       next
     }
 
-    all_years <- min(df_plot$Year):max(df_plot$Year)
+    all_years <- min(df_plot$year):max(df_plot$year)
 
     df_plot <- df_plot |>
       complete(
-        Year = all_years,
+        year = all_years,
         fill = list(PH_epi = NA, SPCD_epi = NA)
       ) |>
-      mutate(Year = as.numeric(Year)) |>
-      arrange(Year)
+      mutate(year = as.numeric(year)) |>
+      arrange(year)
 
     # ---- Axis ranges ----
     min_pH <- min(df_plot$PH_epi, na.rm = TRUE)
     max_pH <- max(df_plot$PH_epi, na.rm = TRUE)
     max_cond <- max(df_plot$SPCD_epi, na.rm = TRUE)
 
-    if (!is.finite(min_pH) | !is.finite(max_pH) | !is.finite(max_cond)) {
-      next
-    }
-
+    # Adjust axis ranges
     min_pH <- floor(min_pH * 10) / 10 - 0.2
     max_pH <- ceiling(max_pH * 10) / 10 + 0.2
     y_max_left <- max_cond * 1.2
+
+    # Check before plotting
+    if (!is.finite(min_pH) || !is.finite(max_pH) || !is.finite(y_max_left)) {
+      message(
+        "Skipping station ",
+        station_id,
+        ": no finite values for plotting"
+      )
+      next
+    }
 
     scale_factor <- y_max_left / (max_pH - min_pH)
 
@@ -53,16 +60,16 @@ make_pH_conduc <- function(input_path, output_path) {
     )
 
     # ---- Plot ----
-    png(temp_path, width = 8, height = 4, units = "in", res = 120)
+    png(temp_path, width = 8, height = 4, units = "in", res = 200)
     par(family = "Calibri")
     par(mar = c(3.8, 4, 4, 3.8))
 
-    x_min <- min(df_plot$Year)
-    x_max <- max(df_plot$Year)
+    x_min <- min(df_plot$year)
+    x_max <- max(df_plot$year)
 
     # Base plot (conductivity scale)
     plot(
-      df_plot$Year,
+      df_plot$year,
       df_plot$SPCD_epi,
       type = "n",
       xlim = c(x_min, x_max),
@@ -96,12 +103,12 @@ make_pH_conduc <- function(input_path, output_path) {
     )
 
     # X-axis
-    axis(side = 1, at = df_plot$Year, labels = FALSE)
+    axis(side = 1, at = df_plot$year, labels = FALSE)
     y_pos <- par("usr")[3] - 0.06 * diff(par("usr")[3:4])
     text(
-      df_plot$Year + 0.15,
+      df_plot$year + 0.15,
       y_pos,
-      labels = df_plot$Year,
+      labels = df_plot$year,
       srt = 45,
       adj = 1,
       xpd = TRUE,
@@ -116,9 +123,9 @@ make_pH_conduc <- function(input_path, output_path) {
     with(
       df_plot,
       rect(
-        Year - bar_width,
+        year - bar_width,
         0,
-        Year + bar_width,
+        year + bar_width,
         (PH_epi - min_pH) * scale_factor,
         col = "lightgray", # <-- darker fill
         border = "black"
@@ -127,14 +134,14 @@ make_pH_conduc <- function(input_path, output_path) {
 
     # ---- Conductivity points & line ----
     lines(
-      df_plot$Year,
+      df_plot$year,
       df_plot$SPCD_epi,
       type = "o",
       pch = 21,
       bg = "red3",
       col = "red3",
-      cex = 1.0,
-      lwd = 2.0
+      cex = 0.85,
+      lwd = 1.75
     )
 
     # ---- Right axis (pH) ----
@@ -157,7 +164,7 @@ make_pH_conduc <- function(input_path, output_path) {
     # ---- MK trend lines ----
     if (has_MK) {
       add_mk_line <- function(var, col, is_ph = FALSE) {
-        slope <- MK_table |> filter(parameter == var) |> pull(slope)
+        slope <- MK_table |> filter(parameter == var) |> pull(sen_slope)
 
         if (length(slope) > 0 && !is.na(slope)) {
           df_var <- df_plot |> filter(!is.na(.data[[var]]))
@@ -165,11 +172,11 @@ make_pH_conduc <- function(input_path, output_path) {
             return()
           }
 
-          med_year <- median(df_var$Year)
+          med_year <- median(df_var$year)
           med_val <- median(df_var[[var]])
           intercept <- med_val - slope * med_year
 
-          x_vals <- range(df_var$Year)
+          x_vals <- range(df_var$year)
 
           if (is_ph) {
             y_vals <- (intercept + slope * x_vals - min_pH) * scale_factor
@@ -177,7 +184,7 @@ make_pH_conduc <- function(input_path, output_path) {
             y_vals <- intercept + slope * x_vals
           }
 
-          lines(x_vals, y_vals, col = col, lty = 2, lwd = 2.0)
+          lines(x_vals, y_vals, col = col, lty = 2, lwd = 1.75)
         }
       }
 
@@ -194,7 +201,7 @@ make_pH_conduc <- function(input_path, output_path) {
       inset = -0.18,
       legend = c("pH", "Conductivity"),
       pch = c(22, 21),
-      pt.bg = c("white", "red3"),
+      pt.bg = c("lightgray", "red3"),
       col = c("black", "red3"),
       lty = c(0, 1),
       lwd = c(1, 1.5),
@@ -207,7 +214,7 @@ make_pH_conduc <- function(input_path, output_path) {
       adj = 0
     )
 
-    # Second legend: trends (dynamic slope numbers)
+    # Second legend: trends
     trend_items <- c()
     col_items <- c()
     lty_items <- c()
@@ -215,27 +222,23 @@ make_pH_conduc <- function(input_path, output_path) {
 
     if (has_MK) {
       # pH trend
-      slope_ph <- MK_table |> filter(parameter == "PH_epi") |> pull(slope)
+      slope_ph <- MK_table |> filter(parameter == "PH_epi") |> pull(sen_slope)
       if (!is.na(slope_ph) & length(slope_ph) > 0) {
-        trend_items <- c(
-          trend_items,
-          sprintf("pH Trend (%+.3f / yr)", slope_ph)
-        )
+        trend_items <- c(trend_items, "pH Trend")
         col_items <- c(col_items, "black")
         lty_items <- c(lty_items, 2)
-        lwd_items <- c(lwd_items, 2.0)
+        lwd_items <- c(lwd_items, 1.75)
       }
 
       # Conductivity trend
-      slope_cond <- MK_table |> filter(parameter == "SPCD_epi") |> pull(slope)
+      slope_cond <- MK_table |>
+        filter(parameter == "SPCD_epi") |>
+        pull(sen_slope)
       if (!is.na(slope_cond) & length(slope_cond) > 0) {
-        trend_items <- c(
-          trend_items,
-          sprintf("Conductivity Trend (%+.2f µS/cm / yr)", slope_cond)
-        )
+        trend_items <- c(trend_items, "Conductivity Trend")
         col_items <- c(col_items, "red3")
         lty_items <- c(lty_items, 2)
-        lwd_items <- c(lwd_items, 2.0)
+        lwd_items <- c(lwd_items, 1.75)
       }
     }
 
@@ -249,7 +252,7 @@ make_pH_conduc <- function(input_path, output_path) {
         lty = lty_items,
         lwd = lwd_items,
         bty = "n",
-        ncol = length(trend_items), # all in one row
+        ncol = length(trend_items),
         cex = 0.65,
         text.font = 2,
         x.intersp = 0.3,
