@@ -2,14 +2,14 @@ STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),
 Epilimnion,10.3,1.9,27,23,143.2,6,7.19,8.16,0.44,7.19,-
 Metalimnion,-,-,27,-,141.5,10,-,-,0.96,7.08,-
 Hypolimnion,-,-,27,40,146.2,23,-,-,2.18,6.64,-
-Camp Spofford Inlet Watershed,-,-,33,-,150.6,0,-,-,0.4,7.06,-
-Lachance Inlet Watershed,-,-,4,-,49.4,0,-,-,0.63,6.05,-
-Moose Hollow Inlet,-,-,24,-,178.3,0,-,-,30.27,7.03,-
-Moose Hollow Watershed,-,-,21,-,188.6,0,-,-,3.87,6.56,-
-Rt 63 #3 Inlet,-,-,268,-,961.5,0,-,-,3.52,7.11,-
-Rte 63-3 Nw Drainage Ditch,-,-,90,-,357.2,0,-,-,1.92,6.91,-
+Camp Spofford Inlet Watershed,-,-,33,-,150.6,19,-,-,0.4,7.06,-
+Lachance Inlet Watershed,-,-,4,-,49.4,25,-,-,0.63,6.05,-
+Moose Hollow Inlet,-,-,24,-,178.3,126,-,-,30.27,7.03,-
+Moose Hollow Watershed,-,-,21,-,188.6,45,-,-,3.87,6.56,-
+Rt 63 #3 Inlet,-,-,268,-,961.5,30,-,-,3.52,7.11,-
+Rte 63-3 Nw Drainage Ditch,-,-,90,-,357.2,14,-,-,1.92,6.91,-
 Rte 63-3 Sw Drainage Ditch,-,-,301,-,981.2,-,-,-,2.97,7.05,-
-Seamans Inlet Watershed,-,-,316,-,1210.8,0,-,-,3.74,6.74,-
-Wares Grove Northeast Inlet,-,-,5,-,67,0,-,-,0.35,6.86,-
+Seamans Inlet Watershed,-,-,316,-,1210.8,59,-,-,3.74,6.74,-
+Wares Grove Northeast Inlet,-,-,5,-,67,6,-,-,0.35,6.86,-
 -,-,-,-,-,-,0,-,-,-,-,-
 -,-,-,-,-,-,0,-,-,-,-,-

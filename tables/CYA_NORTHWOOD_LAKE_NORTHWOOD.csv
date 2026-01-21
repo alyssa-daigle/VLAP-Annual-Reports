@@ -1,4 +1,4 @@
 STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
 Epilimnion,5.6,3.49,24,65,108.2,15,2.5,3.4,1.07,-,-
 Hypolimnion,-,-,-,-,109.3,13,3.5,2,1.28,6.72,-
-Horse Farm,-,-,18,-,260.7,0,-,-,5.35,7.34,803
+Horse Farm,-,-,18,-,260.7,164,-,-,5.35,7.34,803

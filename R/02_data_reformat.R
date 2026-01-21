@@ -113,21 +113,52 @@ data_reformat <- function(input_path) {
 
       # assign a param_depth value for each measurement
       param_depth = case_when(
+        # chlorophyll
         WSHEDPARMNAME ==
           "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" ~ "CHL_comp",
+        # alkalinity
         grepl("ALKALINITY", WSHEDPARMNAME, ignore.case = TRUE) |
           WSHEDPARMNAME == "GRAN ACID NEUTRALIZING CAPACITY" ~ "alk_epi",
+        # secchi
         WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" &
           ANALYTICALMETHOD == "SECCHI-SCOPE" ~ "SECCHI",
         WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" &
           ANALYTICALMETHOD != "SECCHI-SCOPE" ~ "SECCHI_NVS",
-        WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" ~ depth_params$SPCD[DEPTHZONE],
-        WSHEDPARMNAME == "PH" ~ depth_params$PH[DEPTHZONE],
-        WSHEDPARMNAME == "PHOSPHORUS AS P" ~ depth_params$TP[DEPTHZONE],
-        WSHEDPARMNAME == "APPARENT COLOR" ~ depth_params$color[DEPTHZONE],
-        WSHEDPARMNAME == "TURBIDITY" ~ depth_params$turb[DEPTHZONE],
-        WSHEDPARMNAME == "CHLORIDE" ~ depth_params$chloride[DEPTHZONE],
-        WSHEDPARMNAME == "ESCHERICHIA COLI" ~ "ecoli",
+
+        # parameters with depth zones
+        WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" &
+          !is.na(DEPTHZONE) ~ depth_params$SPCD[DEPTHZONE],
+        WSHEDPARMNAME == "PH" & !is.na(DEPTHZONE) ~ depth_params$PH[DEPTHZONE],
+        WSHEDPARMNAME == "PHOSPHORUS AS P" &
+          !is.na(DEPTHZONE) ~ depth_params$TP[DEPTHZONE],
+        WSHEDPARMNAME == "APPARENT COLOR" &
+          !is.na(DEPTHZONE) ~ depth_params$color[DEPTHZONE],
+        WSHEDPARMNAME == "TURBIDITY" & !is.na(DEPTHZONE) ~ depth_params$turb[
+          DEPTHZONE
+        ],
+        WSHEDPARMNAME == "CHLORIDE" & !is.na(DEPTHZONE) ~ depth_params$chloride[
+          DEPTHZONE
+        ],
+
+        # tributary measurements (DEPTHZONE is NA and STATNAME does NOT contain "DEEP")
+        is.na(DEPTHZONE) & !grepl("DEEP", STATNAME, ignore.case = TRUE) ~
+          case_when(
+            WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" ~ "SPCD_trib",
+            WSHEDPARMNAME == "PH" ~ "PH_trib",
+            WSHEDPARMNAME == "PHOSPHORUS AS P" ~ "TP_trib",
+            WSHEDPARMNAME == "APPARENT COLOR" ~ "color_trib",
+            WSHEDPARMNAME == "TURBIDITY" ~ "turb_trib",
+            WSHEDPARMNAME == "CHLORIDE" ~ "chloride_trib",
+            WSHEDPARMNAME ==
+              "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" ~ "CHL_comp_trib",
+            WSHEDPARMNAME == "ALKALINITY, TOTAL" |
+              WSHEDPARMNAME == "ALKALINITY, CARBONATE AS CACO3" |
+              WSHEDPARMNAME == "GRAN ACID NEUTRALIZING CAPACITY" ~ "alk_trib",
+            WSHEDPARMNAME == "ESCHERICHIA COLI" ~ "ecoli_trib",
+            TRUE ~ NA_character_
+          ),
+
+        # fallback to NA
         TRUE ~ NA_character_
       ),
 
@@ -138,12 +169,12 @@ data_reformat <- function(input_path) {
       NUMRESULT = case_when(
         QUALIFIER == "<" ~ NUMRESULT / 2,
         param_depth %in%
-          c("TP_epi", "TP_meta", "TP_hypo") &
+          c("TP_epi", "TP_meta", "TP_hypo", "TP_trib") &
           TEXTRESULT == "ND" ~ 0.0025,
         TRUE ~ NUMRESULT
       ),
       NUMRESULT = if_else(
-        param_depth %in% c("TP_epi", "TP_meta", "TP_hypo"),
+        param_depth %in% c("TP_epi", "TP_meta", "TP_hypo", "TP_trib"),
         NUMRESULT * 1000,
         NUMRESULT
       )
@@ -169,6 +200,7 @@ data_reformat <- function(input_path) {
       names_from = param_depth,
       values_from = NUMRESULT
     ) |>
+    select(where(~ !all(is.na(.x)))) |>
     mutate(
       STARTDATE = as.Date(STARTDATE, format = "%d-%b-%y"),
       year = year(STARTDATE)
