@@ -1,6 +1,4 @@
 STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
 Epilimnion,4.2,1.87,4,87,40.95,9,2.5,3.1,0.68,6.58,-
-Hypolimnion,-,-,-,-,40.45,12,-,-,0.84,6.18,-
-Charcoal Brook Inlet,-,-,6,-,52.075,18,-,-,1.1,6.69,-
-Dam Outlet,-,-,-,-,42.63,8,-,-,0.61,6.67,-
-Wight Pond Inlet,-,-,4,-,40.92,11,-,-,0.55,6.69,-
+Hypolimnion,-,-,-,-,40.45,11.700000000000001,-,-,0.84,6.18,-
+Dam Outlet,-,-,-,-,42.63,0.00818,-,-,0.61,6.67,-

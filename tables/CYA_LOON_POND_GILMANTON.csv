@@ -1,8 +1,4 @@
 STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
-Epilimnion,7.5,3.38,19,22,108.15,6,4.55,6.14,0.55,7.12,-
-Metalimnion,-,-,-,-,103.035,9,-,-,0.65,6.94,-
-Hypolimnion,-,-,-,-,105.2,17,-,-,3.12,6.28,-
-Bertrand Brook,-,-,30,-,168.1,52,-,-,4.8,6.88,-
-Gardner Cove Inlet,-,-,61,-,281.75,17,-,-,4.42,6.72,-
-Outlet In Stream,-,-,-,-,108.9,7,-,-,0.48,6.9,-
-Varney Brook,-,-,15,-,114.19,17,-,-,1.26,6.95,-
+Epilimnion,7.5,3.38,19,22,108.15,4.425,4.55,6.14,0.55,7.12,-
+Metalimnion,-,-,-,-,103.035,9.225000000000001,-,-,0.65,6.94,-
+Hypolimnion,-,-,-,-,105.2,16.599999999999998,-,-,3.12,6.28,-

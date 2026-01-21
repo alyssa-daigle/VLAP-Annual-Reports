@@ -35,7 +35,8 @@ libs <- c(
   "scales",
   "trend",
   "NADA",
-  "extrafont"
+  "extrafont",
+  "rmarkdown"
 )
 
 invisible(lapply(libs, library, character.only = TRUE))
@@ -48,8 +49,9 @@ input_path <- Sys.getenv("INPUT_PATH")
 output_path <- Sys.getenv("OUTPUT_PATH")
 reg_path <- Sys.getenv("REG_PATH")
 table_path <- Sys.getenv("TABLE_PATH")
-reportgen_path <- Sys.getenv("TEMPLATE_PATH")
+template_path <- Sys.getenv("TEMPLATE_PATH")
 mk_path <- Sys.getenv("MK_PATH")
+report_path <- Sys.getenv("REPORT_PATH")
 
 # ==========================
 # Source helper scripts
@@ -89,7 +91,7 @@ source(file.path(project_path, "R", "09_report_gen.R"))
 message("Reformatting data...")
 processed <- data_reformat(input_path)
 
-data_wide <- processed$data_wide
+data_long <- processed$data_long
 data_plot <- processed$data_plot
 data_year_median <- processed$data_year_median
 
@@ -122,20 +124,21 @@ make_pH_conduc(
 
 make_temp_DO(input_path, file.path(output_path, "temp_DO"))
 make_plankton(file.path(output_path, "plankton"))
+
 message("All plots completed.")
 
 # ==========================
 # CYA table exports
 # ==========================
 message("Exporting CYA tables...")
-make_CYA_table(CYA_2025, LAKEMAP, table_path, input_path)
+make_CYA_table(data_long, table_path, input_path)
 message("All tables exported.")
 
 # ==========================
 # generate reports
 # ==========================
 message("Starting report generation...")
-report_gen()
+report_gen(input_path, report_path, template_path)
 message("All reports generated.")
 
 #not currently using below this line:

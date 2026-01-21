@@ -1,9 +1,8 @@
 STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
-Epilimnion,9.1,4.06,6,34,47.61,8,3.5,3.8,0.79,7.23,-
+Epilimnion,9.1,4.06,6,34,47.61,7.86,3.5,3.8,0.79,7.23,-
 Hypolimnion,-,-,-,-,47.980000000000004,14,-,-,1.77,6.58,-
-Astle Cottage,-,-,-,-,-,<5,-,-,-,-,2
-Martin Cove,-,-,-,-,-,<5,-,-,-,-,2
-Newt Cottage,-,-,-,-,48.88,7,-,-,0.91,6.95,-
-North Inlet,-,-,-,-,53.09,10,-,-,0.8,6.66,1
-State Beach Brook,-,-,-,-,-,<5,-,-,-,-,1
-Sundman Cottage,-,-,-,-,47.57,7,-,-,0.64,7.2,-
+Astle Cottage,-,-,-,-,-,-,-,-,-,-,2
+Martin Cove,-,-,-,-,-,-,-,-,-,-,2
+Newt Cottage,-,-,-,-,48.88,0.00707,-,-,0.91,6.95,-
+State Beach Brook,-,-,-,-,-,-,-,-,-,-,0
+Sundman Cottage,-,-,-,-,47.57,0.00715,-,-,0.64,7.2,-

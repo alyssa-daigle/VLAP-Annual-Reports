@@ -1,11 +1,5 @@
 STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
-Epilimnion,5.7,4.74,10,54,54.41,13,3.26,3.76,1.04,6.79,-
-Hypolimnion,-,-,-,-,66.94,24,2.65,3.27,1.92,6.49,-
-Boat Landing,-,-,-,-,-,<5,-,-,-,-,100
-Carmen Cove Brook,-,-,12,-,95.565,20,-,-,1.98,6.72,-
-Colburn Hill Brook,-,-,3,-,61.705,11,-,-,0.6,6.86,-
-Dam Brook,-,-,3,-,54.72,24,-,-,2.09,7.12,-
-Ediths Beach,-,-,-,-,-,<5,-,-,-,-,33
-Pickerel Cove Brook,-,-,4,-,52.43,29,-,-,1.47,6.72,-
-Smith Hill Brook,-,-,3,-,27.13,26,-,-,2.12,6.25,-
-Spruce River,-,-,43,-,235.3,25,-,-,1.28,6.7,-
+Epilimnion,5.7,4.74,10,54,54.41,12.649999999999999,3.26,3.76,1.04,6.79,-
+Hypolimnion,-,-,-,-,66.94,23.599999999999998,2.65,3.27,1.92,6.49,-
+Boat Landing,-,-,-,-,-,-,-,-,-,-,100
+Ediths Beach,-,-,-,-,-,-,-,-,-,-,33

@@ -1,7 +1,3 @@
 STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
-Epilimnion,4.2,2.78,4,50,28.606666666666666,8,4,4.28,0.83,6.83,-
-Hypolimnion,-,-,-,-,29.26,10,-,-,0.83,7.01,-
-North West Inlet,-,-,-,-,31.995,13,-,-,1.28,6.54,-
-Outlet,-,-,-,-,28.993333333333332,7,-,-,0.73,6.7,-
-South West Inlet,-,-,-,-,29.22,7,-,-,0.83,6.76,-
-Town Beach,-,-,-,-,-,<5,-,-,-,-,1
+Epilimnion,4.2,2.78,4,50,28.606666666666666,7.89,4,4.28,0.83,6.83,-
+Hypolimnion,-,-,-,-,29.26,9.515,-,-,0.83,7.01,-

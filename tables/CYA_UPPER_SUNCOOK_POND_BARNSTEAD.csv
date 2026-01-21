@@ -1,6 +1,4 @@
 STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
-Epilimnion,6.1,1.42,8,58,58.7,11,2.25,3.5,0.65,6.92,-
-Metalimnion,-,-,-,-,57.03,9,-,-,0.64,6.27,-
-Hypolimnion,-,-,-,-,58.965,17,-,-,1.92,6.27,-
-Public Bch Inlet,-,-,7,-,57.59,12,-,-,0.91,6.94,5
-Suncook R Inlet,-,-,7,-,57.63,10,-,-,0.86,6.88,-
+Epilimnion,6.1,1.42,8,58,58.7,11.1,2.25,3.5,0.65,6.92,-
+Metalimnion,-,-,-,-,57.03,8.68,-,-,0.64,6.27,-
+Hypolimnion,-,-,-,-,58.965,16.7,-,-,1.92,6.27,-

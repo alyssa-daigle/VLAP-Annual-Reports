@@ -1,11 +1,8 @@
 STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
-Epilimnion,5.6,4.84,13,39,76.068,10,4.2,4.52,0.71,6.84,-
-Metalimnion,-,-,-,-,77.146,27,-,-,5.68,6.56,-
-Hypolimnion,-,-,-,-,86.67,26,-,-,6.26,6.42,-
-Boys Camp,-,-,-,-,-,<5,-,-,-,-,12
-Fern Hill Inlet,-,-,4,-,38.318,23,-,-,1.61,6.67,-
-Hollywood Beach,-,-,-,-,-,<5,-,-,-,-,25
-Horse Farm Inlet,-,-,25,-,132.075,37,-,-,4.9,6.32,-
-Public Beach,-,-,-,-,-,<5,-,-,-,-,15
-Rt 28 Inlet,-,-,12,-,90.63,37,-,-,4.28,6.66,41
-Rustic Shores,-,-,-,-,-,<5,-,-,-,-,36
+Epilimnion,5.6,4.84,13,39,76.068,9.84,4.2,4.52,0.71,6.84,-
+Metalimnion,-,-,-,-,77.146,27.02,-,-,5.68,6.56,-
+Hypolimnion,-,-,-,-,86.67,26.32,-,-,6.26,6.42,-
+Boys Camp,-,-,-,-,-,-,-,-,-,-,12
+Hollywood Beach,-,-,-,-,-,-,-,-,-,-,25
+Public Beach,-,-,-,-,-,-,-,-,-,-,15
+Rustic Shores,-,-,-,-,-,-,-,-,-,-,36

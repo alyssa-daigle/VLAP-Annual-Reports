@@ -1,7 +1,2 @@
 STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
-Epilimnion,8,7.26,13,43,88.13,11,5.9,6.3,1.78,6.34,4
-Hawkins Pond Inlet,-,-,36,-,185.35,24,-,-,1.17,6.89,138
-Heights Brook Inlet,-,-,6,-,43.88,21,-,-,0.88,6.46,-
-North Inlet,-,-,15,-,74.44,11,-,-,1.35,6.82,-
-Outlet,-,-,14,-,87.495,10,-,-,0.75,6.68,17
-York Brook,-,-,3,-,19.8,6,-,-,1.12,6.53,-
+Epilimnion,8,7.26,13,43,88.13,11.1,5.9,6.3,1.78,6.34,4

@@ -81,7 +81,7 @@ data_reformat <- function(input_path) {
   )
 
   # clean and filter the raw data
-  data_clean <- data |>
+  data_long <- data |>
     select(
       STATIONID,
       STATNAME,
@@ -150,7 +150,7 @@ data_reformat <- function(input_path) {
     )
 
   # summarize and reshape the data for analysis
-  data_wide <- data_clean |>
+  data_wide <- data_long |>
     select(
       RELLAKE,
       STATIONID,
@@ -158,7 +158,8 @@ data_reformat <- function(input_path) {
       STATNAM,
       STARTDATE,
       param_depth,
-      NUMRESULT
+      NUMRESULT,
+      DEPTHZONE
     ) |>
     filter(!is.na(param_depth)) |>
     group_by(RELLAKE, STATIONID, TOWN, STATNAM, STARTDATE, param_depth) |>
@@ -284,7 +285,7 @@ data_reformat <- function(input_path) {
 
   # return both dataframes in a list
   return(list(
-    data_wide = data_wide,
+    data_long = data_long,
     data_year_median = data_year_median,
     data_plot = data_plot
   ))
