@@ -132,7 +132,10 @@ data_reformat <- function(input_path) {
       ),
 
       # adjust numeric results: half the value if flagged as less than, convert phosphorus to ug/L
-      NUMRESULT = if_else(QUALIFIER == "<", NUMRESULT / 2, NUMRESULT),
+      NUMRESULT = case_when(
+        QUALIFIER == "<" ~ NUMRESULT / 2,
+        TRUE ~ NUMRESULT
+      ),
       NUMRESULT = if_else(
         param_depth %in% c("TP_epi", "TP_meta", "TP_hypo"),
         NUMRESULT * 1000,
@@ -164,6 +167,24 @@ data_reformat <- function(input_path) {
       year = year(STARTDATE)
     ) |>
     (\(df) df[df$RELLAKE %in% df$RELLAKE[df$year == 2025], ])()
+
+  # calculate annual median per parameter per station
+  data_year_median <- data_wide |>
+    pivot_longer(
+      cols = -c(RELLAKE, STATIONID, TOWN, STATNAM, STARTDATE, year),
+      names_to = "parameter",
+      values_to = "value"
+    ) |>
+    group_by(RELLAKE, STATIONID, TOWN, STATNAM, year, parameter) |>
+    summarise(
+      value = median(value, na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    pivot_wider(
+      id_cols = c(RELLAKE, STATIONID, TOWN, STATNAM, year),
+      names_from = parameter,
+      values_from = value
+    )
 
   # create a lookup table for lakes for plotting purposes
   lake_start_years <- tibble::tibble(
@@ -250,10 +271,14 @@ data_reformat <- function(input_path) {
   )
 
   # join plotting metadata and filter for years after the start year
-  data_plot <- data_wide |>
+  data_plot <- data_year_median |>
     left_join(lake_start_years, by = "STATIONID") |>
     filter(!is.na(start_year), year >= start_year)
 
   # return both dataframes in a list
-  return(list(data_wide = data_wide, data_plot = data_plot))
+  return(list(
+    data_wide = data_wide,
+    data_year_median = data_year_median,
+    data_plot = data_plot
+  ))
 }
