@@ -273,7 +273,8 @@ data_reformat <- function(input_path) {
   # join plotting metadata and filter for years after the start year
   data_plot <- data_year_median |>
     left_join(lake_start_years, by = "STATIONID") |>
-    filter(!is.na(start_year), year >= start_year)
+    # keep all stations; only filter by start_year if it exists
+    filter(is.na(start_year) | year >= start_year)
 
   # return both dataframes in a list
   return(list(

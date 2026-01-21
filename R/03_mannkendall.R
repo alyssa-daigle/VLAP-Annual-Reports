@@ -16,7 +16,7 @@ run_vlap_mannkendall <- function(
     "SPCD_epi",
     "CHL_comp",
     "PH_epi",
-    "SECCHI",
+    "SECCHI_NVS",
     "TP_hypo",
     "TP_epi"
   )
@@ -88,10 +88,10 @@ run_vlap_mannkendall <- function(
           c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
           mk$estimates[["tau"]] < 0 ~ "Improving",
         param %in%
-          c("PH_epi", "SECCHI") &
+          c("PH_epi", "SECCHI_NVS") &
           mk$estimates[["tau"]] > 0 ~ "Improving",
         param %in%
-          c("PH_epi", "SECCHI") &
+          c("PH_epi", "SECCHI_NVS") &
           mk$estimates[["tau"]] < 0 ~ "Worsening",
         TRUE ~ "Stable"
       )
@@ -127,7 +127,7 @@ run_vlap_mannkendall <- function(
         "SPCD_epi" = "Conductivity",
         "CHL_comp" = "Chlorophyll-a",
         "PH_epi" = "pH (epilimnion)",
-        "SECCHI" = "Transparency",
+        "SECCHI_NVS" = "Transparency",
         "TP_hypo" = "Phosphorus (hypolimnion)",
         "TP_epi" = "Phosphorus (epilimnion)"
       )

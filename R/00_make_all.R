@@ -34,7 +34,8 @@ libs <- c(
   "ggnewscale",
   "scales",
   "trend",
-  "NADA"
+  "NADA",
+  "extrafont"
 )
 
 invisible(lapply(libs, library, character.only = TRUE))
@@ -102,8 +103,16 @@ run_vlap_mannkendall(data_year_median, mk_path, table_path)
 # ==========================
 # Plot generation
 # ==========================
+
+# imports Calibri font, need to run only once
+#font_import(pattern = "calibri", prompt = FALSE)
+
 message("Generating plots...")
-make_chl_tp_secchi(input_path, file.path(output_path, "chl_tp_secchi"))
+make_chl_tp_secchi(
+  data_plot,
+  input_path,
+  file.path(output_path, "chl_tp_secchi")
+)
 make_pH_conduc(input_path, file.path(output_path, "pH_conduc"))
 make_temp_DO(input_path, file.path(output_path, "temp_DO"))
 make_plankton(PLANKTON, file.path(output_path, "plankton"))

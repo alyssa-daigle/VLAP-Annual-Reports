@@ -1,34 +1,34 @@
-make_chl_tp_secchi <- function(input_path, output_path) {
+make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
   if (!dir.exists(output_path)) {
     dir.create(output_path, recursive = TRUE)
   }
 
-  station_list <- REG_plot |> distinct(stationid) |> pull(stationid)
+  station_list <- data_plot |> distinct(STATIONID) |> pull(STATIONID)
 
   for (station_id in station_list) {
     message("Processing station: ", station_id)
 
-    df_plot <- REG_plot |>
-      filter(stationid == station_id) |>
-      filter(!is.na(CHL_comp) | !is.na(TP_epi) | !is.na(SECCHI)) |>
-      arrange(Year)
+    df_plot <- data_plot |>
+      filter(STATIONID == station_id) |>
+      filter(!is.na(CHL_comp) | !is.na(TP_epi) | !is.na(SECCHI_NVS)) |>
+      arrange(year)
 
-    if (nrow(df_plot) == 0 || !any(df_plot$Year == 2025)) {
+    if (nrow(df_plot) == 0 || !any(df_plot$year == 2025)) {
       warning("No data or missing 2025 for ", station_id, ", skipping...")
       next
     }
 
-    all_years <- min(df_plot$Year):max(df_plot$Year)
+    all_years <- min(df_plot$year):max(df_plot$year)
     df_plot <- df_plot |>
       complete(
-        Year = all_years,
-        fill = list(TP_epi = NA, CHL_comp = NA, SECCHI = NA)
+        year = all_years,
+        fill = list(TP_epi = NA, CHL_comp = NA, SECCHI_NVS = NA)
       ) |>
-      mutate(Year = as.numeric(Year)) |>
-      arrange(Year)
+      mutate(year = as.numeric(year)) |>
+      arrange(year)
 
     y_max_left <- max(c(df_plot$TP_epi, df_plot$CHL_comp), na.rm = TRUE) * 1.5
-    y_max_right <- max(df_plot$SECCHI, na.rm = TRUE) * 1.5
+    y_max_right <- max(df_plot$SECCHI_NVS, na.rm = TRUE) * 1.5
 
     mk_file <- paste0("mannkendall/MannKendall_", station_id, ".csv")
     has_MK <- file.exists(mk_file)
@@ -45,12 +45,12 @@ make_chl_tp_secchi <- function(input_path, output_path) {
     par(mar = c(3.8, 4, 4, 3.8)) # reduce margins for more plotting area
 
     # Base plot x-axis limits (no automatic padding)
-    n_years <- length(unique(df_plot$Year))
-    x_min <- min(df_plot$Year)
-    x_max <- max(df_plot$Year)
+    n_years <- length(unique(df_plot$year))
+    x_min <- min(df_plot$year)
+    x_max <- max(df_plot$year)
 
     plot(
-      df_plot$Year,
+      df_plot$year,
       df_plot$TP_epi,
       type = "n",
       xlim = c(x_min, x_max),
@@ -87,12 +87,12 @@ make_chl_tp_secchi <- function(input_path, output_path) {
     )
 
     # X-axis
-    axis(side = 1, at = df_plot$Year, labels = FALSE)
+    axis(side = 1, at = df_plot$year, labels = FALSE)
     y_pos <- par("usr")[3] - 0.06 * diff(par("usr")[3:4])
     text(
-      x = df_plot$Year + 0.15,
+      x = df_plot$year + 0.15,
       y = y_pos,
-      labels = df_plot$Year,
+      labels = df_plot$year,
       srt = 45,
       adj = 1,
       xpd = TRUE,
@@ -101,11 +101,11 @@ make_chl_tp_secchi <- function(input_path, output_path) {
     )
     mtext("Year", side = 1, line = 2, cex = 0.85, font = 2)
 
-    # Secchi bars
+    # secchi bars
     par(new = TRUE)
     plot(
-      df_plot$Year,
-      df_plot$SECCHI,
+      df_plot$year,
+      df_plot$SECCHI_NVS,
       type = "n",
       axes = FALSE,
       xlab = "",
@@ -120,10 +120,10 @@ make_chl_tp_secchi <- function(input_path, output_path) {
     with(
       df_plot,
       rect(
-        Year - bar_width,
+        year - bar_width,
         0,
-        Year + bar_width,
-        SECCHI,
+        year + bar_width,
+        SECCHI_NVS,
         col = adjustcolor("lightsteelblue2", alpha.f = 0.5),
         border = "gray20"
       )
@@ -149,7 +149,7 @@ make_chl_tp_secchi <- function(input_path, output_path) {
     # Foreground TP & Chl-a
     par(new = TRUE)
     plot(
-      df_plot$Year,
+      df_plot$year,
       df_plot$TP_epi,
       type = "o",
       pch = 17,
@@ -163,7 +163,7 @@ make_chl_tp_secchi <- function(input_path, output_path) {
       lwd = 2
     )
     lines(
-      df_plot$Year,
+      df_plot$year,
       df_plot$CHL_comp,
       type = "o",
       pch = 16,
@@ -175,16 +175,16 @@ make_chl_tp_secchi <- function(input_path, output_path) {
     # MK trend lines
     if (has_MK) {
       add_mk_line <- function(var, col) {
-        slope <- MK_table |> filter(parameter == var) |> pull(slope)
+        slope <- MK_table |> filter(parameter == var) |> pull(sen_slope)
         if (length(slope) > 0 && !is.na(slope)) {
           df_var <- df_plot |> filter(!is.na(.data[[var]]))
           if (nrow(df_var) >= 2) {
-            med_year <- median(df_var$Year)
+            med_year <- median(df_var$year)
             med_val <- median(df_var[[var]])
             intercept <- med_val - slope * med_year
-            x_vals <- range(df_var$Year, na.rm = TRUE)
+            x_vals <- range(df_var$year, na.rm = TRUE)
             y_vals <- intercept + slope * x_vals
-            if (var == "SECCHI") {
+            if (var == "SECCHI_NVS") {
               par(new = TRUE)
               plot(
                 x_vals,
@@ -207,7 +207,7 @@ make_chl_tp_secchi <- function(input_path, output_path) {
       }
       add_mk_line("TP_epi", "red4")
       add_mk_line("CHL_comp", "green4")
-      add_mk_line("SECCHI", "blue4")
+      add_mk_line("SECCHI_NVS", "blue4")
     }
 
     # --- Dynamic legend ---
@@ -220,7 +220,7 @@ make_chl_tp_secchi <- function(input_path, output_path) {
       legend = c(
         "Transparency (m)",
         "Chlorophyll a (µg/L)",
-        "Phosphorus (µg/L)"
+        "Total Phosphorus (µg/L)"
       ),
       pch = c(22, 16, 17),
       pt.bg = c("lightsteelblue2", NA, NA),
@@ -242,8 +242,10 @@ make_chl_tp_secchi <- function(input_path, output_path) {
 
     if (has_MK) {
       # Transparency trend
-      slope_sec <- MK_table |> filter(parameter == "SECCHI") |> pull(slope)
-      if (!is.na(slope_sec) & length(slope_sec) > 0) {
+      slope_sec <- MK_table |>
+        filter(parameter == "SECCHI_NVS") |>
+        pull(sen_slope)
+      if (length(slope_sec) > 0 && !is.na(slope_sec)) {
         trend_items <- c(trend_items, "Transparency Trend")
         col_items <- c(col_items, "blue4")
         lty_items <- c(lty_items, 2)
@@ -251,8 +253,10 @@ make_chl_tp_secchi <- function(input_path, output_path) {
       }
 
       # Chl trend
-      slope_chl <- MK_table |> filter(parameter == "CHL_comp") |> pull(slope)
-      if (!is.na(slope_chl) & length(slope_chl) > 0) {
+      slope_chl <- MK_table |>
+        filter(parameter == "CHL_comp") |>
+        pull(sen_slope)
+      if (length(slope_chl) > 0 && !is.na(slope_chl)) {
         trend_items <- c(trend_items, "Chlorophyll-a Trend")
         col_items <- c(col_items, "green4")
         lty_items <- c(lty_items, 2)
@@ -260,9 +264,9 @@ make_chl_tp_secchi <- function(input_path, output_path) {
       }
 
       # TP trend
-      slope_tp <- MK_table |> filter(parameter == "TP_epi") |> pull(slope)
-      if (!is.na(slope_tp) & length(slope_tp) > 0) {
-        trend_items <- c(trend_items, "Phosphorus Trend")
+      slope_tp <- MK_table |> filter(parameter == "TP_epi") |> pull(sen_slope)
+      if (length(slope_tp) > 0 && !is.na(slope_tp)) {
+        trend_items <- c(trend_items, "Total Phosphorus Trend")
         col_items <- c(col_items, "red4")
         lty_items <- c(lty_items, 2)
         lwd_items <- c(lwd_items, 1.5)
