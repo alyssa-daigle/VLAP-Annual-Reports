@@ -101,9 +101,11 @@ data_reformat <- function(input_path) {
       CURRENT_TROPHIC_STATUS,
       BEST_TROPHIC_CLASS,
       ACTCMTS,
-      ACTIVE
+      ACTIVE,
+      RESULTSTATUS
     ) |>
     filter(WSHEDPARMNAME %in% params_keep, ACTIVE != "N") |>
+    filter(RESULTSTATUS == "FINAL") |>
     mutate(
       # standardize station IDs and names
       idx = match(STATIONID, station_map$STATIONID),
@@ -119,7 +121,7 @@ data_reformat <- function(input_path) {
         # chlorophyll
         WSHEDPARMNAME ==
           "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" ~ "CHL_comp",
-        # alkalinity
+        # alkalinity: renaming all alk methods the same to then average the results if multiple methods exist for the same year
         grepl("ALKALINITY", WSHEDPARMNAME, ignore.case = TRUE) |
           WSHEDPARMNAME == "GRAN ACID NEUTRALIZING CAPACITY" ~ "alk_epi",
         # secchi
@@ -180,8 +182,11 @@ data_reformat <- function(input_path) {
         param_depth %in% c("TP_epi", "TP_meta", "TP_hypo", "TP_trib"),
         NUMRESULT * 1000,
         NUMRESULT
-      )
-    )
+      ),
+      STARTDATE = as.Date(STARTDATE, format = "%d-%b-%y"),
+      year = year(STARTDATE)
+    ) |>
+    (\(df) df[df$RELLAKE %in% df$RELLAKE[df$year == 2025], ])()
 
   # summarize and reshape the data for analysis
   data_wide <- data_long |>
