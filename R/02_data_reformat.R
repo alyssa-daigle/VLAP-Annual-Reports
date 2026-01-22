@@ -1,6 +1,9 @@
 data_reformat <- function(input_path) {
   # load the SQL pull data, update annually
-  data <- read_csv("C:/Users/alyssa.n.daigle/Desktop/testSQLpull.csv")
+  data <- read.csv(paste0(
+    input_path,
+    "VLAP_alldata2025.csv"
+  ))
 
   # define the parameters relevant for VLAP
   params_keep <- c(
