@@ -88,7 +88,11 @@ make_CYA_table <- function(data_long, table_path, input_path) {
       `Total P (μg/L)` = round(`Total P (μg/L)`, 0),
       `Trans. NVS (m)` = round(`Trans. NVS (m)`, 2),
       `Trans. VS (m)` = round(`Trans. VS (m)`, 2),
-      `Turb. (ntu)` = round(`Turb. (ntu)`, 2),
+      `Total P (μg/L)` = case_when(
+        is.na(`Total P (μg/L)`) ~ NA_character_,
+        `Total P (μg/L)` < 5 ~ "<5",
+        TRUE ~ as.character(round(`Total P (μg/L)`, 0))
+      ),
       pH = round(pH, 2)
     )
 

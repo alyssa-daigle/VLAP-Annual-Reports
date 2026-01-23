@@ -1,5 +1,5 @@
 STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
-Epilimnion,4.4,4.99,5,38,41.2,8,3.75,4.21,0.63,6.68,-
-Metalimnion,-,-,-,-,40.8,11,-,-,1.31,5.98,-
-Hypolimnion,-,-,-,-,44.2,10,-,-,4.63,6.06,-
+Epilimnion,4.4,4.99,5,38,41.2,8,3.75,4.21,0.6266666666666667,6.68,-
+Metalimnion,-,-,-,-,40.8,11,-,-,1.3133333333333332,5.98,-
+Hypolimnion,-,-,-,-,44.2,10,-,-,4.633333333333333,6.06,-
 Pierce Brook 2,-,-,2,-,36.8,12,-,-,0.28,7.01,-

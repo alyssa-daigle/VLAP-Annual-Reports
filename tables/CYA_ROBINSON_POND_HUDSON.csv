@@ -1,5 +1,5 @@
 STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
-Epilimnion,16.9,13.51,47,77,215.8,26,2.51,2.3,2.3,7.26,-
-Metalimnion,-,-,-,-,213.1,54,-,-,4.94,6.66,-
-Hypolimnion,-,-,-,-,224.9,104,-,-,5.55,6.61,-
+Epilimnion,16.9,13.51,47,77,215.8,26,2.51,2.3,2.302,7.26,-
+Metalimnion,-,-,-,-,213.1,54,-,-,4.942,6.66,-
+Hypolimnion,-,-,-,-,224.9,104,-,-,5.548,6.61,-
 Sta 7 Row,-,-,63,-,334.6,63,-,-,2.26,6.49,194
