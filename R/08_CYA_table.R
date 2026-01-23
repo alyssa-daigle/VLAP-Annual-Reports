@@ -10,7 +10,7 @@ make_CYA_table <- function(data_long, table_path, input_path) {
   # select relevant columns and extract year from startdate
   CYA_base <- data_long |>
     select(
-      RELLAKE,
+      WATERBODYNAME,
       STATNAME,
       STATIONID,
       TOWN,
@@ -66,7 +66,7 @@ make_CYA_table <- function(data_long, table_path, input_path) {
   # filter data for 2025 and compute average results by lake, station, and parameter
   CYA_2025 <- CYA_base |>
     filter(YEAR == 2025) |>
-    group_by(RELLAKE, STATNAME, STATIONID, TOWN, param_depth) |>
+    group_by(WATERBODYNAME, STATNAME, STATIONID, TOWN, param_depth) |>
     summarise(avg_result = mean(NUMRESULT, na.rm = TRUE), .groups = "drop") |>
     pivot_wider(
       names_from = param_depth,
@@ -74,7 +74,7 @@ make_CYA_table <- function(data_long, table_path, input_path) {
     ) |>
     # order by lake and standard depth labels
     arrange(
-      RELLAKE,
+      WATERBODYNAME,
       factor(STATNAME, levels = c("Epilimnion", "Metalimnion", "Hypolimnion"))
     ) |>
     # round numeric columns for presentation
@@ -95,25 +95,25 @@ make_CYA_table <- function(data_long, table_path, input_path) {
   # join with lake map to update lake names if available
   CYA_updated <- CYA_2025 |>
     left_join(
-      LAKEMAP |> select(STATIONID, lake = RELLAKE),
+      LAKEMAP |> select(STATIONID, lake = WATERBODYNAME),
       by = "STATIONID"
     ) |>
-    mutate(RELLAKE = ifelse(!is.na(lake), lake, RELLAKE)) |>
+    mutate(WATERBODYNAME = ifelse(!is.na(lake), lake, WATERBODYNAME)) |>
     select(-lake)
 
   # get all unique lake and town combinations
-  lake_town_pairs <- CYA_updated |> distinct(RELLAKE, TOWN)
+  lake_town_pairs <- CYA_updated |> distinct(WATERBODYNAME, TOWN)
 
   # export tables for each lake and town combination
   for (i in seq_len(nrow(lake_town_pairs))) {
-    lake <- lake_town_pairs$RELLAKE[i]
+    lake <- lake_town_pairs$WATERBODYNAME[i]
     town <- lake_town_pairs$TOWN[i]
 
     lake_data <- CYA_updated |>
-      filter(RELLAKE == lake, TOWN == town)
+      filter(WATERBODYNAME == lake, TOWN == town)
 
     # remove lake and station identifiers before export
-    lake_data_out <- lake_data |> select(-RELLAKE, -STATIONID, -TOWN)
+    lake_data_out <- lake_data |> select(-WATERBODYNAME, -STATIONID, -TOWN)
 
     # clean file name
     lake_clean <- gsub(" ", "_", lake)

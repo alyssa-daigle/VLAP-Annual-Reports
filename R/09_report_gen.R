@@ -34,7 +34,7 @@ report_gen <- function() {
   # Filter for DEEP stations and keep unique lake–station combos
   LAKEMAP_filtered <- LAKEMAP |>
     filter(grepl("DEEP", STATNAME, ignore.case = TRUE)) |>
-    distinct(RELLAKE, STATNAME, STATIONID, TOWN, .keep_all = TRUE) |>
+    distinct(WATERBODYNAME, STATNAME, STATIONID, TOWN, .keep_all = TRUE) |>
     arrange(STATIONID)
 
   # Define output directory
@@ -54,7 +54,7 @@ report_gen <- function() {
 
   # Loop through each unique DEEP station
   for (i in seq_len(nrow(LAKEMAP_filtered))) {
-    lake <- LAKEMAP_filtered$RELLAKE[i]
+    lake <- LAKEMAP_filtered$WATERBODYNAME[i]
     station <- LAKEMAP_filtered$STATNAME[i]
     station_id <- LAKEMAP_filtered$STATIONID[i]
     town <- LAKEMAP_filtered$TOWN[i]

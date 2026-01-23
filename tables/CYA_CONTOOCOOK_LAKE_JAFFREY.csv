@@ -1,4 +1,4 @@
 STATNAME,Alk. (mg/L),Chlor-a (μg/L),Chloride (mg/L),Color (pcu),Cond. (μS/cm),Total P (μg/L),Trans. NVS (m),Trans. VS (m),Turb. (ntu),pH,E. coli (mpn/100 mL)
-Epilimnion,3.7,4.75,16,90,80,16,2.3,3.14,0.93,6.29,-
-Hypolimnion,-,-,-,-,79,16,-,-,1.21,6,-
+Epilimnion,3.7,4.04,16,90,80,16,2.3,3.14,0.93,6.29,-
+Hypolimnion,-,-,-,-,79.8,16,-,-,1.24,5.98,-
 South End,-,-,17,-,78.9,12,-,-,0.83,6.42,-
