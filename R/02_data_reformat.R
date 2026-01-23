@@ -5,6 +5,8 @@ data_reformat <- function(input_path) {
     "VLAP_alldata2025.csv"
   ))
 
+  ## DEFINING OBJECTS ----------------------------------------------------------
+
   # define the parameters relevant for VLAP
   params_keep <- c(
     "ALKALINITY, CARBONATE AS CACO3",
@@ -49,7 +51,7 @@ data_reformat <- function(input_path) {
     )
   )
 
-  # map depth zones to parameter-specific names
+  # Define depth-specific parameter codes
   depth_params <- list(
     SPCD = c(
       "EPILIMNION" = "SPCD_epi",
@@ -83,13 +85,22 @@ data_reformat <- function(input_path) {
     )
   )
 
+  # define lake depth zones
+  lake_depths <- c("EPILIMNION", "METALIMNION", "HYPOLIMNION", "COMPOSITE")
+
+  ## DATA CLEANING ----------------------------------------------------------
+
+  # select only active, valid, and final data
+  data <- data |>
+    filter(ACTIVE == "Y", VALID != "N", RESULTSTATUS == "FINAL")
+
   # clean and filter the raw data
   data_long <- data |>
     select(
       STATIONID,
       STATNAME,
       TOWN,
-      RELLAKE,
+      WATERBODYNAME,
       DEPTHZONE,
       DEPTH,
       STARTDATE,
@@ -97,15 +108,20 @@ data_reformat <- function(input_path) {
       NUMRESULT,
       TEXTRESULT,
       QUALIFIER,
+      DETLIM,
       ANALYTICALMETHOD,
       CURRENT_TROPHIC_STATUS,
       BEST_TROPHIC_CLASS,
       ACTCMTS,
-      ACTIVE,
-      RESULTSTATUS
+      RESULTCMT
     ) |>
-    filter(WSHEDPARMNAME %in% params_keep, ACTIVE != "N") |>
-    filter(RESULTSTATUS == "FINAL") |>
+
+    # keep only VLAP params
+    # not using data from -GEN stations
+    filter(
+      WSHEDPARMNAME %in% params_keep,
+      !str_detect(STATIONID, "-GEN")
+    ) |>
     mutate(
       # standardize station IDs and names
       idx = match(STATIONID, station_map$STATIONID),
@@ -116,21 +132,33 @@ data_reformat <- function(input_path) {
         str_trim(toupper(STATNAME))
       ),
 
-      # assign a param_depth value for each measurement
+      # convert blank DEPTHZONE to NA
+      DEPTHZONE = na_if(trimws(DEPTHZONE), ""),
+
+      # map "UPPER" and "LOWER" to lake depth zones
+      DEPTHZONE = case_when(
+        DEPTHZONE == "UPPER" ~ "EPILIMNION",
+        DEPTHZONE == "LOWER" ~ "HYPOLIMNION",
+        TRUE ~ DEPTHZONE
+      ),
+
+      # assign param_depth for each measurement
       param_depth = case_when(
         # chlorophyll
         WSHEDPARMNAME ==
           "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" ~ "CHL_comp",
-        # alkalinity: renaming all alk methods the same to then average the results if multiple methods exist for the same year
+
+        # alkalinity
         grepl("ALKALINITY", WSHEDPARMNAME, ignore.case = TRUE) |
           WSHEDPARMNAME == "GRAN ACID NEUTRALIZING CAPACITY" ~ "alk_epi",
+
         # secchi
         WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" &
           ANALYTICALMETHOD == "SECCHI-SCOPE" ~ "SECCHI",
         WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" &
           ANALYTICALMETHOD != "SECCHI-SCOPE" ~ "SECCHI_NVS",
 
-        # parameters with depth zones
+        # lake parameters with depth zones
         WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" &
           !is.na(DEPTHZONE) ~ depth_params$SPCD[DEPTHZONE],
         WSHEDPARMNAME == "PH" & !is.na(DEPTHZONE) ~ depth_params$PH[DEPTHZONE],
@@ -145,53 +173,74 @@ data_reformat <- function(input_path) {
           DEPTHZONE
         ],
 
-        # tributary measurements (DEPTHZONE is NA and STATNAME does NOT contain "DEEP")
-        is.na(DEPTHZONE) & !grepl("DEEP", STATNAME, ignore.case = TRUE) ~
-          case_when(
-            WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" ~ "SPCD_trib",
-            WSHEDPARMNAME == "PH" ~ "PH_trib",
-            WSHEDPARMNAME == "PHOSPHORUS AS P" ~ "TP_trib",
-            WSHEDPARMNAME == "APPARENT COLOR" ~ "color_trib",
-            WSHEDPARMNAME == "TURBIDITY" ~ "turb_trib",
-            WSHEDPARMNAME == "CHLORIDE" ~ "chloride_trib",
-            WSHEDPARMNAME ==
-              "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" ~ "CHL_comp_trib",
-            WSHEDPARMNAME == "ALKALINITY, TOTAL" |
-              WSHEDPARMNAME == "ALKALINITY, CARBONATE AS CACO3" |
-              WSHEDPARMNAME == "GRAN ACID NEUTRALIZING CAPACITY" ~ "alk_trib",
-            WSHEDPARMNAME == "ESCHERICHIA COLI" ~ "ecoli_trib",
-            TRUE ~ NA_character_
-          ),
+        # tributary parameters (DEPTHZONE missing or not a lake zone)
+        (is.na(DEPTHZONE) | !(DEPTHZONE %in% lake_depths)) &
+          !grepl("DEEP", STATNAME, ignore.case = TRUE) &
+          WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" ~ "SPCD_trib",
+        (is.na(DEPTHZONE) | !(DEPTHZONE %in% lake_depths)) &
+          !grepl("DEEP", STATNAME, ignore.case = TRUE) &
+          WSHEDPARMNAME == "PH" ~ "PH_trib",
+        (is.na(DEPTHZONE) | !(DEPTHZONE %in% lake_depths)) &
+          !grepl("DEEP", STATNAME, ignore.case = TRUE) &
+          WSHEDPARMNAME == "PHOSPHORUS AS P" ~ "TP_trib",
+        (is.na(DEPTHZONE) | !(DEPTHZONE %in% lake_depths)) &
+          !grepl("DEEP", STATNAME, ignore.case = TRUE) &
+          WSHEDPARMNAME == "APPARENT COLOR" ~ "color_trib",
+        (is.na(DEPTHZONE) | !(DEPTHZONE %in% lake_depths)) &
+          !grepl("DEEP", STATNAME, ignore.case = TRUE) &
+          WSHEDPARMNAME == "TURBIDITY" ~ "turb_trib",
+        (is.na(DEPTHZONE) | !(DEPTHZONE %in% lake_depths)) &
+          !grepl("DEEP", STATNAME, ignore.case = TRUE) &
+          WSHEDPARMNAME == "CHLORIDE" ~ "chloride_trib",
+        (is.na(DEPTHZONE) | !(DEPTHZONE %in% lake_depths)) &
+          !grepl("DEEP", STATNAME, ignore.case = TRUE) &
+          WSHEDPARMNAME == "ESCHERICHIA COLI" ~ "ecoli_trib",
+        (is.na(DEPTHZONE) | !(DEPTHZONE %in% lake_depths)) &
+          !grepl("DEEP", STATNAME, ignore.case = TRUE) &
+          WSHEDPARMNAME %in%
+            c(
+              "ALKALINITY, TOTAL",
+              "ALKALINITY, CARBONATE AS CACO3",
+              "GRAN ACID NEUTRALIZING CAPACITY"
+            ) ~ "alk_trib",
 
-        # fallback to NA
+        # default
         TRUE ~ NA_character_
       ),
 
-      # adjust numeric results:
-      # - half the value if flagged as "<"
-      # - for TP, set NUMRESULT to 0.0025 if TEXTRESULT == "ND"
-      # - convert phosphorus to µg/L
+      # adjust numeric results
       NUMRESULT = case_when(
-        QUALIFIER == "<" ~ NUMRESULT / 2,
+        # for TP, set all ND data to 1/2 DL of 0.0025 mg/L
         param_depth %in%
           c("TP_epi", "TP_meta", "TP_hypo", "TP_trib") &
-          TEXTRESULT == "ND" ~ 0.0025,
+          (QUALIFIER == "<" | TEXTRESULT == "ND") ~ 0.0025,
+
+        # for other params, look to detection limit column (changes over time as param methods change)
+        # if DL is present, and result is less than or equal to DL, set result to 1/2 DL
+        # if no DL present, divide value in half
+        QUALIFIER == "<" & !is.na(DETLIM) & NUMRESULT <= DETLIM ~ DETLIM / 2,
+        QUALIFIER == "<" & is.na(DETLIM) ~ NUMRESULT / 2,
         TRUE ~ NUMRESULT
       ),
+
+      # convert TP to ug/L from mg/L
       NUMRESULT = if_else(
         param_depth %in% c("TP_epi", "TP_meta", "TP_hypo", "TP_trib"),
         NUMRESULT * 1000,
         NUMRESULT
       ),
+
+      # convert start date and extract year
       STARTDATE = as.Date(STARTDATE, format = "%d-%b-%y"),
       year = year(STARTDATE)
     ) |>
-    (\(df) df[df$RELLAKE %in% df$RELLAKE[df$year == 2025], ])()
+    # filter to only inlcude lakes that have data up to 2025
+    (\(df) df[df$WATERBODYNAME %in% df$WATERBODYNAME[df$year == 2025], ])()
 
-  # summarize and reshape the data for analysis
+  ## PIVOT WIDER FOR DATA ANALYSIS ----------------------------------------------------------
   data_wide <- data_long |>
     select(
-      RELLAKE,
+      WATERBODYNAME,
       STATIONID,
       TOWN,
       STATNAM,
@@ -201,10 +250,10 @@ data_reformat <- function(input_path) {
       DEPTHZONE
     ) |>
     filter(!is.na(param_depth)) |>
-    group_by(RELLAKE, STATIONID, TOWN, STATNAM, STARTDATE, param_depth) |>
+    group_by(WATERBODYNAME, STATIONID, TOWN, STATNAM, STARTDATE, param_depth) |>
     summarise(NUMRESULT = mean(NUMRESULT, na.rm = TRUE), .groups = "drop") |>
     pivot_wider(
-      id_cols = c(RELLAKE, STATIONID, TOWN, STATNAM, STARTDATE),
+      id_cols = c(WATERBODYNAME, STATIONID, TOWN, STATNAM, STARTDATE),
       names_from = param_depth,
       values_from = NUMRESULT
     ) |>
@@ -213,27 +262,27 @@ data_reformat <- function(input_path) {
       STARTDATE = as.Date(STARTDATE, format = "%d-%b-%y"),
       year = year(STARTDATE)
     ) |>
-    (\(df) df[df$RELLAKE %in% df$RELLAKE[df$year == 2025], ])()
+    (\(df) df[df$WATERBODYNAME %in% df$WATERBODYNAME[df$year == 2025], ])()
 
   # calculate annual median per parameter per station
   data_year_median <- data_wide |>
     pivot_longer(
-      cols = -c(RELLAKE, STATIONID, TOWN, STATNAM, STARTDATE, year),
+      cols = -c(WATERBODYNAME, STATIONID, TOWN, STATNAM, STARTDATE, year),
       names_to = "parameter",
       values_to = "value"
     ) |>
-    group_by(RELLAKE, STATIONID, TOWN, STATNAM, year, parameter) |>
+    group_by(WATERBODYNAME, STATIONID, TOWN, STATNAM, year, parameter) |>
     summarise(
       value = median(value, na.rm = TRUE),
       .groups = "drop"
     ) |>
     pivot_wider(
-      id_cols = c(RELLAKE, STATIONID, TOWN, STATNAM, year),
+      id_cols = c(WATERBODYNAME, STATIONID, TOWN, STATNAM, year),
       names_from = parameter,
       values_from = value
     )
 
-  # create a lookup table for lakes for plotting purposes
+  ## FILTER TO START YEARS FOR PLOTTING/AESTHETIC PURPOSES ONLY (SEPARATE DF) ----------------------------------------------------------
   lake_start_years <- tibble::tibble(
     STATIONID = c(
       "ANGSDND",
@@ -317,13 +366,12 @@ data_reformat <- function(input_path) {
     )
   )
 
-  # join plotting metadata and filter for years after the start year
   data_plot <- data_year_median |>
     left_join(lake_start_years, by = "STATIONID") |>
     # keep all stations; only filter by start_year if it exists
     filter(is.na(start_year) | year >= start_year)
 
-  # return both dataframes in a list
+  ## RETURN DFs ----------------------------------------------------------
   return(list(
     data_long = data_long,
     data_year_median = data_year_median,
