@@ -213,7 +213,7 @@ data_reformat <- function(input_path) {
         # for TP, set all ND data to 1/2 DL of 0.0025 mg/L
         param_depth %in%
           c("TP_epi", "TP_meta", "TP_hypo", "TP_trib") &
-          (QUALIFIER == "<" | TEXTRESULT == "ND") ~ 0.0025,
+          (QUALIFIER == "<" | TEXTRESULT == "ND" | NUMRESULT < 0.005) ~ 0.0025,
 
         # for other params, look to detection limit column (changes over time as param methods change)
         # if DL is present, and result is less than or equal to DL, set result to 1/2 DL
@@ -280,6 +280,14 @@ data_reformat <- function(input_path) {
       id_cols = c(WATERBODYNAME, STATIONID, TOWN, STATNAM, year),
       names_from = parameter,
       values_from = value
+    ) |>
+    mutate(
+      # if annual TP median is less then 5.0 ug/L (because median was calculated using above and below DL values),
+      # make the median be 2.5 ug/L
+      TP_epi = if_else(!is.na(TP_epi) & TP_epi < 5, 2.5, TP_epi),
+      TP_meta = if_else(!is.na(TP_meta) & TP_meta < 5, 2.5, TP_meta),
+      TP_hypo = if_else(!is.na(TP_hypo) & TP_hypo < 5, 2.5, TP_hypo),
+      TP_trib = if_else(!is.na(TP_trib) & TP_trib < 5, 2.5, TP_trib)
     )
 
   ## FILTER TO START YEARS FOR PLOTTING/AESTHETIC PURPOSES ONLY (SEPARATE DF) ----------------------------------------------------------
