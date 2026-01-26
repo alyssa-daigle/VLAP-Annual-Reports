@@ -10,8 +10,10 @@ run_vlap_mannkendall <- function(
     dir.create(table_path, recursive = TRUE)
   }
 
+  # get a list of all unique stations
   stations <- sort(unique(data_year_median$STATIONID))
 
+  # keep only VLAP parameters
   keep_params <- c(
     "SPCD_epi",
     "CHL_comp",
@@ -21,6 +23,7 @@ run_vlap_mannkendall <- function(
     "TP_epi"
   )
 
+  # filter the DF to the necessary params only
   data_year_median <- data_year_median |>
     select(STATIONID, year, all_of(keep_params))
 
@@ -31,6 +34,7 @@ run_vlap_mannkendall <- function(
 
   results_list <- list()
 
+  # loop through each station to perform MK per parameter per station
   for (st in stations) {
     station_data <- data_year_median |> filter(STATIONID == st)
 
@@ -38,12 +42,13 @@ run_vlap_mannkendall <- function(
       # Get all years present for this station, regardless of NA values
       yrs <- sort(unique(station_data$year))
 
+      # check if there are at least 10 years of data
       if (length(yrs) < 10) {
         message(st, " ", param, " skipped: <10 total years")
         next
       }
 
-      # consecutive-year check (ignore NA in param values)
+      # make sure there are at least 10 consecutive years of data
       consec <- rle(diff(yrs) == 1)
       max_consec <- if (any(consec$values)) {
         max(consec$lengths[consec$values]) + 1
@@ -77,7 +82,7 @@ run_vlap_mannkendall <- function(
       mk <- mk.test(temp)
       sen <- sens.slope(temp)
 
-      # classify trend
+      # classify trend, parameter specific
       significant <- !is.na(mk$p.value) & mk$p.value < 0.05
       trend_cat <- case_when(
         !significant ~ "Stable",
@@ -96,6 +101,7 @@ run_vlap_mannkendall <- function(
         TRUE ~ "Stable"
       )
 
+      # summerize results in a table
       results_list[[length(results_list) + 1]] <- tibble(
         STATIONID = st,
         parameter = param,
@@ -120,6 +126,7 @@ run_vlap_mannkendall <- function(
       write_csv(df, file.path(mk_path, paste0("MannKendall_", st, ".csv")))
     })
 
+  # make a tidy trend summary table for each station
   mk_summary |>
     mutate(
       PARAMETER = recode(

@@ -66,6 +66,7 @@ source(file.path(project_path, "R", "06_plankton.R"))
 source(file.path(project_path, "R", "07_CYA_table.R"))
 source(file.path(project_path, "R", "08_report_gen.R"))
 
+# old scripts, not currently in use:
 # source(file.path(project_path, "R", "01_DBConnect.R"))
 # source(file.path(project_path, "R", "03_mannkendallNADA.R"))
 # source(file.path(project_path, "R", "chloride.R"))
@@ -75,7 +76,7 @@ source(file.path(project_path, "R", "08_report_gen.R"))
 # ========================================
 # Database connection to pull newest data
 # ========================================
-# uncomment when new data need to be pulled from EMD
+# uncomment if wanting to use DB connection instead of SQL data pull
 # message("Opening DB connection...")
 # db_res <- DBConnect(
 #   dsn = "DESPRD",
@@ -91,23 +92,31 @@ source(file.path(project_path, "R", "08_report_gen.R"))
 message("Reformatting data...")
 processed <- data_reformat(input_path)
 
+#long format data, used in 07_CYA_table.R
 data_long <- processed$data_long
-data_plot <- processed$data_plot
+
+# wide format data, not currently used in any scripts but nice to have
+data_wide <- processed$data_wide
+
+# wide format data with annual medians, used in 02_mannkendall.R
 data_year_median <- processed$data_year_median
+
+# data filtered to cpecific start years, used only for plotting due to aesthetics
+data_plot <- processed$data_plot
 
 # ==========================
 # Mann-Kendall and Sen's Slope analysis
 # ==========================
 message("Running Mann-Kendall...")
 run_vlap_mannkendall(data_year_median, mk_path, table_path)
-#run_vlap_mannkendallNADA2(REG_NADA, mk_path, table_path)
+message("Dont running Mann-Kendall.")
 
 # ==========================
 # Plot generation
 # ==========================
 
 # imports Calibri font, need to run only once
-#font_import(pattern = "calibri", prompt = FALSE)
+# font_import(pattern = "calibri", prompt = FALSE)
 
 message("Generating plots...")
 make_chl_tp_secchi(

@@ -23,7 +23,7 @@ data_reformat <- function(input_path) {
     "TURBIDITY"
   )
 
-  # map old station IDs to standardized IDs and names
+  # map lakes with old station IDs to standardized IDs and names
   station_map <- list(
     STATIONID = c(
       "ROCHLSVLAPD",
@@ -53,6 +53,14 @@ data_reformat <- function(input_path) {
 
   # Define depth-specific parameter codes
   depth_params <- list(
+    alk = c(
+      "EPILIMNION" = "alk_epi",
+      "METALIMNION" = "alk_meta",
+      "HYPOLIMNION" = "alk_hypo"
+    ),
+    chl = c(
+      "COMPOSITE" = "CHL_comp"
+    ),
     SPCD = c(
       "EPILIMNION" = "SPCD_epi",
       "METALIMNION" = "SPCD_meta",
@@ -144,34 +152,46 @@ data_reformat <- function(input_path) {
 
       # assign param_depth for each measurement
       param_depth = case_when(
-        # chlorophyll
-        WSHEDPARMNAME ==
-          "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" ~ "CHL_comp",
+        # Chlorophyll – composite only
+        WSHEDPARMNAME == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" &
+          DEPTHZONE == "COMPOSITE" ~ depth_params$chl["COMPOSITE"],
 
-        # alkalinity
-        grepl("ALKALINITY", WSHEDPARMNAME, ignore.case = TRUE) |
-          WSHEDPARMNAME == "GRAN ACID NEUTRALIZING CAPACITY" ~ "alk_epi",
+        # Alkalinity – depth-specific (all accepted method names)
+        (grepl("ALKALINITY", WSHEDPARMNAME, ignore.case = TRUE) |
+          WSHEDPARMNAME == "GRAN ACID NEUTRALIZING CAPACITY") &
+          DEPTHZONE %in% names(depth_params$alk) ~
+          depth_params$alk[DEPTHZONE],
 
-        # secchi
+        # Secchi
         WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" &
           ANALYTICALMETHOD == "SECCHI-SCOPE" ~ "SECCHI",
         WSHEDPARMNAME == "SECCHI DISK TRANSPARENCY" &
           ANALYTICALMETHOD != "SECCHI-SCOPE" ~ "SECCHI_NVS",
 
-        # lake parameters with depth zones
+        # Depth-resolved lake parameters
         WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" &
-          !is.na(DEPTHZONE) ~ depth_params$SPCD[DEPTHZONE],
-        WSHEDPARMNAME == "PH" & !is.na(DEPTHZONE) ~ depth_params$PH[DEPTHZONE],
+          DEPTHZONE %in% names(depth_params$SPCD) ~
+          depth_params$SPCD[DEPTHZONE],
+
+        WSHEDPARMNAME == "PH" &
+          DEPTHZONE %in% names(depth_params$PH) ~
+          depth_params$PH[DEPTHZONE],
+
         WSHEDPARMNAME == "PHOSPHORUS AS P" &
-          !is.na(DEPTHZONE) ~ depth_params$TP[DEPTHZONE],
+          DEPTHZONE %in% names(depth_params$TP) ~
+          depth_params$TP[DEPTHZONE],
+
         WSHEDPARMNAME == "APPARENT COLOR" &
-          !is.na(DEPTHZONE) ~ depth_params$color[DEPTHZONE],
-        WSHEDPARMNAME == "TURBIDITY" & !is.na(DEPTHZONE) ~ depth_params$turb[
-          DEPTHZONE
-        ],
-        WSHEDPARMNAME == "CHLORIDE" & !is.na(DEPTHZONE) ~ depth_params$chloride[
-          DEPTHZONE
-        ],
+          DEPTHZONE %in% names(depth_params$color) ~
+          depth_params$color[DEPTHZONE],
+
+        WSHEDPARMNAME == "TURBIDITY" &
+          DEPTHZONE %in% names(depth_params$turb) ~
+          depth_params$turb[DEPTHZONE],
+
+        WSHEDPARMNAME == "CHLORIDE" &
+          DEPTHZONE %in% names(depth_params$chloride) ~
+          depth_params$chloride[DEPTHZONE],
 
         # tributary parameters (DEPTHZONE missing or not a lake zone)
         (is.na(DEPTHZONE) | !(DEPTHZONE %in% lake_depths)) &
@@ -382,6 +402,7 @@ data_reformat <- function(input_path) {
   ## RETURN DFs ----------------------------------------------------------
   return(list(
     data_long = data_long,
+    data_wide = data_wide,
     data_year_median = data_year_median,
     data_plot = data_plot
   ))

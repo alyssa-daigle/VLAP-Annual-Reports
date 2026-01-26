@@ -1,36 +1,55 @@
 make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
+  # Create output directory if it does not already exist
   if (!dir.exists(output_path)) {
     dir.create(output_path, recursive = TRUE)
   }
 
-  station_list <- data_plot |> distinct(STATIONID) |> pull(STATIONID)
+  # Get list of unique stations to process
+  station_list <- data_plot |>
+    distinct(STATIONID) |>
+    pull(STATIONID)
 
+  # Loop through each station independently
   for (station_id in station_list) {
     message("Processing station: ", station_id)
 
+    # Subset data to current station
+    # Keep rows with at least one plotting variable present
+    # Ensure chronological ordering
     df_plot <- data_plot |>
       filter(STATIONID == station_id) |>
       filter(!is.na(CHL_comp) | !is.na(TP_epi) | !is.na(SECCHI_NVS)) |>
       arrange(year)
 
+    # Skip station if no data or if 2025 is missing
     if (nrow(df_plot) == 0 || !any(df_plot$year == 2025)) {
       warning("No data or missing 2025 for ", station_id, ", skipping...")
       next
     }
 
+    # Generate a continuous sequence of years for plotting
+    # Missing years are filled with NA values for plotting gaps
     all_years <- min(df_plot$year):max(df_plot$year)
+
     df_plot <- df_plot |>
       complete(
         year = all_years,
-        fill = list(TP_epi = NA, CHL_comp = NA, SECCHI_NVS = NA)
+        fill = list(
+          TP_epi = NA,
+          CHL_comp = NA,
+          SECCHI_NVS = NA
+        )
       ) |>
       mutate(year = as.numeric(year)) |>
       arrange(year)
 
+    # Define y-axis limits with padding
+    # Left axis is shared by TP and chlorophyll
+    # Right axis is for Secchi transparency
     y_max_left <- max(c(df_plot$TP_epi, df_plot$CHL_comp), na.rm = TRUE) * 1.5
     y_max_right <- max(df_plot$SECCHI_NVS, na.rm = TRUE) * 1.5
 
-    # Skip station if there are no finite plotting values
+    # Skip station if nothing can be plotted safely
     if (!is.finite(y_max_left) || !is.finite(y_max_right)) {
       warning(
         "Skipping station ",
@@ -40,25 +59,30 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       next
     }
 
+    # Look for Mann Kendall results for this station
     mk_file <- paste0("mannkendall/MannKendall_", station_id, ".csv")
     has_MK <- file.exists(mk_file)
     MK_table <- if (has_MK) read.csv(mk_file) else NULL
 
+    # Define output image path
     temp_path <- file.path(
       output_path,
       paste0(station_id, "_chl_tp_secchi.png")
     )
 
-    # --- Create plot ---
+    # Begin PNG device
     png(temp_path, width = 8, height = 4, units = "in", res = 200)
-    par(family = "Calibri")
-    par(mar = c(3.8, 4, 4, 3.8)) # reduce margins for more plotting area
 
-    # Base plot x-axis limits (no automatic padding)
+    # Set font and margins
+    par(family = "Calibri")
+    par(mar = c(3.8, 4, 4, 3.8))
+
+    # Define x-axis limits explicitly to avoid padding
     n_years <- length(unique(df_plot$year))
     x_min <- min(df_plot$year)
     x_max <- max(df_plot$year)
 
+    # Initialize empty plot for left axis variables
     plot(
       df_plot$year,
       df_plot$TP_epi,
@@ -80,7 +104,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       cex.main = 1.05
     )
 
-    # Left y-axis
+    # Left y-axis for TP and chlorophyll
     axis(
       side = 2,
       at = seq(0, ceiling(y_max_left / 5) * 5, by = 5),
@@ -96,7 +120,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       font = 2
     )
 
-    # X-axis
+    # Custom x-axis with rotated year labels
     axis(side = 1, at = df_plot$year, labels = FALSE)
     y_pos <- par("usr")[3] - 0.06 * diff(par("usr")[3:4])
     text(
@@ -111,7 +135,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
     )
     mtext("Year", side = 1, line = 2, cex = 0.85, font = 2)
 
-    # secchi bars
+    # Overlay plot for Secchi bars using reversed right y-axis
     par(new = TRUE)
     plot(
       df_plot$year,
@@ -124,9 +148,10 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       yaxs = "i"
     )
 
-    # Dynamic bar width: narrower if fewer than 10 years
+    # Adjust bar width based on number of years
     bar_width <- if (n_years < 10) 0.18 else 0.28
 
+    # Draw Secchi bars
     with(
       df_plot,
       rect(
@@ -139,6 +164,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       )
     )
 
+    # Right y-axis for transparency
     axis(
       side = 4,
       at = seq(0, ceiling(y_max_right), by = 1),
@@ -156,7 +182,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       las = 3
     )
 
-    # Foreground TP & Chl-a
+    # Overlay TP and chlorophyll time series
     par(new = TRUE)
     plot(
       df_plot$year,
@@ -182,18 +208,24 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       lwd = 1.75
     )
 
-    # MK trend lines
+    # Add Mann Kendall trend lines if available
     if (has_MK) {
       add_mk_line <- function(var, col) {
-        slope <- MK_table |> filter(parameter == var) |> pull(sen_slope)
+        slope <- MK_table |>
+          filter(parameter == var) |>
+          pull(sen_slope)
+
         if (length(slope) > 0 && !is.na(slope)) {
           df_var <- df_plot |> filter(!is.na(.data[[var]]))
+
           if (nrow(df_var) >= 2) {
             med_year <- median(df_var$year)
             med_val <- median(df_var[[var]])
             intercept <- med_val - slope * med_year
+
             x_vals <- range(df_var$year, na.rm = TRUE)
             y_vals <- intercept + slope * x_vals
+
             if (var == "SECCHI_NVS") {
               par(new = TRUE)
               plot(
@@ -215,15 +247,15 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
           }
         }
       }
+
       add_mk_line("TP_epi", "red4")
       add_mk_line("CHL_comp", "green4")
       add_mk_line("SECCHI_NVS", "blue4")
     }
 
-    # --- Dynamic legend ---
+    # Add legends
     par(xpd = NA)
 
-    # First legend: points
     legend(
       x = "top",
       inset = -0.18,
@@ -244,17 +276,17 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       text.font = 2
     )
 
-    # Second legend: trends
+    # Build trend legend dynamically
     trend_items <- c()
     col_items <- c()
     lty_items <- c()
     lwd_items <- c()
 
     if (has_MK) {
-      # Transparency trend
       slope_sec <- MK_table |>
         filter(parameter == "SECCHI_NVS") |>
         pull(sen_slope)
+
       if (length(slope_sec) > 0 && !is.na(slope_sec)) {
         trend_items <- c(trend_items, "Transparency Trend")
         col_items <- c(col_items, "blue4")
@@ -262,10 +294,10 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
         lwd_items <- c(lwd_items, 1.75)
       }
 
-      # Chl trend
       slope_chl <- MK_table |>
         filter(parameter == "CHL_comp") |>
         pull(sen_slope)
+
       if (length(slope_chl) > 0 && !is.na(slope_chl)) {
         trend_items <- c(trend_items, "Chlorophyll-a Trend")
         col_items <- c(col_items, "green4")
@@ -273,8 +305,10 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
         lwd_items <- c(lwd_items, 1.75)
       }
 
-      # TP trend
-      slope_tp <- MK_table |> filter(parameter == "TP_epi") |> pull(sen_slope)
+      slope_tp <- MK_table |>
+        filter(parameter == "TP_epi") |>
+        pull(sen_slope)
+
       if (length(slope_tp) > 0 && !is.na(slope_tp)) {
         trend_items <- c(trend_items, "Total Phosphorus Trend")
         col_items <- c(col_items, "red4")
@@ -286,7 +320,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
     if (length(trend_items) > 0) {
       legend(
         x = "top",
-        inset = c(-0.18, -0.12), # adjust vertical spacing below first legend
+        inset = c(-0.18, -0.12),
         legend = trend_items,
         col = col_items,
         lty = lty_items,
@@ -298,9 +332,10 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       )
     }
 
+    # Close graphics device
     dev.off()
 
-    # Add black border via magick
+    # Add black border to finished image
     img <- magick::image_read(temp_path)
     img_bordered <- magick::image_border(
       img,
