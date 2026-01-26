@@ -10,15 +10,14 @@ This repository contains scripts used to streamline the Annual Report workflow b
 
 The individual scripts called by **`00_make_all.R`** include:
 
--   **`01_DBconnect.R`**: Connects to NHDES EMD to pull recent data. Not needed if obtaining data directly from SQL Developer. 
--   **`02_data_reformat.R`**: Reformats data to rename columns and make data handling easier.
--   **`03_mannkendall.R`**: Runs Mann-Kendall analysis to determine whether significant parameter trends are increasing, decreasing, or stable. Uses R package trend.
--   **`04_chl_tp_secchi.R`**: Contains the function to generate historical Chlorophyll-a, Total Phosphorus, and Secchi Disk transparency plots for each station. Annual medians plotted with Sen's Slope from MK test.
--   **`05_ph_cond.R`**: Contains the function to generate historical pH and Conductivity plots for each station. Annual medians plotted with Sen's Slope from MK test.
--   **`06_temp_DO.R`**: Contains the function to generate seasonal Temperature/Dissolved Oxygen profile plots for each station (currently requires master Excel data sheet).
--   **`07_plankton.R`**: Contains the function to generate seasonal Phytoplankton Population plots for each station (currently requires master Excel data sheet).
--   **`08_CYA_table.R`**: Contains the function to generate Current Year Average tables for each lake.
--   **`09_report_gen.R`**: Contains the function to generate a report according to **`report_template.Rmd`** for each sampling station by looping through a lake map. Uses **`template.docx`** as a template Word document, including NHDES headings and contact info. A .docx is generated for each station that pulls together all plots and tables. Leaves room to manually enter observations and recommendations (typically lake-specific).
+-   **`01_data_reformat.R`**: Reformats data to rename columns and make data handling easier.
+-   **`02_mannkendall.R`**: Runs Mann-Kendall analysis to determine whether significant parameter trends are increasing, decreasing, or stable. Uses R package trend.
+-   **`03_chl_tp_secchi.R`**: Contains the function to generate historical Chlorophyll-a, Total Phosphorus, and Secchi Disk transparency plots for each station. Annual medians plotted with Sen's Slope from MK test.
+-   **`04_ph_cond.R`**: Contains the function to generate historical pH and Conductivity plots for each station. Annual medians plotted with Sen's Slope from MK test.
+-   **`05_temp_DO.R`**: Contains the function to generate seasonal Temperature/Dissolved Oxygen profile plots for each station (currently requires master Excel data sheet).
+-   **`06_plankton.R`**: Contains the function to generate seasonal Phytoplankton Population plots for each station (currently requires master Excel data sheet).
+-   **`07_CYA_table.R`**: Contains the function to generate Current Year Average tables for each lake.
+-   **`08_report_gen.R`**: Contains the function to generate a report according to **`report_template.Rmd`** for each sampling station by looping through a lake map. Uses **`template.docx`** as a template Word document, including NHDES headings and contact info. A .docx is generated for each station that pulls together all plots and tables. Leaves room to manually enter observations and recommendations (typically lake-specific).
 
 ## Themes
 
@@ -30,6 +29,6 @@ Note that the master data file for all chemical data is stored locally due to it
 
 -   **`LAKEMAP.csv`**: provides a comprehensive list of all lakes and their stations participating in VLAP.
 -   **`lookup.xlsx`**: acts as a map for lakes that have multiple deep spots and tributaries associated with different deep spots.
--   **`master-DO-2025.xlsm`**: copy of the master DO file; needs to be re-copied into this repo annually.
+-   **`master-DO-2025.xlsm`**: copy of the master DO file; needs to be re-copied into this repo annually. Eventually can be a SQL pull. 
 -   **`Historical_Phytoplankton_Data_Thru2025.xlsm`**: copy of the master phytoplankton file; needs to be re-copied into this repo annually.
 
