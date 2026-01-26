@@ -1,7 +1,7 @@
 PARAMETER,TREND
-Conductivity,Improving
-Chlorophyll-a,Worsening
-pH (epilimnion),Improving
+Conductivity (Epilimnion),Improving
+Chlorophyll-a (Composite),Worsening
+pH (Epilimnion),Improving
 Transparency,Worsening
-Phosphorus (hypolimnion),Stable
-Phosphorus (epilimnion),Stable
+Phosphorus (Epilimnion),Stable
+Phosphorus (Hypolimnion),Stable

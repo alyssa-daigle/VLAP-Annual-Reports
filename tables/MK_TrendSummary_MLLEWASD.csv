@@ -1,6 +1,6 @@
 PARAMETER,TREND
-Conductivity,Stable
-Chlorophyll-a,Stable
-pH (epilimnion),Stable
+Conductivity (Epilimnion),Stable
+Chlorophyll-a (Composite),Stable
+pH (Epilimnion),Stable
 Transparency,Stable
-Phosphorus (epilimnion),Stable
+Phosphorus (Epilimnion),Stable

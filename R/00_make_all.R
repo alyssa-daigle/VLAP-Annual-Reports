@@ -109,7 +109,7 @@ data_plot <- processed$data_plot
 # ==========================
 message("Running Mann-Kendall...")
 run_vlap_mannkendall(data_year_median, mk_path, table_path)
-message("Dont running Mann-Kendall.")
+message("Done running Mann-Kendall.")
 
 # ==========================
 # Plot generation

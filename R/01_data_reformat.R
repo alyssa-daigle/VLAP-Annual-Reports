@@ -23,6 +23,21 @@ data_reformat <- function(input_path) {
     "TURBIDITY"
   )
 
+  # stations where CHL is composite but all other params are epi
+  epi_override_stations <- c(
+    "SUNSUN010",
+    "SUNSUN020",
+    "SUNSUN030",
+    "SUNSUN040",
+    "SUNSUN050",
+    "SUNSUN060",
+    "SUNSUN070",
+    "SUNSUN080",
+    "SUNSUN090",
+    "SUNSUN1001",
+    "SUNSUN110"
+  )
+
   # map lakes with old station IDs to standardized IDs and names
   station_map <- list(
     STATIONID = c(
@@ -93,16 +108,13 @@ data_reformat <- function(input_path) {
     )
   )
 
-  # define lake depth zones
   lake_depths <- c("EPILIMNION", "METALIMNION", "HYPOLIMNION", "COMPOSITE")
 
   ## DATA CLEANING ----------------------------------------------------------
 
-  # select only active, valid, and final data
   data <- data |>
     filter(ACTIVE == "Y", VALID != "N", RESULTSTATUS == "FINAL")
 
-  # clean and filter the raw data
   data_long <- data |>
     select(
       STATIONID,
@@ -123,9 +135,6 @@ data_reformat <- function(input_path) {
       ACTCMTS,
       RESULTCMT
     ) |>
-
-    # keep only VLAP params
-    # not using data from -GEN stations
     filter(
       WSHEDPARMNAME %in% params_keep,
       !str_detect(STATIONID, "-GEN")
@@ -140,23 +149,37 @@ data_reformat <- function(input_path) {
         str_trim(toupper(STATNAME))
       ),
 
-      # convert blank DEPTHZONE to NA
+      # clean depth zones
       DEPTHZONE = na_if(trimws(DEPTHZONE), ""),
-
-      # map "UPPER" and "LOWER" to lake depth zones
       DEPTHZONE = case_when(
         DEPTHZONE == "UPPER" ~ "EPILIMNION",
         DEPTHZONE == "LOWER" ~ "HYPOLIMNION",
         TRUE ~ DEPTHZONE
       ),
 
-      # assign param_depth for each measurement
+      # ---- SUNSUN OVERRIDE LOGIC ------------------------------------------
+      DEPTHZONE = case_when(
+        STATIONID %in%
+          epi_override_stations &
+          WSHEDPARMNAME == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" ~
+          "COMPOSITE",
+
+        STATIONID %in%
+          epi_override_stations &
+          WSHEDPARMNAME != "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" ~
+          "EPILIMNION",
+
+        TRUE ~ DEPTHZONE
+      ),
+      # --------------------------------------------------------------------
+
+      # assign param_depth
       param_depth = case_when(
-        # Chlorophyll – composite only
+        # Chlorophyll
         WSHEDPARMNAME == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" &
           DEPTHZONE == "COMPOSITE" ~ depth_params$chl["COMPOSITE"],
 
-        # Alkalinity – depth-specific (all accepted method names)
+        # Alkalinity
         (grepl("ALKALINITY", WSHEDPARMNAME, ignore.case = TRUE) |
           WSHEDPARMNAME == "GRAN ACID NEUTRALIZING CAPACITY") &
           DEPTHZONE %in% names(depth_params$alk) ~
@@ -170,30 +193,27 @@ data_reformat <- function(input_path) {
 
         # Depth-resolved lake parameters
         WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" &
-          DEPTHZONE %in% names(depth_params$SPCD) ~
-          depth_params$SPCD[DEPTHZONE],
-
+          DEPTHZONE %in% names(depth_params$SPCD) ~ depth_params$SPCD[
+          DEPTHZONE
+        ],
         WSHEDPARMNAME == "PH" &
-          DEPTHZONE %in% names(depth_params$PH) ~
-          depth_params$PH[DEPTHZONE],
-
+          DEPTHZONE %in% names(depth_params$PH) ~ depth_params$PH[DEPTHZONE],
         WSHEDPARMNAME == "PHOSPHORUS AS P" &
-          DEPTHZONE %in% names(depth_params$TP) ~
-          depth_params$TP[DEPTHZONE],
-
+          DEPTHZONE %in% names(depth_params$TP) ~ depth_params$TP[DEPTHZONE],
         WSHEDPARMNAME == "APPARENT COLOR" &
-          DEPTHZONE %in% names(depth_params$color) ~
-          depth_params$color[DEPTHZONE],
-
+          DEPTHZONE %in% names(depth_params$color) ~ depth_params$color[
+          DEPTHZONE
+        ],
         WSHEDPARMNAME == "TURBIDITY" &
-          DEPTHZONE %in% names(depth_params$turb) ~
-          depth_params$turb[DEPTHZONE],
-
+          DEPTHZONE %in% names(depth_params$turb) ~ depth_params$turb[
+          DEPTHZONE
+        ],
         WSHEDPARMNAME == "CHLORIDE" &
-          DEPTHZONE %in% names(depth_params$chloride) ~
-          depth_params$chloride[DEPTHZONE],
+          DEPTHZONE %in% names(depth_params$chloride) ~ depth_params$chloride[
+          DEPTHZONE
+        ],
 
-        # tributary parameters (DEPTHZONE missing or not a lake zone)
+        # Tributaries
         (is.na(DEPTHZONE) | !(DEPTHZONE %in% lake_depths)) &
           !grepl("DEEP", STATNAME, ignore.case = TRUE) &
           WSHEDPARMNAME == "SPECIFIC CONDUCTANCE" ~ "SPCD_trib",
@@ -224,37 +244,28 @@ data_reformat <- function(input_path) {
               "GRAN ACID NEUTRALIZING CAPACITY"
             ) ~ "alk_trib",
 
-        # default
         TRUE ~ NA_character_
       ),
 
-      # adjust numeric results
+      # numeric handling (unchanged)
       NUMRESULT = case_when(
-        # for TP, set all ND data to 1/2 DL of 0.0025 mg/L
         param_depth %in%
           c("TP_epi", "TP_meta", "TP_hypo", "TP_trib") &
           (QUALIFIER == "<" | TEXTRESULT == "ND" | NUMRESULT < 0.005) ~ 0.0025,
-
-        # for other params, look to detection limit column (changes over time as param methods change)
-        # if DL is present, and result is less than or equal to DL, set result to 1/2 DL
-        # if no DL present, divide value in half
         QUALIFIER == "<" & !is.na(DETLIM) & NUMRESULT <= DETLIM ~ DETLIM / 2,
         QUALIFIER == "<" & is.na(DETLIM) ~ NUMRESULT / 2,
         TRUE ~ NUMRESULT
       ),
 
-      # convert TP to ug/L from mg/L
       NUMRESULT = if_else(
         param_depth %in% c("TP_epi", "TP_meta", "TP_hypo", "TP_trib"),
         NUMRESULT * 1000,
         NUMRESULT
       ),
 
-      # convert start date and extract year
       STARTDATE = as.Date(STARTDATE, format = "%d-%b-%y"),
-      year = year(STARTDATE)
+      year = lubridate::year(STARTDATE)
     ) |>
-    # filter to only inlcude lakes that have data up to 2025
     (\(df) df[df$WATERBODYNAME %in% df$WATERBODYNAME[df$year == 2025], ])()
 
   ## PIVOT WIDER FOR DATA ANALYSIS ----------------------------------------------------------

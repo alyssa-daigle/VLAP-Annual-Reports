@@ -10,52 +10,66 @@ run_vlap_mannkendall <- function(
     dir.create(table_path, recursive = TRUE)
   }
 
-  # get a list of all unique stations
-  stations <- sort(unique(data_year_median$STATIONID))
+  # define SUNSUN stations
+  sunsun_stations <- c(
+    "SUNSUN010",
+    "SUNSUN020",
+    "SUNSUN030",
+    "SUNSUN040",
+    "SUNSUN050",
+    "SUNSUN060",
+    "SUNSUN070",
+    "SUNSUN080",
+    "SUNSUN090",
+    "SUNSUN1001",
+    "SUNSUN110"
+  )
 
   # keep only VLAP parameters
   keep_params <- c(
     "SPCD_epi",
     "CHL_comp",
     "PH_epi",
+    "SECCHI",
     "SECCHI_NVS",
-    "TP_hypo",
-    "TP_epi"
+    "TP_epi",
+    "TP_hypo"
   )
 
   # filter the DF to the necessary params only
   data_year_median <- data_year_median |>
     select(STATIONID, year, all_of(keep_params))
 
-  parameters <- setdiff(
-    names(data_year_median),
-    c("STATIONID", "year")
-  )
-
   results_list <- list()
+  stations <- sort(unique(data_year_median$STATIONID))
 
-  # loop through each station to perform MK per parameter per station
   for (st in stations) {
     station_data <- data_year_median |> filter(STATIONID == st)
 
-    for (param in parameters) {
-      # Get all years present for this station, regardless of NA values
+    # determine which transparency parameter to use
+    station_params <- setdiff(names(station_data), c("STATIONID", "year"))
+    if (st %in% sunsun_stations) {
+      # only SECCHI for SUNSUN
+      station_params <- station_params[station_params != "SECCHI_NVS"]
+    } else {
+      # only SECCHI_NVS for all other stations
+      station_params <- station_params[station_params != "SECCHI"]
+    }
+
+    for (param in station_params) {
       yrs <- sort(unique(station_data$year))
 
-      # check if there are at least 10 years of data
       if (length(yrs) < 10) {
         message(st, " ", param, " skipped: <10 total years")
         next
       }
 
-      # make sure there are at least 10 consecutive years of data
       consec <- rle(diff(yrs) == 1)
       max_consec <- if (any(consec$values)) {
         max(consec$lengths[consec$values]) + 1
       } else {
         1
       }
-
       if (max_consec < 10) {
         message(
           st,
@@ -68,13 +82,10 @@ run_vlap_mannkendall <- function(
         next
       }
 
-      # Pass **all rows** (with NAs) to the MK test, drop NA inside the test
       param_data <- station_data |> select(year, all_of(param)) |> arrange(year)
-      temp <- param_data[[param]]
-      temp <- temp[!is.na(temp)] # drop NA only for the MK test
+      temp <- param_data[[param]] |> na.omit()
 
       if (length(temp) < 5) {
-        # MK needs at least 5 points
         message(st, " ", param, " skipped: <5 non-NA values")
         next
       }
@@ -82,7 +93,6 @@ run_vlap_mannkendall <- function(
       mk <- mk.test(temp)
       sen <- sens.slope(temp)
 
-      # classify trend, parameter specific
       significant <- !is.na(mk$p.value) & mk$p.value < 0.05
       trend_cat <- case_when(
         !significant ~ "Stable",
@@ -93,53 +103,56 @@ run_vlap_mannkendall <- function(
           c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
           mk$estimates[["tau"]] < 0 ~ "Improving",
         param %in%
-          c("PH_epi", "SECCHI_NVS") &
+          c("PH_epi", "SECCHI", "SECCHI_NVS") &
           mk$estimates[["tau"]] > 0 ~ "Improving",
         param %in%
-          c("PH_epi", "SECCHI_NVS") &
+          c("PH_epi", "SECCHI", "SECCHI_NVS") &
           mk$estimates[["tau"]] < 0 ~ "Worsening",
         TRUE ~ "Stable"
       )
 
-      # summerize results in a table
       results_list[[length(results_list) + 1]] <- tibble(
         STATIONID = st,
-        parameter = param,
+        PARAMETER = param,
         n = length(temp),
         tau = mk$estimates[["tau"]],
         mk_p = mk$p.value,
         sen_slope = sen$estimates[["Sen's slope"]],
         sen_ci_lower = sen$conf.int[1],
         sen_ci_upper = sen$conf.int[2],
-        trend = trend_cat
+        TREND = trend_cat
       )
     }
   }
 
   mk_summary <- bind_rows(results_list)
 
-  mk_summary |>
-    group_by(STATIONID) |>
-    group_split() |>
-    walk(function(df) {
-      st <- unique(df$STATIONID)
-      write_csv(df, file.path(mk_path, paste0("MannKendall_", st, ".csv")))
-    })
-
-  # make a tidy trend summary table for each station
-  mk_summary |>
+  # Recode parameter names
+  mk_summary <- mk_summary |>
     mutate(
-      PARAMETER = recode(
-        parameter,
-        "SPCD_epi" = "Conductivity",
-        "CHL_comp" = "Chlorophyll-a",
-        "PH_epi" = "pH (epilimnion)",
-        "SECCHI_NVS" = "Transparency",
-        "TP_hypo" = "Phosphorus (hypolimnion)",
-        "TP_epi" = "Phosphorus (epilimnion)"
+      PARAMETER = case_when(
+        STATIONID %in% sunsun_stations ~ recode(
+          PARAMETER,
+          "SPCD_epi" = "Conductivity",
+          "CHL_comp" = "Chlorophyll-a",
+          "PH_epi" = "pH",
+          "SECCHI" = "Transparency",
+          "TP_epi" = "Phosphorus"
+        ),
+        TRUE ~ recode(
+          PARAMETER,
+          "SPCD_epi" = "Conductivity (Epilimnion)",
+          "CHL_comp" = "Chlorophyll-a (Composite)",
+          "PH_epi" = "pH (Epilimnion)",
+          "SECCHI_NVS" = "Transparency",
+          "TP_epi" = "Phosphorus (Epilimnion)",
+          "TP_hypo" = "Phosphorus (Hypolimnion)"
+        )
       )
-    ) |>
-    select(STATIONID, PARAMETER, TREND = trend) |>
+    )
+
+  # Save individual station tables
+  mk_summary |>
     group_by(STATIONID) |>
     group_split() |>
     walk(function(df) {
@@ -149,6 +162,17 @@ run_vlap_mannkendall <- function(
         file.path(table_path, paste0("MK_TrendSummary_", st, ".csv"))
       )
     })
+
+  # Combined SUNSUN table
+  mk_summary_sunsun <- mk_summary |>
+    filter(STATIONID %in% sunsun_stations) |>
+    select(STATIONID, PARAMETER, TREND) |>
+    arrange(STATIONID, PARAMETER)
+
+  write_csv(
+    mk_summary_sunsun,
+    file.path(table_path, "MK_TrendSummary_SUNSUN_Combined.csv")
+  )
 
   invisible(mk_summary)
 }
