@@ -10,7 +10,7 @@ run_vlap_mannkendall <- function(
     dir.create(table_path, recursive = TRUE)
   }
 
-  # define SUNSUN stations
+  # Define SUNSUN stations
   sunsun_stations <- c(
     "SUNSUN010",
     "SUNSUN020",
@@ -22,10 +22,14 @@ run_vlap_mannkendall <- function(
     "SUNSUN080",
     "SUNSUN090",
     "SUNSUN1001",
-    "SUNSUN110"
+    "SUNSUN110",
+    "SUNSUN1D",
+    "SUNSUN220D",
+    "SUNSUN2D",
+    "SUNSUN3D"
   )
 
-  # keep only VLAP parameters
+  # Keep only VLAP parameters
   keep_params <- c(
     "SPCD_epi",
     "CHL_comp",
@@ -36,9 +40,9 @@ run_vlap_mannkendall <- function(
     "TP_hypo"
   )
 
-  # filter the DF to the necessary params only
+  # Filter to necessary parameters
   data_year_median <- data_year_median |>
-    select(STATIONID, year, all_of(keep_params))
+    select(STATIONID, STATNAM, year, all_of(keep_params))
 
   results_list <- list()
   stations <- sort(unique(data_year_median$STATIONID))
@@ -46,19 +50,32 @@ run_vlap_mannkendall <- function(
   for (st in stations) {
     station_data <- data_year_median |> filter(STATIONID == st)
 
-    # determine which transparency parameter to use
-    station_params <- setdiff(names(station_data), c("STATIONID", "year"))
+    # Only process if STATNAM contains "DEEP" or station is SUNSUN
+    if (
+      !(st %in%
+        sunsun_stations ||
+        any(grepl("DEEP", station_data$STATNAM, ignore.case = TRUE)))
+    ) {
+      message("Skipping station ", st, ": not DEEP and not SUNSUN")
+      next
+    }
+
+    # Determine which transparency parameter to use
+    station_params <- setdiff(
+      names(station_data),
+      c("STATIONID", "STATNAM", "year")
+    )
     if (st %in% sunsun_stations) {
-      # only SECCHI for SUNSUN
       station_params <- station_params[station_params != "SECCHI_NVS"]
     } else {
-      # only SECCHI_NVS for all other stations
       station_params <- station_params[station_params != "SECCHI"]
     }
 
+    # Collect MK results for this station
+    station_results <- list()
+
     for (param in station_params) {
       yrs <- sort(unique(station_data$year))
-
       if (length(yrs) < 10) {
         message(st, " ", param, " skipped: <10 total years")
         next
@@ -83,8 +100,7 @@ run_vlap_mannkendall <- function(
       }
 
       param_data <- station_data |> select(year, all_of(param)) |> arrange(year)
-      temp <- param_data[[param]] |> na.omit()
-
+      temp <- na.omit(param_data[[param]])
       if (length(temp) < 5) {
         message(st, " ", param, " skipped: <5 non-NA values")
         next
@@ -94,7 +110,7 @@ run_vlap_mannkendall <- function(
       sen <- sens.slope(temp)
 
       significant <- !is.na(mk$p.value) & mk$p.value < 0.05
-      trend_cat <- case_when(
+      trend_cat <- dplyr::case_when(
         !significant ~ "Stable",
         param %in%
           c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
@@ -111,7 +127,7 @@ run_vlap_mannkendall <- function(
         TRUE ~ "Stable"
       )
 
-      results_list[[length(results_list) + 1]] <- tibble(
+      station_results[[length(station_results) + 1]] <- tibble(
         STATIONID = st,
         PARAMETER = param,
         n = length(temp),
@@ -123,6 +139,22 @@ run_vlap_mannkendall <- function(
         TREND = trend_cat
       )
     }
+
+    # Only save station CSV if results exist
+    if (length(station_results) > 0) {
+      st_results <- bind_rows(station_results)
+      write_csv(
+        st_results,
+        file.path(mk_path, paste0("MannKendall_", st, ".csv"))
+      )
+      results_list <- c(results_list, station_results)
+    }
+  }
+
+  # Combine all results
+  if (length(results_list) == 0) {
+    message("No Mann-Kendall results generated.")
+    return(invisible(NULL))
   }
 
   mk_summary <- bind_rows(results_list)
@@ -131,7 +163,7 @@ run_vlap_mannkendall <- function(
   mk_summary <- mk_summary |>
     mutate(
       PARAMETER = case_when(
-        STATIONID %in% sunsun_stations ~ recode(
+        STATIONID %in% sunsun_stations ~ dplyr::recode(
           PARAMETER,
           "SPCD_epi" = "Conductivity",
           "CHL_comp" = "Chlorophyll-a",
@@ -139,7 +171,7 @@ run_vlap_mannkendall <- function(
           "SECCHI" = "Transparency",
           "TP_epi" = "Phosphorus"
         ),
-        TRUE ~ recode(
+        TRUE ~ dplyr::recode(
           PARAMETER,
           "SPCD_epi" = "Conductivity (Epilimnion)",
           "CHL_comp" = "Chlorophyll-a (Composite)",

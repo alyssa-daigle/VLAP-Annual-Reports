@@ -6,6 +6,8 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
 
   # Get list of unique stations to process
   station_list <- data_plot |>
+    # only include stations with DEEP in STATNAM
+    filter(grepl("DEEP", STATNAM, ignore.case = TRUE)) |>
     distinct(STATIONID) |>
     pull(STATIONID)
 
@@ -13,12 +15,20 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
   for (station_id in station_list) {
     message("Processing station: ", station_id)
 
+    # Determine which Secchi variable to use
+    secchi_var <- if (startsWith(station_id, "SUNSUN")) {
+      "SECCHI"
+    } else {
+      "SECCHI_NVS"
+    }
+
     # Subset data to current station
     # Keep rows with at least one plotting variable present
-    # Ensure chronological ordering
     df_plot <- data_plot |>
       filter(STATIONID == station_id) |>
-      filter(!is.na(CHL_comp) | !is.na(TP_epi) | !is.na(SECCHI_NVS)) |>
+      filter(
+        !is.na(CHL_comp) | !is.na(TP_epi) | !is.na(.data[[secchi_var]])
+      ) |>
       arrange(year)
 
     # Skip station if no data or if 2025 is missing
@@ -27,29 +37,27 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       next
     }
 
-    # Generate a continuous sequence of years for plotting
-    # Missing years are filled with NA values for plotting gaps
+    # Generate continuous sequence of years
     all_years <- min(df_plot$year):max(df_plot$year)
+
+    fill_list <- list(
+      TP_epi = NA,
+      CHL_comp = NA
+    )
+    fill_list[[secchi_var]] <- NA
 
     df_plot <- df_plot |>
       complete(
         year = all_years,
-        fill = list(
-          TP_epi = NA,
-          CHL_comp = NA,
-          SECCHI_NVS = NA
-        )
+        fill = fill_list
       ) |>
       mutate(year = as.numeric(year)) |>
       arrange(year)
 
-    # Define y-axis limits with padding
-    # Left axis is shared by TP and chlorophyll
-    # Right axis is for Secchi transparency
+    # Define y-axis limits
     y_max_left <- max(c(df_plot$TP_epi, df_plot$CHL_comp), na.rm = TRUE) * 1.5
-    y_max_right <- max(df_plot$SECCHI_NVS, na.rm = TRUE) * 1.5
+    y_max_right <- max(df_plot[[secchi_var]], na.rm = TRUE) * 1.5
 
-    # Skip station if nothing can be plotted safely
     if (!is.finite(y_max_left) || !is.finite(y_max_right)) {
       warning(
         "Skipping station ",
@@ -59,30 +67,26 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       next
     }
 
-    # Look for Mann Kendall results for this station
+    # Mann Kendall
     mk_file <- paste0("mannkendall/MannKendall_", station_id, ".csv")
     has_MK <- file.exists(mk_file)
     MK_table <- if (has_MK) read.csv(mk_file) else NULL
 
-    # Define output image path
+    # Output path
     temp_path <- file.path(
       output_path,
       paste0(station_id, "_chl_tp_secchi.png")
     )
 
-    # Begin PNG device
+    # Begin plotting
     png(temp_path, width = 8, height = 4, units = "in", res = 200)
+    par(family = "Calibri", mar = c(3.8, 4, 4, 3.8))
 
-    # Set font and margins
-    par(family = "Calibri")
-    par(mar = c(3.8, 4, 4, 3.8))
-
-    # Define x-axis limits explicitly to avoid padding
     n_years <- length(unique(df_plot$year))
     x_min <- min(df_plot$year)
     x_max <- max(df_plot$year)
 
-    # Initialize empty plot for left axis variables
+    # Empty left-axis plot
     plot(
       df_plot$year,
       df_plot$TP_epi,
@@ -96,15 +100,11 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       yaxs = "i"
     )
     box()
-
-    # Plot title
     title(
       main = "Historical Chlorophyll-a, Epilimnetic Phosphorus, and Transparency Data",
       line = 2.5,
       cex.main = 1.05
     )
-
-    # Left y-axis for TP and chlorophyll
     axis(
       side = 2,
       at = seq(0, ceiling(y_max_left / 5) * 5, by = 5),
@@ -120,7 +120,6 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       font = 2
     )
 
-    # Custom x-axis with rotated year labels
     axis(side = 1, at = df_plot$year, labels = FALSE)
     y_pos <- par("usr")[3] - 0.06 * diff(par("usr")[3:4])
     text(
@@ -135,11 +134,11 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
     )
     mtext("Year", side = 1, line = 2, cex = 0.85, font = 2)
 
-    # Overlay plot for Secchi bars using reversed right y-axis
+    # Secchi overlay
     par(new = TRUE)
     plot(
       df_plot$year,
-      df_plot$SECCHI_NVS,
+      df_plot[[secchi_var]],
       type = "n",
       axes = FALSE,
       xlab = "",
@@ -148,23 +147,19 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       yaxs = "i"
     )
 
-    # Adjust bar width based on number of years
     bar_width <- if (n_years < 10) 0.18 else 0.28
-
-    # Draw Secchi bars
     with(
       df_plot,
       rect(
         year - bar_width,
         0,
         year + bar_width,
-        SECCHI_NVS,
+        df_plot[[secchi_var]],
         col = adjustcolor("lightsteelblue2", alpha.f = 0.5),
         border = "gray20"
       )
     )
 
-    # Right y-axis for transparency
     axis(
       side = 4,
       at = seq(0, ceiling(y_max_right), by = 1),
@@ -182,7 +177,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       las = 3
     )
 
-    # Overlay TP and chlorophyll time series
+    # TP and CHL overlay
     par(new = TRUE)
     plot(
       df_plot$year,
@@ -208,25 +203,19 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       lwd = 1.75
     )
 
-    # Add Mann Kendall trend lines if available
+    # Mann Kendall lines (if any)
     if (has_MK) {
-      add_mk_line <- function(var, col) {
-        slope <- MK_table |>
-          filter(parameter == var) |>
-          pull(sen_slope)
-
+      add_mk_line <- function(var, col, use_secchi = FALSE) {
+        slope <- MK_table |> filter(PARAMETER == var) |> pull(sen_slope)
         if (length(slope) > 0 && !is.na(slope)) {
           df_var <- df_plot |> filter(!is.na(.data[[var]]))
-
           if (nrow(df_var) >= 2) {
             med_year <- median(df_var$year)
             med_val <- median(df_var[[var]])
             intercept <- med_val - slope * med_year
-
             x_vals <- range(df_var$year, na.rm = TRUE)
             y_vals <- intercept + slope * x_vals
-
-            if (var == "SECCHI_NVS") {
+            if (use_secchi) {
               par(new = TRUE)
               plot(
                 x_vals,
@@ -250,12 +239,11 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
 
       add_mk_line("TP_epi", "red4")
       add_mk_line("CHL_comp", "green4")
-      add_mk_line("SECCHI_NVS", "blue4")
+      add_mk_line(secchi_var, "blue4", use_secchi = TRUE)
     }
 
-    # Add legends
+    # Legends (unchanged)
     par(xpd = NA)
-
     legend(
       x = "top",
       inset = -0.18,
@@ -276,7 +264,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       text.font = 2
     )
 
-    # Build trend legend dynamically
+    # Trend legend (unchanged except secchi_var)
     trend_items <- c()
     col_items <- c()
     lty_items <- c()
@@ -284,31 +272,24 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
 
     if (has_MK) {
       slope_sec <- MK_table |>
-        filter(parameter == "SECCHI_NVS") |>
+        filter(PARAMETER == secchi_var) |>
         pull(sen_slope)
-
       if (length(slope_sec) > 0 && !is.na(slope_sec)) {
         trend_items <- c(trend_items, "Transparency Trend")
         col_items <- c(col_items, "blue4")
         lty_items <- c(lty_items, 2)
         lwd_items <- c(lwd_items, 1.75)
       }
-
       slope_chl <- MK_table |>
-        filter(parameter == "CHL_comp") |>
+        filter(PARAMETER == "CHL_comp") |>
         pull(sen_slope)
-
       if (length(slope_chl) > 0 && !is.na(slope_chl)) {
         trend_items <- c(trend_items, "Chlorophyll-a Trend")
         col_items <- c(col_items, "green4")
         lty_items <- c(lty_items, 2)
         lwd_items <- c(lwd_items, 1.75)
       }
-
-      slope_tp <- MK_table |>
-        filter(parameter == "TP_epi") |>
-        pull(sen_slope)
-
+      slope_tp <- MK_table |> filter(PARAMETER == "TP_epi") |> pull(sen_slope)
       if (length(slope_tp) > 0 && !is.na(slope_tp)) {
         trend_items <- c(trend_items, "Total Phosphorus Trend")
         col_items <- c(col_items, "red4")
@@ -332,10 +313,9 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       )
     }
 
-    # Close graphics device
     dev.off()
 
-    # Add black border to finished image
+    # Add black border
     img <- magick::image_read(temp_path)
     img_bordered <- magick::image_border(
       img,
