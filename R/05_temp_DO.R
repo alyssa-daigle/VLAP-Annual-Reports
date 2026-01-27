@@ -1,6 +1,6 @@
 make_temp_DO <- function(input_path, output_path) {
   # Load data
-  data <- read_excel(paste0(input_path, "master-DO-2025.xlsm"))
+  data <- read_excel(paste0(input_path, "master-DO-2025 - working copy.xlsm"))
 
   # Create output directory if missing
   if (!dir.exists(output_path)) {
@@ -15,7 +15,8 @@ make_temp_DO <- function(input_path, output_path) {
       Date = as.Date(Date),
       Month = factor(format(Date, "%B"), levels = month.name, ordered = TRUE)
     ) |>
-    filter(!is.na(Station))
+    filter(!is.na(Station)) |>
+    filter(Month %in% c("May", "June", "July", "August", "September"))
 
   stations <- sort(unique(temp_do$Station))
 
