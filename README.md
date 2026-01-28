@@ -27,8 +27,8 @@ The individual scripts called by **`00_make_all.R`** include:
 
 Note that the master data file for all chemical data is stored locally due to its large sizes. Contact me to obtain files.
 
+-   **`VLAP_alldata2025.csv`**: data generated from SQL EMD data pull; needs to be re-copied into this repo annually.
 -   **`LAKEMAP.csv`**: provides a comprehensive list of all lakes and their stations participating in VLAP.
--   **`lookup.xlsx`**: acts as a map for lakes that have multiple deep spots and tributaries associated with different deep spots.
--   **`master-DO-2025.xlsm`**: copy of the master DO file; needs to be re-copied into this repo annually. Eventually can be a SQL pull. 
+-   **`master-DO-2025.xlsm`**: copy of the master DO file; needs to be re-copied into this repo annually.
 -   **`Historical_Phytoplankton_Data_Thru2025.xlsm`**: copy of the master phytoplankton file; needs to be re-copied into this repo annually.
 
