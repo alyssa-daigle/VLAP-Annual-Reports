@@ -266,6 +266,13 @@ data_reformat <- function(input_path) {
       STARTDATE = as.Date(STARTDATE, format = "%d-%b-%y"),
       year = lubridate::year(STARTDATE)
     ) |>
+    # DROP Sunapee samples where they samples "1m off the bottom"
+    filter(
+      !(str_detect(STATIONID, "SUNSUN") &
+        str_detect(STATNAM, "DEEP") &
+        WSHEDPARMNAME == "PHOSPHORUS AS P" &
+        is.na(DEPTHZONE))
+    ) |>
     (\(df) df[df$WATERBODYNAME %in% df$WATERBODYNAME[df$year == 2025], ])()
 
   ## PIVOT WIDER FOR DATA ANALYSIS ----------------------------------------------------------

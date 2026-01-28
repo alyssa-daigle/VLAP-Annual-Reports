@@ -1,7 +1,0 @@
-parameter,non_na_n,tau,p.value,slope,trend,mean_value,percent_change
-CHL_comp,194,-0.22915442551145773,2.0359797676672287e-6,-0.017499988526106035,Improving,1.570979381443299,-1.1139540552103457
-PH_epi,0,NA,NA,NA,insufficient data,NA,NA
-SECCHI,163,0.053245474513368175,0.30557627527047027,8.195638656616211e-8,Stable,6.878282208588957,1.1915240474405459e-6
-SPCD_epi,0,NA,NA,NA,insufficient data,NA,NA
-TP_epi,0,NA,NA,NA,insufficient data,NA,NA
-TP_hypo,0,NA,NA,NA,insufficient data,NA,NA

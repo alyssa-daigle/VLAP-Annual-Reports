@@ -72,28 +72,39 @@ make_CYA_table <- function(data_long, table_path, input_path) {
       names_from = param_depth,
       values_from = avg_result
     ) |>
-    # order by lake and standard depth labels
     arrange(
       WATERBODYNAME,
       factor(STATNAME, levels = c("Epilimnion", "Metalimnion", "Hypolimnion"))
     ) |>
-    # round numeric columns for presentation
+    # DROP any parameter column that is entirely NA
+    select(where(~ !all(is.na(.))))
+
+  if (
+    "E. coli (mpn/100 mL)" %in%
+      names(CYA_2025) &&
+      all(is.na(CYA_2025$`E. coli (mpn/100 mL)`))
+  ) {
+    CYA_2025 <- CYA_2025 |>
+      select(-`E. coli (mpn/100 mL)`)
+  }
+
+  CYA_2025 <- CYA_2025 |>
     mutate(
-      `Alk. (mg/L)` = round(`Alk. (mg/L)`, 1),
-      `Chlor-a (μg/L)` = round(`Chlor-a (μg/L)`, 2),
-      `Chloride (mg/L)` = round(`Chloride (mg/L)`, 0),
-      `Color (pcu)` = round(`Color (pcu)`, 0),
-      `Cond. (μS/cm)` = round(`Cond. (μS/cm)`, 1),
-      `E. coli (mpn/100 mL)` = round(`E. coli (mpn/100 mL)`, 0),
-      `Total P (μg/L)` = round(`Total P (μg/L)`, 0),
-      `Trans. NVS (m)` = round(`Trans. NVS (m)`, 2),
-      `Trans. VS (m)` = round(`Trans. VS (m)`, 2),
-      `Total P (μg/L)` = case_when(
-        is.na(`Total P (μg/L)`) ~ NA_character_,
-        `Total P (μg/L)` < 5 ~ "<5",
-        TRUE ~ as.character(round(`Total P (μg/L)`, 0))
-      ),
-      pH = round(pH, 2)
+      across(
+        c(
+          `Alk. (mg/L)`,
+          `Chlor-a (μg/L)`,
+          `Chloride (mg/L)`,
+          `Color (pcu)`,
+          `Cond. (μS/cm)`,
+          `Total P (μg/L)`,
+          `Trans. NVS (m)`,
+          `Trans. VS (m)`,
+          pH,
+          `E. coli (mpn/100 mL)`
+        ),
+        ~ if (is.numeric(.)) round(., 2) else .
+      )
     )
 
   # join with lake map to update lake names if available

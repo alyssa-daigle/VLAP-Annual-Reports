@@ -169,7 +169,8 @@ run_vlap_mannkendall <- function(
           "CHL_comp" = "Chlorophyll-a",
           "PH_epi" = "pH",
           "SECCHI" = "Transparency",
-          "TP_epi" = "Phosphorus"
+          "TP_epi" = "Phosphorus (Epilimnion)",
+          "TP_hypo" = "Phosphorus (Hypolimnion)"
         ),
         TRUE ~ dplyr::recode(
           PARAMETER,
@@ -203,7 +204,7 @@ run_vlap_mannkendall <- function(
 
   write_csv(
     mk_summary_sunsun,
-    file.path(table_path, "MK_TrendSummary_SUNSUN_Combined.csv")
+    file.path(table_path, "MK_TrendSummary_SUNSUN_tribs.csv")
   )
 
   invisible(mk_summary)
