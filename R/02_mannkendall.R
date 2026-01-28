@@ -3,6 +3,7 @@ run_vlap_mannkendall <- function(
   mk_path = "mannkendall",
   table_path = "tables"
 ) {
+  # --- Create directories if needed ---
   if (!dir.exists(mk_path)) {
     dir.create(mk_path, recursive = TRUE)
   }
@@ -10,8 +11,8 @@ run_vlap_mannkendall <- function(
     dir.create(table_path, recursive = TRUE)
   }
 
-  # Define SUNSUN stations
-  sunsun_stations <- c(
+  # --- Define SUNSUN station groups ---
+  sunsun_nearshore_stations <- c(
     "SUNSUN010",
     "SUNSUN020",
     "SUNSUN030",
@@ -22,14 +23,29 @@ run_vlap_mannkendall <- function(
     "SUNSUN080",
     "SUNSUN090",
     "SUNSUN1001",
-    "SUNSUN110",
+    "SUNSUN110"
+  )
+
+  sunsun_deep_stations <- c(
     "SUNSUN1D",
     "SUNSUN220D",
     "SUNSUN2D",
     "SUNSUN3D"
   )
 
-  # Keep only VLAP parameters
+  sunsun_trib_stations <- c(
+    "SUNSUN575",
+    "SUNSUN610",
+    "SUNSUN6401"
+  )
+
+  sunsun_all <- c(
+    sunsun_nearshore_stations,
+    sunsun_deep_stations,
+    sunsun_trib_stations
+  )
+
+  # --- VLAP parameters to keep ---
   keep_params <- c(
     "SPCD_epi",
     "CHL_comp",
@@ -40,20 +56,21 @@ run_vlap_mannkendall <- function(
     "TP_hypo"
   )
 
-  # Filter to necessary parameters
+  # Filter columns
   data_year_median <- data_year_median |>
     select(STATIONID, STATNAM, year, all_of(keep_params))
 
+  # --- Initialize results list ---
   results_list <- list()
   stations <- sort(unique(data_year_median$STATIONID))
 
   for (st in stations) {
     station_data <- data_year_median |> filter(STATIONID == st)
 
-    # Only process if STATNAM contains "DEEP" or station is SUNSUN
+    # Skip stations that are not SUNSUN or DEEP
     if (
       !(st %in%
-        sunsun_stations ||
+        sunsun_all ||
         any(grepl("DEEP", station_data$STATNAM, ignore.case = TRUE)))
     ) {
       message("Skipping station ", st, ": not DEEP and not SUNSUN")
@@ -65,15 +82,14 @@ run_vlap_mannkendall <- function(
       names(station_data),
       c("STATIONID", "STATNAM", "year")
     )
-    if (st %in% sunsun_stations) {
+    if (st %in% sunsun_all) {
       station_params <- station_params[station_params != "SECCHI_NVS"]
     } else {
       station_params <- station_params[station_params != "SECCHI"]
     }
 
-    # Collect MK results for this station
+    # --- Mann-Kendall for each parameter ---
     station_results <- list()
-
     for (param in station_params) {
       yrs <- sort(unique(station_data$year))
       if (length(yrs) < 10) {
@@ -140,7 +156,7 @@ run_vlap_mannkendall <- function(
       )
     }
 
-    # Only save station CSV if results exist
+    # Save individual station results
     if (length(station_results) > 0) {
       st_results <- bind_rows(station_results)
       write_csv(
@@ -156,14 +172,13 @@ run_vlap_mannkendall <- function(
     message("No Mann-Kendall results generated.")
     return(invisible(NULL))
   }
-
   mk_summary <- bind_rows(results_list)
 
-  # Recode parameter names
+  # --- Recode parameter names ---
   mk_summary <- mk_summary |>
     mutate(
       PARAMETER = case_when(
-        STATIONID %in% sunsun_stations ~ dplyr::recode(
+        STATIONID %in% sunsun_all ~ dplyr::recode(
           PARAMETER,
           "SPCD_epi" = "Conductivity",
           "CHL_comp" = "Chlorophyll-a",
@@ -184,7 +199,7 @@ run_vlap_mannkendall <- function(
       )
     )
 
-  # Save individual station tables
+  # --- Save individual station tables ---
   mk_summary |>
     group_by(STATIONID) |>
     group_split() |>
@@ -196,15 +211,24 @@ run_vlap_mannkendall <- function(
       )
     })
 
-  # Combined SUNSUN table
-  mk_summary_sunsun <- mk_summary |>
-    filter(STATIONID %in% sunsun_stations) |>
+  # --- Combined SUNSUN NEARSHORE & TRIB summary tables ---
+  mk_summary_nearshore <- mk_summary |>
+    filter(STATIONID %in% sunsun_nearshore_stations) |>
+    select(STATIONID, PARAMETER, TREND) |>
+    arrange(STATIONID, PARAMETER)
+
+  mk_summary_trib <- mk_summary |>
+    filter(STATIONID %in% sunsun_trib_stations) |>
     select(STATIONID, PARAMETER, TREND) |>
     arrange(STATIONID, PARAMETER)
 
   write_csv(
-    mk_summary_sunsun,
-    file.path(table_path, "MK_TrendSummary_SUNSUN_tribs.csv")
+    mk_summary_nearshore,
+    file.path(table_path, "MK_TrendSummary_SUNSUN_Nearshore.csv")
+  )
+  write_csv(
+    mk_summary_trib,
+    file.path(table_path, "MK_TrendSummary_SUNSUN_Tribs.csv")
   )
 
   invisible(mk_summary)

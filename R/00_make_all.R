@@ -137,7 +137,7 @@ make_plankton(file.path(output_path, "plankton"))
 message("All plots completed.")
 
 # ==========================
-# CYA table exports
+# CYA (Current Year Average) table exports
 # ==========================
 message("Exporting CYA tables...")
 make_CYA_table(data_long, table_path, input_path)

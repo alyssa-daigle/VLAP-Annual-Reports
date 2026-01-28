@@ -1,8 +1,5 @@
 report_gen <- function() {
-  library(rmarkdown)
-  library(dplyr)
-
-  # Load env file if present
+  # Load .env if present
   if (file.exists(".env")) {
     if (!requireNamespace("dotenv", quietly = TRUE)) {
       install.packages("dotenv")
@@ -11,13 +8,12 @@ report_gen <- function() {
     load_dot_env(".env")
   }
 
-  # Define paths from .env
+  # Paths
   input_path <- Sys.getenv("INPUT_PATH")
   report_path <- Sys.getenv("REPORT_PATH")
   template_path <- Sys.getenv("TEMPLATE_PATH")
   table_path <- Sys.getenv("TABLE_PATH")
 
-  # Verify paths exist
   if (!dir.exists(input_path)) {
     stop("Input path does not exist: ", input_path)
   }
@@ -27,62 +23,98 @@ report_gen <- function() {
 
   # Load LAKEMAP
   LAKEMAP <- read.csv(
-    file = file.path(input_path, "LAKEMAP.csv"),
+    file.path(input_path, "LAKEMAP.csv"),
     stringsAsFactors = FALSE
   )
 
-  # Filter for DEEP stations and keep unique lake–station combos
+  # --- Filter stations ---
   LAKEMAP_filtered <- LAKEMAP |>
-    filter(grepl("DEEP", STATNAME, ignore.case = TRUE)) |>
-    distinct(WATERBODYNAME, STATNAME, STATIONID, TOWN, .keep_all = TRUE) |>
-    arrange(STATIONID)
+    distinct(WATERBODYNAME, TOWN, STATIONID, .keep_all = TRUE) |>
+    arrange(WATERBODYNAME, TOWN, STATIONID) |>
+    filter(
+      grepl("^SUNAPEE LAKE", WATERBODYNAME, ignore.case = TRUE) |
+        grepl("DEEP", STATNAME, ignore.case = TRUE)
+    ) |>
+    arrange(WATERBODYNAME, TOWN, STATIONID)
 
-  # Define output directory
-  output_dir <- report_path
-  if (!dir.exists(output_dir)) {
-    dir.create(output_dir, recursive = TRUE)
-    message("Created output directory: ", output_dir)
-  } else {
-    message("Output directory already exists: ", output_dir)
+  # Create output directory if needed
+  if (!dir.exists(report_path)) {
+    dir.create(report_path, recursive = TRUE)
   }
 
-  # Define template path
   template_file <- file.path(template_path, "report_template.Rmd")
   if (!file.exists(template_file)) {
     stop("Template not found at: ", template_file)
   }
 
-  # Loop through each unique DEEP station
-  for (i in seq_len(nrow(LAKEMAP_filtered))) {
-    lake <- LAKEMAP_filtered$WATERBODYNAME[i]
-    station <- LAKEMAP_filtered$STATNAME[i]
-    station_id <- LAKEMAP_filtered$STATIONID[i]
-    town <- LAKEMAP_filtered$TOWN[i]
-
-    # Clean file name
-    safe_name <- gsub(
-      "[^A-Za-z0-9_-]",
-      "_",
-      paste0(station, "_", town)
+  # --- Sunapee NEARSHORE + TRIB combined report ---
+  sunapee_stations <- LAKEMAP_filtered |>
+    filter(
+      grepl("sunapee", WATERBODYNAME, ignore.case = TRUE) &
+        grepl("NEARSHORE|TRIBS", STATNAME, ignore.case = TRUE)
     )
 
-    message("Rendering report for station: ", station, " (", town, ")")
+  if (nrow(sunapee_stations) > 0) {
+    lake <- "SUNAPEE"
+    station <- "NEARSHORE + TRIB"
+    # pass vector of unique station IDs
+    station_id <- sunapee_stations$STATIONID
+    town <- paste(unique(sunapee_stations$TOWN), collapse = ", ")
+    safe_name <- gsub("[^A-Za-z0-9_-]", "_", paste0(station, "_", town))
 
-    # Render report
+    message(
+      "Rendering combined report for SUNAPEE NEARSHORE + TRIB (",
+      length(station_id),
+      " stations)"
+    )
+
     rmarkdown::render(
       input = template_file,
       output_format = "word_document",
       output_file = paste0(safe_name, "_Report.docx"),
-      output_dir = output_dir,
+      output_dir = report_path,
+      params = list(
+        lake = lake,
+        station = station,
+        station_id = station_id, # vector of IDs
+        town = town,
+        table_path = table_path
+      ),
+      envir = new.env()
+    )
+  }
+
+  # --- Individual reports for other DEEP stations ---
+  other_stations <- LAKEMAP_filtered |>
+    filter(
+      !(grepl("sunapee", WATERBODYNAME, ignore.case = TRUE) &
+        grepl("NEARSHORE|TRIBS", STATNAME, ignore.case = TRUE))
+    )
+
+  for (i in seq_len(nrow(other_stations))) {
+    lake <- other_stations$WATERBODYNAME[i]
+    station <- other_stations$STATNAME[i]
+    station_id <- other_stations$STATIONID[i]
+    town <- other_stations$TOWN[i]
+
+    safe_name <- gsub("[^A-Za-z0-9_-]", "_", paste0(station, "_", town))
+    message("Rendering report for: ", lake, " - ", station, " (", town, ")")
+
+    rmarkdown::render(
+      input = template_file,
+      output_format = "word_document",
+      output_file = paste0(safe_name, "_Report.docx"),
+      output_dir = report_path,
       params = list(
         lake = lake,
         station = station,
         station_id = station_id,
         town = town,
-        lake = lake,
         table_path = table_path
       ),
-      envir = new.env() # isolate each run
+      envir = new.env()
     )
   }
+
+  message("All reports generated!")
 }
