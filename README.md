@@ -11,7 +11,7 @@ This repository contains scripts used to streamline the Annual Report workflow b
 The individual scripts called by **`00_make_all.R`** include:
 
 -   **`01_data_reformat.R`**: Reformats data to rename columns and make data handling easier.
--   **`02_mannkendall.R`**: Runs Mann-Kendall analysis to determine whether significant parameter trends are increasing, decreasing, or stable. Uses R package trend[!https://cran.r-project.org/web/packages/trend/index.html].
+-   **`02_mannkendall.R`**: Runs Mann-Kendall analysis to determine whether significant parameter trends are increasing, decreasing, or stable. Uses R package trend[https://cran.r-project.org/web/packages/trend/index.html].
 -   **`03_chl_tp_secchi.R`**: Contains the function to generate historical Chlorophyll-a, Total Phosphorus, and Secchi Disk transparency plots for each station. Annual medians plotted with Sen's Slope from MK test.
 -   **`04_ph_cond.R`**: Contains the function to generate historical pH and Conductivity plots for each station. Annual medians plotted with Sen's Slope from MK test.
 -   **`05_temp_DO.R`**: Contains the function to generate seasonal Temperature/Dissolved Oxygen profile plots for each station (currently requires master Excel data sheet).
