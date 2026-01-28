@@ -34,18 +34,18 @@ Thumbs.db
 *.jpeg
 
 # Ignore regression, table, and report outputs
-tables/REG_TrendSummary*
-tables/CYA_NA_*
+old_scripts/
+tables/
+mannkendall/
 regression/
 reports/
+lake_excerpts/
 
 # other files
 data/pH_conduc.xlsx
 *excerpt.docx
-lake_excerpts
 data/CYA_full.csv  
 data/REG_long.csv 
 data/VLAP_alldata2025.csv
-old_scripts/
-tables/
-mannkendall/
+data/lookup.xlsx
+
