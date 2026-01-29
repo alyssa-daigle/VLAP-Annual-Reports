@@ -29,13 +29,13 @@ report_gen <- function() {
 
   # --- Filter stations ---
   LAKEMAP_filtered <- LAKEMAP |>
-    distinct(WATERBODYNAME, TOWN, STATIONID, .keep_all = TRUE) |>
-    arrange(WATERBODYNAME, TOWN, STATIONID) |>
+    distinct(RELLAKE, TOWN, STATIONID, .keep_all = TRUE) |>
+    arrange(RELLAKE, TOWN, STATIONID) |>
     filter(
-      grepl("^SUNAPEE LAKE", WATERBODYNAME, ignore.case = TRUE) |
+      grepl("^SUNAPEE LAKE", RELLAKE, ignore.case = TRUE) |
         grepl("DEEP", STATNAME, ignore.case = TRUE)
     ) |>
-    arrange(WATERBODYNAME, TOWN, STATIONID)
+    arrange(RELLAKE, TOWN, STATIONID)
 
   # Create output directory if needed
   if (!dir.exists(report_path)) {
@@ -50,7 +50,7 @@ report_gen <- function() {
   # --- Sunapee NEARSHORE + TRIB combined report ---
   sunapee_stations <- LAKEMAP_filtered |>
     filter(
-      grepl("sunapee", WATERBODYNAME, ignore.case = TRUE) &
+      grepl("sunapee", RELLAKE, ignore.case = TRUE) &
         grepl("NEARSHORE|TRIBS", STATNAME, ignore.case = TRUE)
     )
 
@@ -87,12 +87,12 @@ report_gen <- function() {
   # --- Individual reports for other DEEP stations ---
   other_stations <- LAKEMAP_filtered |>
     filter(
-      !(grepl("sunapee", WATERBODYNAME, ignore.case = TRUE) &
+      !(grepl("sunapee", RELLAKE, ignore.case = TRUE) &
         grepl("NEARSHORE|TRIBS", STATNAME, ignore.case = TRUE))
     )
 
   for (i in seq_len(nrow(other_stations))) {
-    lake <- other_stations$WATERBODYNAME[i]
+    lake <- other_stations$RELLAKE[i]
     station <- other_stations$STATNAME[i]
     station_id <- other_stations$STATIONID[i]
     town <- other_stations$TOWN[i]

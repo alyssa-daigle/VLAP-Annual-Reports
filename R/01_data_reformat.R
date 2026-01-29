@@ -113,14 +113,14 @@ data_reformat <- function(input_path) {
   ## DATA CLEANING ----------------------------------------------------------
 
   data <- data |>
-    filter(ACTIVE == "Y", VALID != "N", RESULTSTATUS == "FINAL")
+    filter(VALID != "N", RESULTSTATUS == "FINAL")
 
   data_long <- data |>
     select(
       STATIONID,
       STATNAME,
       TOWN,
-      WATERBODYNAME,
+      RELLAKE,
       DEPTHZONE,
       DEPTH,
       STARTDATE,
@@ -273,12 +273,12 @@ data_reformat <- function(input_path) {
         WSHEDPARMNAME == "PHOSPHORUS AS P" &
         is.na(DEPTHZONE))
     ) |>
-    (\(df) df[df$WATERBODYNAME %in% df$WATERBODYNAME[df$year == 2025], ])()
+    (\(df) df[df$RELLAKE %in% df$RELLAKE[df$year == 2025], ])()
 
   ## PIVOT WIDER FOR DATA ANALYSIS ----------------------------------------------------------
   data_wide <- data_long |>
     select(
-      WATERBODYNAME,
+      RELLAKE,
       STATIONID,
       TOWN,
       STATNAM,
@@ -288,10 +288,10 @@ data_reformat <- function(input_path) {
       DEPTHZONE
     ) |>
     filter(!is.na(param_depth)) |>
-    group_by(WATERBODYNAME, STATIONID, TOWN, STATNAM, STARTDATE, param_depth) |>
+    group_by(RELLAKE, STATIONID, TOWN, STATNAM, STARTDATE, param_depth) |>
     summarise(NUMRESULT = mean(NUMRESULT, na.rm = TRUE), .groups = "drop") |>
     pivot_wider(
-      id_cols = c(WATERBODYNAME, STATIONID, TOWN, STATNAM, STARTDATE),
+      id_cols = c(RELLAKE, STATIONID, TOWN, STATNAM, STARTDATE),
       names_from = param_depth,
       values_from = NUMRESULT
     ) |>
@@ -300,22 +300,22 @@ data_reformat <- function(input_path) {
       STARTDATE = as.Date(STARTDATE, format = "%d-%b-%y"),
       year = year(STARTDATE)
     ) |>
-    (\(df) df[df$WATERBODYNAME %in% df$WATERBODYNAME[df$year == 2025], ])()
+    (\(df) df[df$RELLAKE %in% df$RELLAKE[df$year == 2025], ])()
 
   # calculate annual median per parameter per station
   data_year_median <- data_wide |>
     pivot_longer(
-      cols = -c(WATERBODYNAME, STATIONID, TOWN, STATNAM, STARTDATE, year),
+      cols = -c(RELLAKE, STATIONID, TOWN, STATNAM, STARTDATE, year),
       names_to = "parameter",
       values_to = "value"
     ) |>
-    group_by(WATERBODYNAME, STATIONID, TOWN, STATNAM, year, parameter) |>
+    group_by(RELLAKE, STATIONID, TOWN, STATNAM, year, parameter) |>
     summarise(
       value = median(value, na.rm = TRUE),
       .groups = "drop"
     ) |>
     pivot_wider(
-      id_cols = c(WATERBODYNAME, STATIONID, TOWN, STATNAM, year),
+      id_cols = c(RELLAKE, STATIONID, TOWN, STATNAM, year),
       names_from = parameter,
       values_from = value
     ) |>
