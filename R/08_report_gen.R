@@ -43,7 +43,7 @@ report_gen <- function() {
       output_file = file.path(
         report_path,
         paste0(
-          "LakeReport_",
+          "2025VLAPReport_", #UPDATE YEAR EVERY YEAR
           gsub(" ", "_", lake),
           "_",
           gsub(" ", "_", town),
