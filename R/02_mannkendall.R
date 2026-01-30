@@ -125,21 +125,45 @@ run_vlap_mannkendall <- function(
       mk <- mk.test(temp)
       sen <- sens.slope(temp)
 
+      # Determine significance
       significant <- !is.na(mk$p.value) & mk$p.value < 0.05
+      marginal <- !is.na(mk$p.value) & mk$p.value >= 0.05 & mk$p.value < 0.1
+      tau <- mk$estimates[["tau"]]
+
+      # Assign trend categories
       trend_cat <- dplyr::case_when(
-        !significant ~ "Stable",
-        param %in%
-          c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
-          mk$estimates[["tau"]] > 0 ~ "Worsening",
-        param %in%
-          c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
-          mk$estimates[["tau"]] < 0 ~ "Improving",
-        param %in%
-          c("PH_epi", "SECCHI", "SECCHI_NVS") &
-          mk$estimates[["tau"]] > 0 ~ "Improving",
-        param %in%
-          c("PH_epi", "SECCHI", "SECCHI_NVS") &
-          mk$estimates[["tau"]] < 0 ~ "Worsening",
+        # --- Stable / not significant ---
+        !significant & !marginal ~ "Stable",
+
+        # --- Slightly trends: marginal p-value (0.05 <= p < 0.1) ---
+        marginal &
+          param %in% c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
+          tau > 0 ~ "Slightly Worsening",
+        marginal &
+          param %in% c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
+          tau < 0 ~ "Slightly Improving",
+        marginal &
+          param %in% c("PH_epi", "SECCHI", "SECCHI_NVS") &
+          tau > 0 ~ "Slightly Improving",
+        marginal &
+          param %in% c("PH_epi", "SECCHI", "SECCHI_NVS") &
+          tau < 0 ~ "Slightly Worsening",
+
+        # --- Significant trends ---
+        significant &
+          param %in% c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
+          tau > 0 ~ "Worsening",
+        significant &
+          param %in% c("CHL_comp", "TP_epi", "TP_hypo", "SPCD_epi") &
+          tau < 0 ~ "Improving",
+        significant &
+          param %in% c("PH_epi", "SECCHI", "SECCHI_NVS") &
+          tau > 0 ~ "Improving",
+        significant &
+          param %in% c("PH_epi", "SECCHI", "SECCHI_NVS") &
+          tau < 0 ~ "Worsening",
+
+        # --- Default fallback ---
         TRUE ~ "Stable"
       )
 

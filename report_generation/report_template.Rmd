@@ -196,10 +196,20 @@ Figure `r fig_counter`. Plot showing
 `r get_trend(5)` (red dashed line) in Epilimnetic Total Phosphorus (red triangles), and
 `r get_trend(4)` (blue dashed line) in Secchi disk transparency (blue bars) over time.
 
+```{r fig counter 3, include FALSE}
+fig_counter <- fig_counter + 1
+```
+
 ```{r temp DO plot, out.width = '80%'}
 if (length(plot_files) >= 3) {
   knitr::include_graphics(plot_files[3])
 }
+```
+
+Figure `r fig_counter`. Plot showing 2025 profiles temperature (degrees Celcius, green points, left) and dissolved oxygen (mg/L, blue points, right) by depth in meters. Month of profile is indicated by point shape and darkness of color (earlier season - lighter; later season - darker). 
+
+```{r fig counter 4, include FALSE}
+fig_counter <- fig_counter + 1
 ```
 
 ```{r plankton, out.width = '80%'}
@@ -207,6 +217,8 @@ if (length(plot_files) >= 4) {
   knitr::include_graphics(plot_files[4])
 }
 ```
+
+Figure `r fig_counter`. Plot showing the relative abundance of phytoplankton communities over time. 
 
 #### Table 1. 2025 Average Water Quality Data for `r toupper(lake)` – `r town`
 ```{r avg water quality}
