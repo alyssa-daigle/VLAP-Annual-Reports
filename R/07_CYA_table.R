@@ -136,6 +136,9 @@ make_CYA_table <- function(data_long, table_path, input_path) {
     lake_data <- CYA_updated |> filter(RELLAKE == lake, TOWN == town)
     lake_data_out <- lake_data |> select(-RELLAKE, -STATIONID, -TOWN)
 
+    # DROP any column that is entirely NA for this lake/town
+    lake_data_out <- lake_data_out |> select(where(~ !all(is.na(.))))
+
     file_name <- paste0(
       "CYA_",
       gsub(" ", "_", lake),
@@ -145,6 +148,8 @@ make_CYA_table <- function(data_long, table_path, input_path) {
     )
     write_csv(lake_data_out, file.path(table_path, file_name), na = "-")
   }
+
+  return(CYA_update = CYA_updated)
 
   message(
     "CYA tables exported for ",

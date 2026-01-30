@@ -6,7 +6,7 @@ output:
 params:
   lake: NULL
   station: NULL
-  station_id: NULL
+  stations: NULL
   town: NULL
   table_path: NULL
 ---
@@ -48,7 +48,7 @@ library(magrittr)
 accent1_60 <- "#DCE6F1"  # same light blue fill
 
 # clean and escape station id for regex
-station_clean <- gsub(" ", "_", station_id)
+station_clean <- gsub(" ", "_", stations)
 station_clean <- gsub("([\\(\\)\\[\\]\\+\\?\\*\\.\\^\\$])", "\\\\\\1", station_clean)
 
 trend_file <- list.files(
@@ -85,7 +85,7 @@ if (length(trend_file) == 1) {
   ft_trend
   
 } else {
-  cat("**Trend summary not found for", station_id, "**")
+  cat("**Trend summary not found for", stations, "**")
 }
 
 
@@ -94,7 +94,7 @@ if (length(trend_file) == 1) {
 
 ### **HISTORICAL WATER QUALITY GRAPHICS - DEEP SPOT**
 ```{r plots, echo=FALSE, results='asis', out.width = '75%'}
-station_id <- params$station_id
+station_id <- params$stations
 
 # Dynamic directories from environment variables
 plot_dirs <- c(
@@ -107,7 +107,7 @@ plot_dirs <- c(
 # Find matching images
 plot_files <- unlist(lapply(plot_dirs, function(d) {
   if (dir.exists(d)) {
-    list.files(d, pattern = paste0(station_id, ".*\\.(png|jpg)$"),
+    list.files(d, pattern = paste0(stations, ".*\\.(png|jpg)$"),
             full.names = TRUE, ignore.case = TRUE)
   } else {
     character(0)
