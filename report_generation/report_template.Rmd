@@ -93,10 +93,9 @@ if (length(trend_file) == 1) {
 
 
 ### **HISTORICAL WATER QUALITY GRAPHICS - DEEP SPOT**
-```{r plots, echo=FALSE, results='asis', out.width = '75%'}
+```{r plots, echo=FALSE, results='asis', include=FALSE}
 station_id <- params$stations
 
-# Dynamic directories from environment variables
 plot_dirs <- c(
   file.path(plot_path, "pH_conduc"),
   file.path(plot_path, "chl_tp_secchi"),
@@ -104,35 +103,109 @@ plot_dirs <- c(
   file.path(plot_path, "plankton")
 )
 
-# Find matching images
 plot_files <- unlist(lapply(plot_dirs, function(d) {
   if (dir.exists(d)) {
-    list.files(d, pattern = paste0(stations, ".*\\.(png|jpg)$"),
-            full.names = TRUE, ignore.case = TRUE)
+    files <- list.files(
+      d,
+      pattern = paste0(station_id, ".*\\.(png|jpg)$"),
+      full.names = TRUE,
+      ignore.case = TRUE
+    )
+    files[file.exists(files)]
   } else {
     character(0)
   }
-}))
+}), use.names = FALSE)
 
-# Clean and limit to 4 images
-plot_files <- plot_files[!is.na(plot_files) & plot_files != ""]
-if (length(plot_files) > 4) plot_files <- plot_files[1:4]
+plot_files <- plot_files[!is.na(plot_files) & nzchar(plot_files)]
+plot_files <- plot_files[seq_len(min(4, length(plot_files)))]
+```
+
+```{r trend captions, include=FALSE}
+trend_files <- list.files(
+  path = table_path,
+  pattern = paste0("^MK_TrendSummary_", station_clean, "\\.csv$"),
+  full.names = TRUE,
+  ignore.case = TRUE
+)
+
+if (length(trend_files) == 0) {
+  trend_data <- NULL
+
+} else {
+  # If more than one match, take the most recent (or first deterministically)
+  trend_file <- trend_files[1]
+  trend_data <- read.csv(trend_file, stringsAsFactors = FALSE)
+
+  param_order <- c(
+    "Conductivity (Epilimnion)",
+    "Chlorophyll-a (Composite)",
+    "pH (Epilimnion)",
+    "Transparency",
+    "Phosphorus (Epilimnion)",
+    "Phosphorus (Hypolimnion)"
+  )
+
+  trend_data <- trend_data |>
+    mutate(
+      PARAM_UPPER = toupper(PARAMETER),
+      param_index = match(PARAM_UPPER, toupper(param_order))
+    ) |>
+    arrange(param_index)
+}
+
+get_trend <- function(i) {
+  if (!is.null(trend_data) &&
+      "PARAMETER" %in% names(trend_data) &&
+      nrow(trend_data) >= i &&
+      !is.na(trend_data$PARAMETER[i])) {
+    paste0(trend_data$TREND[i], " trend")
+  } else {
+    "no significant trend"
+  }
+}
+
+```
+
+```{r fig counter 1, include FALSE}
+fig_counter <- 1
 ```
 
 ```{r cond pH plot, out.width = '80%'}
-if (length(plot_files) >= 1) knitr::include_graphics(plot_files[1])
+if (length(plot_files) >= 1) {
+  knitr::include_graphics(plot_files[1])
+}
+```
+
+Figure `r fig_counter`. Plot showing
+`r get_trend(3)` (black dashed line) in Epilimnetic (surface) pH (red dots) and
+`r get_trend(1)` (red dashed line) in Epilimnetic conductivity (gray bars) over time.
+
+```{r fig counter 2, include FALSE}
+fig_counter <- fig_counter + 1
 ```
 
 ```{r chl tp trans plot, out.width = '80%'}
-if (length(plot_files) >= 2) knitr::include_graphics(plot_files[2])
+if (length(plot_files) >= 2) {
+  knitr::include_graphics(plot_files[2])
+}
 ```
 
+Figure `r fig_counter`. Plot showing
+`r get_trend(2)` (green dashed line) in Chlorophyll-a (green dots),
+`r get_trend(5)` (red dashed line) in Epilimnetic Total Phosphorus (red triangles), and
+`r get_trend(4)` (blue dashed line) in Secchi disk transparency (blue bars) over time.
+
 ```{r temp DO plot, out.width = '80%'}
-if (length(plot_files) >= 3) knitr::include_graphics(plot_files[3])
+if (length(plot_files) >= 3) {
+  knitr::include_graphics(plot_files[3])
+}
 ```
 
 ```{r plankton, out.width = '80%'}
-if (length(plot_files) >= 4) knitr::include_graphics(plot_files[4])
+if (length(plot_files) >= 4) {
+  knitr::include_graphics(plot_files[4])
+}
 ```
 
 #### Table 1. 2025 Average Water Quality Data for `r toupper(lake)` – `r town`
