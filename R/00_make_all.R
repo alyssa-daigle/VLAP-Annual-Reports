@@ -140,7 +140,7 @@ message("All plots completed.")
 # CYA (Current Year Average) table exports
 # ==========================
 message("Exporting CYA tables...")
-make_CYA_table(data_long, table_path, input_path)
+CYA_updated <- make_CYA_table(data_long, table_path, input_path)
 message("All tables exported.")
 
 # ==========================

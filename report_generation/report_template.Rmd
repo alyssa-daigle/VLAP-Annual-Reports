@@ -36,13 +36,13 @@ library(officer)
 library(magrittr)
 ```
 
-### **INDIVIDUAL REPORT: `r toupper(lake)` – `r town`**
+### **Individual Report: `r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)`**
 
-**WATER QUALITY SUMMARY:**
+**Water Quality Summary:**
 
-**RECOMMENDED ACTIONS:**
+**Recommended Actions:**
 
-### **HISTORICAL WATER QUALITY TREND ANALYSIS**
+### **Historical Water Quality Trend Analysis**
 ``` {r trend table}
 
 accent1_60 <- "#DCE6F1"  # same light blue fill
@@ -92,7 +92,7 @@ if (length(trend_file) == 1) {
 ```
 
 
-### **HISTORICAL WATER QUALITY GRAPHICS - DEEP SPOT**
+### **Historical Water Quality Graphics - Deep Spot**
 ```{r plots, echo=FALSE, results='asis', include=FALSE}
 station_id <- params$stations
 
@@ -159,11 +159,14 @@ get_trend <- function(i) {
       "PARAMETER" %in% names(trend_data) &&
       nrow(trend_data) >= i &&
       !is.na(trend_data$PARAMETER[i])) {
-    paste0(trend_data$TREND[i], " trend")
+    
+    trend_data$TREND[i]
+    
   } else {
-    "no significant trend"
+    "no significant"
   }
 }
+
 
 ```
 
@@ -177,9 +180,9 @@ if (length(plot_files) >= 1) {
 }
 ```
 
-Figure `r fig_counter`. Plot showing
-`r get_trend(3)` (black dashed line) in Epilimnetic (surface) pH (red dots) and
-`r get_trend(1)` (red dashed line) in Epilimnetic conductivity (gray bars) over time.
+Figure `r fig_counter`. Median epilimnetic pH (red points) and conductivity (gray bars) by year, with corresponding trend lines shown as red and black dashed lines, respectively. Epilimnetic pH is
+`r get_trend(3)` and conductivity is 
+`r get_trend(1)` since monitoring began.
 
 ```{r fig counter 2, include FALSE}
 fig_counter <- fig_counter + 1
@@ -191,10 +194,10 @@ if (length(plot_files) >= 2) {
 }
 ```
 
-Figure `r fig_counter`. Plot showing
-`r get_trend(2)` (green dashed line) in Chlorophyll-a (green dots),
-`r get_trend(5)` (red dashed line) in Epilimnetic Total Phosphorus (red triangles), and
-`r get_trend(4)` (blue dashed line) in Secchi disk transparency (blue bars) over time.
+Figure `r fig_counter`. Median Secchi disk transparency (blue bars), epilimnetic phopshorus (red triangles), and chlorophyll-a (green points) by year, with corresponding trend lines shown as black, red, and green dashed lines, respectively. Water transparency is
+`r get_trend(4)`, phopshorus is
+`r get_trend(5)`, and chlorophyll-a is
+`r get_trend(2)` since monitoring began.
 
 ```{r fig counter 3, include FALSE}
 fig_counter <- fig_counter + 1
@@ -206,7 +209,7 @@ if (length(plot_files) >= 3) {
 }
 ```
 
-Figure `r fig_counter`. Plot showing 2025 profiles temperature (degrees Celcius, green points, left) and dissolved oxygen (mg/L, blue points, right) by depth in meters. Month of profile is indicated by point shape and darkness of color (earlier season - lighter; later season - darker). 
+Figure `r fig_counter`. 2025 vertical profiles of temperature (°C; green points, left plot) and dissolved oxygen (mg/L; blue points, right plot) plotted against depth (m). Profile month is indicated by point shape and color intensity, with lighter shades representing earlier-season samples and darker shades representing later-season samples. 
 
 ```{r fig counter 4, include FALSE}
 fig_counter <- fig_counter + 1
@@ -218,9 +221,9 @@ if (length(plot_files) >= 4) {
 }
 ```
 
-Figure `r fig_counter`. Plot showing the relative abundance of phytoplankton communities over time. 
+Figure `r fig_counter`. Phytoplankton community composition over time, expressed as relative abundance of major taxonomic groups. 
 
-#### Table 1. 2025 Average Water Quality Data for `r toupper(lake)` – `r town`
+#### Table 1. 2025 Average Water Quality Data for `r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)`
 ```{r avg water quality}
 lake <- params$lake
 town <- params$town   # NEW: town passed in from params
@@ -290,7 +293,7 @@ if (length(cya_file) == 1) {
 ```
 
 
-### **OBSERVATIONS** *(Refer to Table 1 and Historical Deep Spot Data Graphics)*:
+### **Observations** *(Refer to Table 1 and Historical Deep Spot Data Graphics)*:
 
 - **Chlorophyll-a (Chlor-a):** 
 
@@ -306,8 +309,7 @@ if (length(cya_file) == 1) {
 
 - **pH:** 
 
-
-#### **HOW DOES YOUR LAKE COMPARE TO NEW HAMPSHIRE LAKES & WATER QUALITY STANDARDS?**
+#### **How does your lake compare to New Hampshire lakes and water quality standards?**
 
 
 ##### **NH Median Lake Water Quality Values**

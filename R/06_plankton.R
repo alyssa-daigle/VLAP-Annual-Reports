@@ -33,6 +33,14 @@ make_plankton <- function(output_path) {
 
   data <- rel_abund
 
+  # -----------------------------
+  # GLOBAL CHECK FOR 2024+ DATA
+  # -----------------------------
+  if (!any(data$year >= 2024, na.rm = TRUE)) {
+    message("No plankton data from 2024 or newer. No reports generated.")
+    return(invisible(NULL))
+  }
+
   # Get list of stations
   stations <- sort(unique(data$stationID))
 
@@ -43,20 +51,21 @@ make_plankton <- function(output_path) {
     plot_data <- data |>
       filter(stationID == station_id)
 
-    # Skip if no usable data
-    if (nrow(plot_data) == 0 || all(is.na(plot_data$year))) {
-      message("  -> Skipping ", station_id, " (no valid year data)\n")
+    # -----------------------------
+    # STATION-LEVEL CHECK FOR 2024+
+    # -----------------------------
+    if (!any(plot_data$year >= 2024, na.rm = TRUE)) {
+      message("  -> Skipping ", station_id, " (no 2024+ data)\n")
       return(NULL)
     }
 
-    # Full year range (so gaps show)
+    # Full year range
     all_years <- seq(
       min(plot_data$year, na.rm = TRUE),
       max(plot_data$year, na.rm = TRUE),
       by = 1
     )
 
-    # Ensure full grid of years × groups
     plot_data <- plot_data |>
       mutate(
         group = factor(group, levels = names(algae_colors))
@@ -103,13 +112,10 @@ make_plankton <- function(output_path) {
       theme_plankton_legend() +
       guides(fill = guide_legend(ncol = 1))
 
-    # Extract legend
     legend <- get_legend(p_legend)
 
-    # Combine plot + legend
     final_plot <- plot_grid(p_main, legend, rel_widths = c(6, 1.5))
 
-    # Save plot
     filename <- paste0(station_id, "_plankton.png")
     temp_path <- file.path(output_path, filename)
 
@@ -122,7 +128,6 @@ make_plankton <- function(output_path) {
       bg = "white"
     )
 
-    # Add PNG border
     img <- magick::image_read(temp_path)
     img_bordered <- magick::image_border(
       img,

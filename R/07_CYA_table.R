@@ -149,12 +149,12 @@ make_CYA_table <- function(data_long, table_path, input_path) {
     write_csv(lake_data_out, file.path(table_path, file_name), na = "-")
   }
 
-  return(CYA_update = CYA_updated)
-
   message(
     "CYA tables exported for ",
     nrow(lake_town_pairs),
     " lake/town combinations to: ",
     table_path
   )
+
+  return(CYA_updated)
 }
