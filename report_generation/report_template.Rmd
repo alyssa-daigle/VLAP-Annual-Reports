@@ -160,7 +160,7 @@ get_trend <- function(i) {
       nrow(trend_data) >= i &&
       !is.na(trend_data$PARAMETER[i])) {
     
-    trend_data$TREND[i]
+    tolower(trend_data$TREND[i])
     
   } else {
     "no significant"
