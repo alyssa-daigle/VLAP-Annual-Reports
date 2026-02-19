@@ -348,7 +348,8 @@ data_reformat <- function(input_path) {
       "TARPIED",
       "WARALSD",
       "WAUDAND",
-      "WILPFDD"
+      "WILPFDD",
+      "GOOCAND"
     ),
     lake_name = c(
       "ANGLE POND",
@@ -368,7 +369,8 @@ data_reformat <- function(input_path) {
       "LAKE TARLETON",
       "WARREN LAKE",
       "WAUKEENA LAKE",
-      "WILD GOOSE POND"
+      "WILD GOOSE POND",
+      "GOOSE POND"
     ),
     lake_town = c(
       "SANDOWN",
@@ -388,7 +390,8 @@ data_reformat <- function(input_path) {
       "PIERMONT",
       "ALSTEAD",
       "DANBURY",
-      "PITTSFIELD"
+      "PITTSFIELD",
+      "CANAAN"
     ),
     start_year = c(
       2005,
@@ -408,7 +411,8 @@ data_reformat <- function(input_path) {
       2002,
       1999,
       2003,
-      2013
+      2013,
+      2007
     )
   )
 
