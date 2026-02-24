@@ -83,6 +83,7 @@ make_CYA_table <- function(data_long, table_path, input_path) {
     "Total P (μg/L)",
     "Trans. NVS (m)",
     "Trans. VS (m)",
+    "Turb. (ntu)",
     "pH",
     "E. coli (mpn/100 mL)"
   )
@@ -91,6 +92,16 @@ make_CYA_table <- function(data_long, table_path, input_path) {
       any_of(numeric_cols),
       ~ if (is.numeric(.)) round(., 2) else .
     ))
+
+  # enforce parameter column order
+  CYA_2025 <- CYA_2025 |>
+    select(
+      RELLAKE,
+      STATNAME,
+      STATIONID,
+      TOWN,
+      any_of(numeric_cols) # keeps only those that exist, in this exact order
+    )
 
   # join with lake map to update RELLAKE names
   CYA_updated <- CYA_2025 |>
