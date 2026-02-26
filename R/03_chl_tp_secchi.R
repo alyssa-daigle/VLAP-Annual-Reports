@@ -16,7 +16,10 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
     message("Processing station: ", station_id)
 
     # Determine which Secchi variable to use
-    secchi_var <- if (startsWith(station_id, "SUNSUN")) {
+    secchi_var <- if (
+      startsWith(station_id, "SUNSUN") |
+        startsWith(station_id, "NUBNELD")
+    ) {
       "SECCHI"
     } else {
       "SECCHI_NVS"

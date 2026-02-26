@@ -157,6 +157,15 @@ data_reformat <- function(input_path) {
         TRUE ~ DEPTHZONE
       ),
 
+      # ---- KEZSUTD CHL COMPOSITE FIX ---------------------------------------
+      DEPTHZONE = case_when(
+        STATIONID == "KEZSUTD" &
+          WSHEDPARMNAME == "CHLOROPHYLL A, UNCORRECTED FOR PHEOPHYTIN" &
+          is.na(DEPTHZONE) ~ "COMPOSITE",
+        TRUE ~ DEPTHZONE
+      ),
+      # -----------------------------------------------------------------------
+
       # ---- SUNSUN OVERRIDE LOGIC ------------------------------------------
       DEPTHZONE = case_when(
         STATIONID %in%
