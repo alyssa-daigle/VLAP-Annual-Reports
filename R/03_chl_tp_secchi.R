@@ -206,10 +206,10 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       lwd = 1.75
     )
 
-    # Mann Kendall lines (if any)
+    # Mann Kendall trend lines (if any)
     if (has_MK) {
       add_mk_line <- function(var, col, use_secchi = FALSE) {
-        slope <- MK_table |> filter(PARAMETER == var) |> pull(sen_slope)
+        slope <- MK_table |> filter(Parameter == var) |> pull(sen_slope)
         if (length(slope) > 0 && !is.na(slope)) {
           df_var <- df_plot |> filter(!is.na(.data[[var]]))
           if (nrow(df_var) >= 2) {
@@ -275,7 +275,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
 
     if (has_MK) {
       slope_sec <- MK_table |>
-        filter(PARAMETER == secchi_var) |>
+        filter(Parameter == secchi_var) |>
         pull(sen_slope)
       if (length(slope_sec) > 0 && !is.na(slope_sec)) {
         trend_items <- c(trend_items, "Transparency Trend")
@@ -284,7 +284,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
         lwd_items <- c(lwd_items, 1.75)
       }
       slope_chl <- MK_table |>
-        filter(PARAMETER == "CHL_comp") |>
+        filter(Parameter == "CHL_comp") |>
         pull(sen_slope)
       if (length(slope_chl) > 0 && !is.na(slope_chl)) {
         trend_items <- c(trend_items, "Chlorophyll-a Trend")
@@ -292,7 +292,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
         lty_items <- c(lty_items, 2)
         lwd_items <- c(lwd_items, 1.75)
       }
-      slope_tp <- MK_table |> filter(PARAMETER == "TP_epi") |> pull(sen_slope)
+      slope_tp <- MK_table |> filter(Parameter == "TP_epi") |> pull(sen_slope)
       if (length(slope_tp) > 0 && !is.na(slope_tp)) {
         trend_items <- c(trend_items, "Total Phosphorus Trend")
         col_items <- c(col_items, "red4")

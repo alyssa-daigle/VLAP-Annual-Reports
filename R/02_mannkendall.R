@@ -169,14 +169,14 @@ run_vlap_mannkendall <- function(
 
       station_results[[length(station_results) + 1]] <- tibble(
         STATIONID = st,
-        PARAMETER = param,
+        Parameter = param,
         n = length(temp),
         tau = mk$estimates[["tau"]],
         mk_p = mk$p.value,
         sen_slope = sen$estimates[["Sen's slope"]],
         sen_ci_lower = sen$conf.int[1],
         sen_ci_upper = sen$conf.int[2],
-        TREND = trend_cat
+        Trend = trend_cat
       )
     }
 
@@ -201,9 +201,9 @@ run_vlap_mannkendall <- function(
   # --- Recode parameter names ---
   mk_summary <- mk_summary |>
     mutate(
-      PARAMETER = case_when(
+      Parameter = case_when(
         STATIONID %in% sunsun_all ~ dplyr::recode(
-          PARAMETER,
+          Parameter,
           "SPCD_epi" = "Conductivity",
           "CHL_comp" = "Chlorophyll-a",
           "PH_epi" = "pH",
@@ -212,7 +212,7 @@ run_vlap_mannkendall <- function(
           "TP_hypo" = "Phosphorus (Hypolimnion)"
         ),
         TRUE ~ dplyr::recode(
-          PARAMETER,
+          Parameter,
           "SPCD_epi" = "Conductivity (Epilimnion)",
           "CHL_comp" = "Chlorophyll-a (Composite)",
           "PH_epi" = "pH (Epilimnion)",
@@ -230,7 +230,7 @@ run_vlap_mannkendall <- function(
     walk(function(df) {
       st <- unique(df$STATIONID)
       write_csv(
-        df |> select(PARAMETER, TREND),
+        df |> select(Parameter, Trend),
         file.path(table_path, paste0("MK_TrendSummary_", st, ".csv"))
       )
     })
@@ -238,13 +238,13 @@ run_vlap_mannkendall <- function(
   # --- Combined SUNSUN NEARSHORE & TRIB summary tables ---
   mk_summary_nearshore <- mk_summary |>
     filter(STATIONID %in% sunsun_nearshore_stations) |>
-    select(STATIONID, PARAMETER, TREND) |>
-    arrange(STATIONID, PARAMETER)
+    select(STATIONID, Parameter, Trend) |>
+    arrange(STATIONID, Parameter)
 
   mk_summary_trib <- mk_summary |>
     filter(STATIONID %in% sunsun_trib_stations) |>
-    select(STATIONID, PARAMETER, TREND) |>
-    arrange(STATIONID, PARAMETER)
+    select(STATIONID, Parameter, Trend) |>
+    arrange(STATIONID, Parameter)
 
   write_csv(
     mk_summary_nearshore,

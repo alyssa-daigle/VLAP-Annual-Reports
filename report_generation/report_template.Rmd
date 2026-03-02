@@ -148,7 +148,7 @@ if (length(trend_files) == 0) {
 
   trend_data <- trend_data |>
     mutate(
-      PARAM_UPPER = toupper(PARAMETER),
+      PARAM_UPPER = toupper(Parameter),
       param_index = match(PARAM_UPPER, toupper(param_order))
     ) |>
     arrange(param_index)
@@ -156,11 +156,11 @@ if (length(trend_files) == 0) {
 
 get_trend <- function(i) {
   if (!is.null(trend_data) &&
-      "PARAMETER" %in% names(trend_data) &&
+      "Parameter" %in% names(trend_data) &&
       nrow(trend_data) >= i &&
-      !is.na(trend_data$PARAMETER[i])) {
+      !is.na(trend_data$Parameter[i])) {
     
-    tolower(trend_data$TREND[i])
+    tolower(trend_data$Trend[i])
     
   } else {
     "no significant"
@@ -322,7 +322,7 @@ accent1_60 <- "#DCE6F1"
 
 # --- NH Median Lake Water Quality Values ---
 median_values <- data.frame(
-  PARAMETER = c("Alkalinity", "Chlorophyll-a", "Chloride", "Conductivity", 
+  Parameter = c("Alkalinity", "Chlorophyll-a", "Chloride", "Conductivity", 
                 "Total phosphorus", "Transparency", "pH"),
   `MEDIAN VALUE` = c("4.5 mg/L", "4.39 μg/L", "5 mg/L", "42.3 μS/cm",
                     "11 μg/L", "3.3 m", "6.6"),
@@ -357,7 +357,7 @@ ft_median
 ``` {r NH water quality standards}
 # --- NH Water Quality Standards ---
 water_quality_standards <- data.frame(
-  PARAMETER = c("Chloride", "E. coli (beach)", "E. coli (surface water)", 
+  Parameter = c("Chloride", "E. coli (beach)", "E. coli (surface water)", 
                 "pH", "Turbidity"),
   THRESHOLD = c("> 230 mg/L (chronic)", "> 88 cts/100 mL", "> 406 cts/100 mL",
                 "between 6.5-8.0 (unless naturally occurring)", 
