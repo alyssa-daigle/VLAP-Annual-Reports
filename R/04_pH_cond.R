@@ -167,7 +167,7 @@ make_pH_conduc <- function(data_plot, input_path, output_path) {
     # ---- MK trend lines ----
     if (has_MK) {
       add_mk_line <- function(var, col, is_ph = FALSE) {
-        slope <- MK_table |> filter(PARAMETER == var) |> pull(sen_slope)
+        slope <- MK_table |> filter(Parameter == var) |> pull(sen_slope)
 
         if (length(slope) > 0 && !is.na(slope)) {
           df_var <- df_plot |> filter(!is.na(.data[[var]]))
@@ -225,7 +225,7 @@ make_pH_conduc <- function(data_plot, input_path, output_path) {
 
     if (has_MK) {
       # pH trend
-      slope_ph <- MK_table |> filter(PARAMETER == "PH_epi") |> pull(sen_slope)
+      slope_ph <- MK_table |> filter(Parameter == "PH_epi") |> pull(sen_slope)
       if (!is.na(slope_ph) & length(slope_ph) > 0) {
         trend_items <- c(trend_items, "pH Trend")
         col_items <- c(col_items, "black")
@@ -235,7 +235,7 @@ make_pH_conduc <- function(data_plot, input_path, output_path) {
 
       # Conductivity trend
       slope_cond <- MK_table |>
-        filter(PARAMETER == "SPCD_epi") |>
+        filter(Parameter == "SPCD_epi") |>
         pull(sen_slope)
       if (!is.na(slope_cond) & length(slope_cond) > 0) {
         trend_items <- c(trend_items, "Conductivity Trend")
