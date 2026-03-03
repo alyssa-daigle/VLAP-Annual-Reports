@@ -194,8 +194,8 @@ if (length(plot_files) >= 2) {
 }
 ```
 
-Figure `r fig_counter`. Median Secchi disk transparency (blue bars), epilimnetic phopshorus (red triangles), and chlorophyll-a (green points) by year, with corresponding trend lines shown as black, red, and green dashed lines, respectively. Water transparency is
-`r get_trend(4)`, phopshorus is
+Figure `r fig_counter`. Median Secchi disk transparency (blue bars), epilimnetic phosphorus (red triangles), and chlorophyll-a (green points) by year, with corresponding trend lines shown as black, red, and green dashed lines, respectively. Water transparency is
+`r get_trend(4)`, phosphorus is
 `r get_trend(5)`, and chlorophyll-a is
 `r get_trend(2)` since monitoring began.
 
