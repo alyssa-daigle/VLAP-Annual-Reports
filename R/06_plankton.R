@@ -54,8 +54,8 @@ make_plankton <- function(output_path) {
     # -----------------------------
     # STATION-LEVEL CHECK FOR 2024+
     # -----------------------------
-    if (!any(plot_data$year >= 2024, na.rm = TRUE)) {
-      message("  -> Skipping ", station_id, " (no 2024+ data)\n")
+    if (!any(plot_data$year >= 2025, na.rm = TRUE)) {
+      message("  -> Skipping ", station_id, " (no 2025 data)\n")
       return(NULL)
     }
 
