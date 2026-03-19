@@ -208,7 +208,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
 
     # Mann Kendall trend lines (if any)
     if (has_MK) {
-      add_mk_line <- function(var, col, use_secchi = FALSE) {
+      add_mk_line <- function(var, col, lty, use_secchi = FALSE) {
         slope <- MK_table |> filter(Parameter == var) |> pull(sen_slope)
         if (length(slope) > 0 && !is.na(slope)) {
           df_var <- df_plot |> filter(!is.na(.data[[var]]))
@@ -224,8 +224,8 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
                 x_vals,
                 y_vals,
                 type = "l",
-                col = "blue4",
-                lty = 2,
+                col = col,
+                lty = lty,
                 lwd = 1.75,
                 axes = FALSE,
                 xlab = "",
@@ -234,15 +234,15 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
                 yaxs = "i"
               )
             } else {
-              lines(x_vals, y_vals, col = col, lty = 2, lwd = 1.75)
+              lines(x_vals, y_vals, col = col, lty = lty, lwd = 1.75)
             }
           }
         }
       }
 
-      add_mk_line("TP_epi", "red4")
-      add_mk_line("CHL_comp", "green4")
-      add_mk_line(secchi_var, "blue4", use_secchi = TRUE)
+      add_mk_line("TP_epi", "red4", lty = 2)
+      add_mk_line("CHL_comp", "green4", lty = 3)
+      add_mk_line(secchi_var, "blue4", lty = 4, use_secchi = TRUE)
     }
 
     # Legends (unchanged)
@@ -280,7 +280,15 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       if (length(slope_sec) > 0 && !is.na(slope_sec)) {
         trend_items <- c(trend_items, "Transparency Trend")
         col_items <- c(col_items, "blue4")
+        # Secchi
+        lty_items <- c(lty_items, 4)
+
+        # CHL
+        lty_items <- c(lty_items, 3)
+
+        # TP
         lty_items <- c(lty_items, 2)
+
         lwd_items <- c(lwd_items, 1.75)
       }
       slope_chl <- MK_table |>

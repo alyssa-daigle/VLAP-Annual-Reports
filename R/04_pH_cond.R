@@ -166,7 +166,7 @@ make_pH_conduc <- function(data_plot, input_path, output_path) {
 
     # ---- MK trend lines ----
     if (has_MK) {
-      add_mk_line <- function(var, col, is_ph = FALSE) {
+      add_mk_line <- function(var, col, lty, is_ph = FALSE) {
         slope <- MK_table |> filter(Parameter == var) |> pull(sen_slope)
 
         if (length(slope) > 0 && !is.na(slope)) {
@@ -187,12 +187,12 @@ make_pH_conduc <- function(data_plot, input_path, output_path) {
             y_vals <- intercept + slope * x_vals
           }
 
-          lines(x_vals, y_vals, col = col, lty = 2, lwd = 1.75)
+          lines(x_vals, y_vals, col = col, lty = lty, lwd = 1.75)
         }
       }
 
-      add_mk_line("SPCD_epi", "red3", is_ph = FALSE)
-      add_mk_line("PH_epi", "black", is_ph = TRUE)
+      add_mk_line("SPCD_epi", "red3", lty = 2, is_ph = FALSE)
+      add_mk_line("PH_epi", "black", lty = 3, is_ph = TRUE)
     }
 
     # --- Dynamic legend with trend numbers ---
@@ -229,7 +229,7 @@ make_pH_conduc <- function(data_plot, input_path, output_path) {
       if (!is.na(slope_ph) & length(slope_ph) > 0) {
         trend_items <- c(trend_items, "pH Trend")
         col_items <- c(col_items, "black")
-        lty_items <- c(lty_items, 2)
+        lty_items <- c(lty_items, 3)
         lwd_items <- c(lwd_items, 1.75)
       }
 
