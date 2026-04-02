@@ -104,7 +104,7 @@ theme_temp_DO <- function() {
     theme(
       panel.grid.major.x = element_blank(),
       panel.grid.minor.x = element_blank(),
-      panel.grid.major.y = element_line(color = "whitesmoke"),
+      panel.grid.major.y = element_line(color = "snow2"),
       panel.grid.minor.y = element_blank(),
       plot.title = element_text(
         hjust = 0.5,

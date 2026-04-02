@@ -67,14 +67,14 @@ make_temp_DO <- function(input_path, output_path) {
       geom_path(aes(color = Month)) +
       geom_point(aes(fill = Month), size = 2.0, stroke = 0.5) +
       scale_color_manual(
-        values = scales::seq_gradient_pal("lightgreen", "darkgreen")(seq(
+        values = scales::seq_gradient_pal("palegreen", "darkgreen")(seq(
           0,
           1,
           length.out = n_months
         ))
       ) +
       scale_fill_manual(
-        values = scales::seq_gradient_pal("lightgreen", "darkgreen")(seq(
+        values = scales::seq_gradient_pal("palegreen", "darkgreen")(seq(
           0,
           1,
           length.out = n_months
@@ -112,14 +112,14 @@ make_temp_DO <- function(input_path, output_path) {
       geom_path(aes(color = Month)) +
       geom_point(aes(fill = Month), size = 2.0, stroke = 0.5) +
       scale_color_manual(
-        values = scales::seq_gradient_pal("lightblue", "darkblue")(seq(
+        values = scales::seq_gradient_pal("steelblue1", "darkblue")(seq(
           0,
           1,
           length.out = n_months
         ))
       ) +
       scale_fill_manual(
-        values = scales::seq_gradient_pal("lightblue", "darkblue")(seq(
+        values = scales::seq_gradient_pal("steelblue1", "darkblue")(seq(
           0,
           1,
           length.out = n_months
@@ -177,6 +177,15 @@ make_temp_DO <- function(input_path, output_path) {
           hjust = 0.5
         ),
       combined_panels,
+      ggdraw() +
+        draw_label(
+          "Month of Profile",
+          fontface = "bold",
+          size = 10,
+          x = 0.5,
+          hjust = 0.5,
+          y = 0.5
+        ),
       legend,
       ncol = 1,
       rel_heights = c(0.12, 1, 0.18)

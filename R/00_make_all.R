@@ -119,18 +119,23 @@ message("Done running Mann-Kendall.")
 # font_import(pattern = "calibri", prompt = FALSE)
 
 message("Generating plots...")
+
+source(file.path(project_path, "R", "03_chl_tp_secchi.R"))
+
 make_chl_tp_secchi(
   data_plot,
   input_path,
   file.path(output_path, "chl_tp_secchi")
 )
 
+source(file.path(project_path, "R", "04_pH_cond.R"))
 make_pH_conduc(
   data_plot,
   input_path,
   file.path(output_path, "pH_conduc")
 )
 
+source(file.path(project_path, "R", "05_temp_DO.R"))
 make_temp_DO(input_path, file.path(output_path, "temp_DO"))
 
 make_plankton(file.path(output_path, "plankton"))

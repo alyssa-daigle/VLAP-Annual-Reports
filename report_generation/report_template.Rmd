@@ -36,13 +36,14 @@ library(officer)
 library(magrittr)
 ```
 
-### **Individual Report: `r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)`**
+# **Individual Report: `r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)`**
 
 **Water Quality Summary:**
 
 **Recommended Actions:**
 
-### **Historical Water Quality Trend Analysis**
+## **Historical Water Quality Trend Analysis**
+Table 1. Historical Water Quality Trends for `r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)`
 ``` {r trend table}
 
 accent1_60 <- "#DCE6F1"  # same light blue fill
@@ -92,7 +93,7 @@ if (length(trend_file) == 1) {
 ```
 
 
-### **Historical Water Quality Graphics - Deep Spot**
+## **Historical Water Quality Graphics - Deep Spot**
 ```{r plots, echo=FALSE, results='asis', include=FALSE}
 station_id <- params$stations
 
@@ -223,7 +224,7 @@ if (length(plot_files) >= 4) {
 
 Figure `r fig_counter`. Phytoplankton community composition over time, expressed as relative abundance of major taxonomic groups. 
 
-#### Table 1. 2025 Average Water Quality Data for `r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)`
+Table 2. 2025 Average Water Quality Data for `r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)`
 ```{r avg water quality}
 lake <- params$lake
 town <- params$town   # NEW: town passed in from params
@@ -293,7 +294,7 @@ if (length(cya_file) == 1) {
 ```
 
 
-### **Observations** *(Refer to Table 1 and Historical Deep Spot Data Graphics)*:
+## **Observations** *(Refer to Table 2 and Historical Deep Spot Data Graphics)*:
 
 - **Chlorophyll-a (Chlor-a):** 
 
@@ -309,10 +310,10 @@ if (length(cya_file) == 1) {
 
 - **pH:** 
 
-#### **How does your lake compare to New Hampshire lakes and water quality standards?**
+### **How does your lake compare to New Hampshire lakes and water quality standards?**
 
 
-##### **NH Median Lake Water Quality Values**
+Table 3. New Hampshire Median Lake Water Quality Values
 
 ##### *Median values generated from historic lake monitoring data*
 
@@ -323,7 +324,7 @@ accent1_60 <- "#DCE6F1"
 # --- NH Median Lake Water Quality Values ---
 median_values <- data.frame(
   Parameter = c("Alkalinity", "Chlorophyll-a", "Chloride", "Conductivity", 
-                "Total phosphorus", "Transparency", "pH"),
+                "Total Phosphorus", "Transparency", "pH"),
   `Median Value` = c("4.5 mg/L", "4.39 μg/L", "5 mg/L", "42.3 μS/cm",
                     "11 μg/L", "3.3 m", "6.6"),
   check.names = FALSE
@@ -350,7 +351,7 @@ ft_median
 
 
 
-##### **NH Water Quality Standards**
+Table 4. New Hampshire Water Quality Standards
 
 ##### *Numeric criteria for specific parameters. Water quality violation occurs if thresholds are exceeded.*
 

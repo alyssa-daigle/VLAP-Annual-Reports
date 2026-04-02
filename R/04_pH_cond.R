@@ -65,7 +65,7 @@ make_pH_conduc <- function(data_plot, input_path, output_path) {
     # ---- Plot ----
     png(temp_path, width = 8, height = 4, units = "in", res = 200)
     par(family = "Calibri")
-    par(mar = c(3.8, 4, 4, 3.8))
+    par(mar = c(3.8, 4, 4.2, 3.8))
 
     x_min <- min(df_plot$year)
     x_max <- max(df_plot$year)
@@ -202,7 +202,7 @@ make_pH_conduc <- function(data_plot, input_path, output_path) {
     legend(
       x = "top",
       inset = -0.18,
-      legend = c("pH", "Conductivity"),
+      legend = c("pH", "Conductivity (µS/cm)"),
       pch = c(22, 21),
       pt.bg = c("lightgray", "red3"),
       col = c("black", "red3"),
@@ -211,7 +211,7 @@ make_pH_conduc <- function(data_plot, input_path, output_path) {
       pt.cex = c(1.0, 1.0),
       bty = "n",
       ncol = 2,
-      cex = 0.65,
+      cex = 0.85,
       text.font = 2,
       x.intersp = 0.3, # minimal space between items
       adj = 0
@@ -256,9 +256,9 @@ make_pH_conduc <- function(data_plot, input_path, output_path) {
         lwd = lwd_items,
         bty = "n",
         ncol = length(trend_items),
-        cex = 0.65,
+        cex = 0.85,
+        seg.len = 1.5,
         text.font = 2,
-        x.intersp = 0.3,
         adj = 0
       )
     }

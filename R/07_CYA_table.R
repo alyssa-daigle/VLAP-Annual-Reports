@@ -157,7 +157,7 @@ make_CYA_table <- function(data_long, table_path, input_path) {
       gsub(" ", "_", town),
       ".csv"
     )
-    write_csv(lake_data_out, file.path(table_path, file_name), na = "-")
+    write_csv(lake_data_out, file.path(table_path, file_name), na = "No Value")
   }
 
   message(

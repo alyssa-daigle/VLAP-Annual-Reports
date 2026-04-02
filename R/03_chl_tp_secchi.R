@@ -83,7 +83,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
 
     # Begin plotting
     png(temp_path, width = 8, height = 4, units = "in", res = 200)
-    par(family = "Calibri", mar = c(3.8, 4, 4, 3.8))
+    par(family = "Calibri", mar = c(3.8, 4, 4.2, 3.8))
 
     n_years <- length(unique(df_plot$year))
     x_min <- min(df_plot$year)
@@ -263,7 +263,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       pt.cex = c(1.25, 0.8, 0.8),
       bty = "n",
       ncol = 3,
-      cex = 0.6,
+      cex = 0.65,
       text.font = 2
     )
 
@@ -319,7 +319,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
         lwd = lwd_items,
         bty = "n",
         ncol = 3,
-        cex = 0.6,
+        cex = 0.65,
         text.font = 2
       )
     }
