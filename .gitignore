@@ -41,6 +41,8 @@ regression/
 reports/
 lake_excerpts/
 reports-ADA/
+reports_drafts_ADA/
+
 
 # other files
 data/pH_conduc.xlsx

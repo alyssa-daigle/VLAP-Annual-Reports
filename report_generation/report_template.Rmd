@@ -9,6 +9,7 @@ params:
   stations: NULL
   town: NULL
   table_path: NULL
+  pub: NULL   # <-- ADD THIS
 ---
 
 ```{r setup, include=FALSE}
@@ -313,9 +314,7 @@ if (length(cya_file) == 1) {
 ### **How does your lake compare to New Hampshire lakes and water quality standards?**
 
 
-Table 3. New Hampshire Median Lake Water Quality Values
-
-##### *Median values generated from historic lake monitoring data*
+Table 3. New Hampshire Median Lake Water Quality Values. *Median values generated from historic lake monitoring data*
 
 ``` {r NH median values, echo = FALSE, warning = FALSE}
 
@@ -351,9 +350,7 @@ ft_median
 
 
 
-Table 4. New Hampshire Water Quality Standards
-
-##### *Numeric criteria for specific parameters. Water quality violation occurs if thresholds are exceeded.*
+Table 4. New Hampshire Water Quality Standards. *Numeric criteria for specific parameters. Water quality violation occurs if thresholds are exceeded.*
 
 ``` {r NH water quality standards}
 # --- NH Water Quality Standards ---

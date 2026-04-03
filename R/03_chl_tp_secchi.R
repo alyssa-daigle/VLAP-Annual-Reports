@@ -252,7 +252,7 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
       inset = -0.18,
       legend = c(
         "Transparency (m)",
-        "Chlorophyll a (µg/L)",
+        "Chlorophyll-a (µg/L)",
         "Total Phosphorus (µg/L)"
       ),
       pch = c(22, 16, 17),
