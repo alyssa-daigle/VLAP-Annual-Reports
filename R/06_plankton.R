@@ -52,7 +52,7 @@ make_plankton <- function(output_path) {
       filter(stationID == station_id)
 
     # -----------------------------
-    # STATION-LEVEL CHECK FOR 2024+
+    # STATION-LEVEL CHECK FOR 2025+
     # -----------------------------
     if (!any(plot_data$year >= 2025, na.rm = TRUE)) {
       message("  -> Skipping ", station_id, " (no 2025 data)\n")
@@ -76,44 +76,80 @@ make_plankton <- function(output_path) {
         fill = list(rel_abundance = 0)
       )
 
-    # Main stacked bar plot
+    # -----------------------------
+    # MAIN PLOT with patterns
+    # -----------------------------
     p_main <- ggplot(
       plot_data,
-      aes(x = factor(year), y = rel_abundance, fill = group)
+      aes(x = factor(year), y = rel_abundance, fill = group, pattern = group)
     ) +
-      geom_bar(stat = "identity") +
+      geom_bar_pattern(
+        stat = "identity",
+        color = "white",
+        linewidth = 0.05,
+        pattern_fill = "black",
+        pattern_density = 0.02, #line thickness actually?
+        pattern_spacing = 0.03 #space between lines
+      ) +
       scale_y_continuous(
         labels = scales::percent,
         breaks = seq(0, 1, by = 0.1),
         expand = c(0, 0),
         limits = c(0, 1)
       ) +
-      scale_fill_manual(values = algae_colors, drop = FALSE) +
+      scale_fill_manual(
+        values = algae_colors,
+        drop = FALSE
+      ) +
+      scale_pattern_manual(
+        values = algae_patterns
+      ) +
       labs(
         title = "Annual Phytoplankton Population",
         x = "Collection Year",
         y = "Relative Percent of Taxa",
-        fill = ""
+        fill = NULL
       ) +
       theme_bw() +
       theme_plankton()
 
-    # Legend-only plot
-    p_legend <- ggplot(plot_data, aes(x = 1, y = 1, fill = group)) +
-      geom_bar(stat = "identity") +
+    # -----------------------------
+    # LEGEND-only plot
+    # -----------------------------
+    p_legend <- ggplot(
+      plot_data,
+      aes(x = 1, y = 1, fill = group, pattern = group)
+    ) +
+      geom_bar_pattern(
+        stat = "identity",
+        color = "white",
+        linewidth = 0.05,
+        pattern_fill = "black",
+        pattern_density = 0.04, #line thickness actually?
+        pattern_spacing = 0.02 #space between lines
+      ) +
       scale_fill_manual(
         values = algae_colors,
         labels = algae_labels,
         breaks = rev(names(algae_labels)),
         drop = FALSE
       ) +
-      labs(fill = NULL) +
+      scale_pattern_manual(
+        values = algae_patterns
+      ) +
+      labs(fill = NULL, pattern = NULL) +
       theme_void() +
       theme_plankton_legend() +
-      guides(fill = guide_legend(ncol = 1))
+      guides(
+        fill = guide_legend(ncol = 1),
+        pattern = "none"
+      )
 
     legend <- get_legend(p_legend)
 
+    # -----------------------------
+    # Combine + SAVE
+    # -----------------------------
     final_plot <- plot_grid(p_main, legend, rel_widths = c(6, 1.5))
 
     filename <- paste0(station_id, "_plankton.png")
@@ -128,6 +164,7 @@ make_plankton <- function(output_path) {
       bg = "white"
     )
 
+    # Add border
     img <- magick::image_read(temp_path)
     img_bordered <- magick::image_border(
       img,

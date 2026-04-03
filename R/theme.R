@@ -165,15 +165,28 @@ theme_plankton_legend <- function() {
 
 #plankton color palette and renaming
 algae_colors <- c(
-  "UNKNOWN" = "#772c2a",
-  "GREEN" = "#2c4d75",
-  "GOLDEN-BROWN" = "#4bacc6",
-  "EUGLENOID" = "#9bbb59",
-  "DINOFLAGELLATE" = "#e46c0a",
-  "DIATOM" = "#7f7f7f",
-  "CYANOBACTERIA" = "#604a7b",
-  "CRYPTOMONAD" = "#4f6228",
-  "XANTHOPHYTE" = "#c0504d"
+  "UNKNOWN" = "#D55E00", # bright red-orange
+  "GREEN" = "#0072B2", # strong blue
+  "GOLDEN-BROWN" = "#E69F00", # yellow-orange
+  "EUGLENOID" = "#009E73", # teal green
+  "DINOFLAGELLATE" = "#F0E442", # yellow
+  "DIATOM" = "#56B4E9", # sky blue
+  "CYANOBACTERIA" = "#CC79A7", # pink-magenta
+  "CRYPTOMONAD" = "#999999", # gray
+  "XANTHOPHYTE" = "#000000" # black
+)
+
+# Patterns
+algae_patterns <- c(
+  "UNKNOWN" = "stripe",
+  "GREEN" = "crosshatch",
+  "GOLDEN-BROWN" = "circle",
+  "EUGLENOID" = "stripe",
+  "DINOFLAGELLATE" = "crosshatch",
+  "DIATOM" = "circle",
+  "CYANOBACTERIA" = "stripe",
+  "CRYPTOMONAD" = "crosshatch",
+  "XANTHOPHYTE" = "circle"
 )
 
 algae_labels <- c(

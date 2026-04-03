@@ -138,6 +138,7 @@ make_pH_conduc(
 source(file.path(project_path, "R", "05_temp_DO.R"))
 make_temp_DO(input_path, file.path(output_path, "temp_DO"))
 
+source(file.path(project_path, "R", "06_plankton.R"))
 make_plankton(file.path(output_path, "plankton"))
 
 message("All plots completed.")
