@@ -77,19 +77,16 @@ make_plankton <- function(output_path) {
       )
 
     # -----------------------------
-    # MAIN PLOT with patterns
+    # MAIN PLOT (no patterns)
     # -----------------------------
     p_main <- ggplot(
       plot_data,
-      aes(x = factor(year), y = rel_abundance, fill = group, pattern = group)
+      aes(x = factor(year), y = rel_abundance, fill = group)
     ) +
-      geom_bar_pattern(
+      geom_bar(
         stat = "identity",
         color = "white",
-        linewidth = 0.05,
-        pattern_fill = "black",
-        pattern_density = 0.02, #line thickness actually?
-        pattern_spacing = 0.03 #space between lines
+        linewidth = 0.05
       ) +
       scale_y_continuous(
         labels = scales::percent,
@@ -101,9 +98,6 @@ make_plankton <- function(output_path) {
         values = algae_colors,
         drop = FALSE
       ) +
-      scale_pattern_manual(
-        values = algae_patterns
-      ) +
       labs(
         title = "Annual Phytoplankton Population",
         x = "Collection Year",
@@ -114,19 +108,16 @@ make_plankton <- function(output_path) {
       theme_plankton()
 
     # -----------------------------
-    # LEGEND-only plot
+    # LEGEND-only plot (no patterns)
     # -----------------------------
     p_legend <- ggplot(
       plot_data,
-      aes(x = 1, y = 1, fill = group, pattern = group)
+      aes(x = 1, y = 1, fill = group)
     ) +
-      geom_bar_pattern(
+      geom_bar(
         stat = "identity",
         color = "white",
-        linewidth = 0.05,
-        pattern_fill = "black",
-        pattern_density = 0.04, #line thickness actually?
-        pattern_spacing = 0.02 #space between lines
+        linewidth = 0.05
       ) +
       scale_fill_manual(
         values = algae_colors,
@@ -134,15 +125,11 @@ make_plankton <- function(output_path) {
         breaks = rev(names(algae_labels)),
         drop = FALSE
       ) +
-      scale_pattern_manual(
-        values = algae_patterns
-      ) +
-      labs(fill = NULL, pattern = NULL) +
+      labs(fill = NULL) +
       theme_void() +
       theme_plankton_legend() +
       guides(
-        fill = guide_legend(ncol = 1),
-        pattern = "none"
+        fill = guide_legend(ncol = 1)
       )
 
     legend <- get_legend(p_legend)
