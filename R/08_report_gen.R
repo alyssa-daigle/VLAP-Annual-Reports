@@ -29,6 +29,10 @@ report_gen <- function() {
   if (!dir.exists(report_path)) {
     dir.create(report_path, recursive = TRUE)
   }
+  LAKEMAP <- read.csv(paste0(
+    input_path,
+    "LAKEMAP.csv"
+  ))
 
   lake_reports <- CYA_updated |>
     distinct(RELLAKE, TOWN)
