@@ -79,7 +79,7 @@ if (length(trend_file) == 1) {
     align(align = "center", part = "header") |>  # center header row
     line_spacing(space = 1) |> 
     padding(padding.top = 0, padding.bottom = 0, part = "all") |> 
-    fontsize(size = 10, part = "all") |>         # smaller text
+    fontsize(size = 11, part = "all") |>         # smaller text
     set_table_properties(width = 0.4, layout = "autofit") |>
     font(fontname = "Calibri", part = "all") |>
     autofit()
@@ -314,7 +314,7 @@ if (length(cya_file) == 1) {
 ### **How does your lake compare to New Hampshire lakes and water quality standards?**
 
 
-Table 3. New Hampshire Median Lake Water Quality Values. *Median values generated from historic lake monitoring data*
+Table 3. New Hampshire Median Lake Water Quality Values. *Median values generated from historic lake monitoring data.*
 
 ``` {r NH median values, echo = FALSE, warning = FALSE}
 
@@ -339,7 +339,7 @@ ft_median <- flextable(median_values) |>
   align(align = "center", part = "header") |>   # center headers
   line_spacing(space = 1) |> 
     padding(padding.top = 0, padding.bottom = 0, part = "all") |> 
-  fontsize(size = 10, part = "all") |>          # smaller text
+  fontsize(size = 11, part = "all") |>          # smaller text
   set_table_properties(width = 0.35, layout = "autofit") |>
   font(fontname = "Calibri", part = "all") |>
   autofit()
@@ -373,7 +373,7 @@ ft_standards <- flextable(water_quality_standards) |>
   align(align = "center", part = "header") |> 
   line_spacing(space = 1) |> 
     padding(padding.top = 0, padding.bottom = 0, part = "all") |> 
-  fontsize(size = 10, part = "all") |> 
+  fontsize(size = 11, part = "all") |> 
   set_table_properties(width = 0.5, layout = "autofit") |>
   font(fontname = "Calibri", part = "all") |>
   autofit()
