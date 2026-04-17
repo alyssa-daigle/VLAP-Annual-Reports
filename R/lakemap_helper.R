@@ -6,10 +6,10 @@ if (file.exists(".env")) {
   load_dot_env(".env")
 }
 
-input_path <- Sys.getenv("INPUT_PATH")
+INPUT_PATH <- Sys.getenv("INPUT_PATH")
 
 # Read data - SHOULD RE-DOWNLOADED EACH YEAR TO CATCH NEW STATIONS
-lakemap_sqlpull <- read.csv(file.path(input_path, "LAKEMAP_SQLpull.csv"))
+lakemap_sqlpull <- read.csv(file.path(INPUT_PATH, "LAKEMAP_SQLpull.csv"))
 
 # Clean data: uppercase character columns, remove duplicates & NA WBID
 lakemap_sqlpull_clean <- lakemap_sqlpull |>
@@ -233,7 +233,7 @@ lakemap_final <- lakemap_sqlpull_clean |>
 # Write cleaned CSV
 write.csv(
   lakemap_final,
-  file.path(input_path, "LAKEMAP.csv"),
+  file.path(INPUT_PATH, "LAKEMAP.csv"),
   row.names = FALSE
 )
 

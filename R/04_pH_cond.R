@@ -1,7 +1,10 @@
-make_pH_conduc <- function(data_plot, input_path, output_path) {
-  if (!dir.exists(output_path)) {
-    dir.create(output_path, recursive = TRUE)
+make_pH_conduc <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
+  # Ensure output directory exists (year-safe via config)
+  if (missing(OUTPUT_PATH) || is.null(OUTPUT_PATH)) {
+    OUTPUT_PATH <- file.path(OUTPUT_PATH, "pH_conduc")
   }
+
+  dir.create(OUTPUT_PATH, recursive = TRUE, showWarnings = FALSE)
 
   station_list <- data_plot |>
     filter(grepl("DEEP", STATNAM)) |>
@@ -53,12 +56,15 @@ make_pH_conduc <- function(data_plot, input_path, output_path) {
     scale_factor <- y_max_left / (max_pH - min_pH)
 
     # ---- MK table ----
-    mk_file <- paste0("mannkendall/MannKendall_", station_id, ".csv")
+    mk_file <- file.path(
+      MK_PATH,
+      paste0("MannKendall_", station_id, ".csv")
+    )
     has_MK <- file.exists(mk_file)
     MK_table <- if (has_MK) read.csv(mk_file) else NULL
 
     temp_path <- file.path(
-      output_path,
+      OUTPUT_PATH,
       paste0(station_id, "_pH_conduc.png")
     )
 
@@ -275,5 +281,5 @@ make_pH_conduc <- function(data_plot, input_path, output_path) {
     magick::image_write(img_bordered, temp_path)
   }
 
-  message("All pH/Conductivity plots saved to: ", output_path)
+  message("All pH/Conductivity plots saved to: ", OUTPUT_PATH)
 }

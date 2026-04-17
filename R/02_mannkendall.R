@@ -1,14 +1,14 @@
 run_vlap_mannkendall <- function(
   data_year_median,
-  mk_path = "mannkendall",
-  table_path = "tables"
+  MK_PATH = MK_PATH,
+  TABLE_PATH = TABLE_PATH
 ) {
   # --- Create directories if needed ---
-  if (!dir.exists(mk_path)) {
-    dir.create(mk_path, recursive = TRUE)
+  if (!dir.exists(MK_PATH)) {
+    dir.create(MK_PATH, recursive = TRUE)
   }
-  if (!dir.exists(table_path)) {
-    dir.create(table_path, recursive = TRUE)
+  if (!dir.exists(TABLE_PATH)) {
+    dir.create(TABLE_PATH, recursive = TRUE)
   }
 
   # --- Define SUNSUN station groups ---
@@ -185,7 +185,7 @@ run_vlap_mannkendall <- function(
       st_results <- bind_rows(station_results)
       write_csv(
         st_results,
-        file.path(mk_path, paste0("MannKendall_", st, ".csv"))
+        file.path(MK_PATH, paste0("MannKendall_", st, ".csv"))
       )
       results_list <- c(results_list, station_results)
     }
@@ -223,36 +223,32 @@ run_vlap_mannkendall <- function(
       )
     )
 
-  # --- Save individual station tables ---
   mk_summary |>
-    group_by(STATIONID) |>
-    group_split() |>
-    walk(function(df) {
+    dplyr::group_by(STATIONID) |>
+    dplyr::group_split() |>
+    purrr::walk(function(df) {
       st <- unique(df$STATIONID)
-      write_csv(
-        df |> select(Parameter, Trend),
-        file.path(table_path, paste0("MK_TrendSummary_", st, ".csv"))
+
+      readr::write_csv(
+        df |> dplyr::select(Parameter, Trend),
+        file.path(TABLE_PATH, paste0("MK_TrendSummary_", st, ".csv"))
       )
     })
 
-  # --- Combined SUNSUN NEARSHORE & TRIB summary tables ---
   mk_summary_nearshore <- mk_summary |>
-    filter(STATIONID %in% sunsun_nearshore_stations) |>
-    select(STATIONID, Parameter, Trend) |>
-    arrange(STATIONID, Parameter)
+    dplyr::filter(STATIONID %in% sunsun_nearshore_stations)
 
   mk_summary_trib <- mk_summary |>
-    filter(STATIONID %in% sunsun_trib_stations) |>
-    select(STATIONID, Parameter, Trend) |>
-    arrange(STATIONID, Parameter)
+    dplyr::filter(STATIONID %in% sunsun_trib_stations)
 
-  write_csv(
+  readr::write_csv(
     mk_summary_nearshore,
-    file.path(table_path, "MK_TrendSummary_SUNSUN_Nearshore.csv")
+    file.path(TABLE_PATH, "MK_TrendSummary_SUNSUN_Nearshore.csv")
   )
-  write_csv(
+
+  readr::write_csv(
     mk_summary_trib,
-    file.path(table_path, "MK_TrendSummary_SUNSUN_Tribs.csv")
+    file.path(TABLE_PATH, "MK_TrendSummary_SUNSUN_Tribs.csv")
   )
 
   invisible(mk_summary)

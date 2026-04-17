@@ -1,5 +1,5 @@
 ---
-title: "2025 Volunteer Lake Assessment Program"
+title: "Volunteer Lake Assessment Program"
 output:
   word_document:
     reference_docx: "template.docx"
@@ -8,8 +8,9 @@ params:
   station: NULL
   stations: NULL
   town: NULL
-  table_path: NULL
-  pub: NULL   # <-- ADD THIS
+  TABLE_PATH: NULL
+  pub: NULL
+  year: NULL
 ---
 
 ```{r setup, include=FALSE}
@@ -25,8 +26,8 @@ if (file.exists(".env")) {
 }
 
 # Access environment variables
-project_path <- Sys.getenv("PROJECT_PATH")
-plot_path <- Sys.getenv("OUTPUT_PATH")
+project_path <- CONFIG$PROJECT_PATH
+plot_path <- CONFIG$OUTPUT_PATH
 
 # Load libraries
 library(knitr)
@@ -37,14 +38,18 @@ library(officer)
 library(magrittr)
 ```
 
-# **Individual Report: `r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)`**
+# **Individual Report: `r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)` (`r params$year`)**
 
 **Water Quality Summary:**
 
 **Recommended Actions:**
 
 ## **Historical Water Quality Trend Analysis**
+
+::: {custom-style="table caption"}
 Table 1. Historical Water Quality Trends for `r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)`
+:::
+
 ``` {r trend table}
 
 accent1_60 <- "#DCE6F1"  # same light blue fill
@@ -54,7 +59,7 @@ station_clean <- gsub(" ", "_", stations)
 station_clean <- gsub("([\\(\\)\\[\\]\\+\\?\\*\\.\\^\\$])", "\\\\\\1", station_clean)
 
 trend_file <- list.files(
-  path = table_path,
+  path = TABLE_PATH,
   pattern = paste0("^MK_TrendSummary_", station_clean, "\\.csv$"),
   full.names = TRUE,
   ignore.case = TRUE
@@ -125,7 +130,7 @@ plot_files <- plot_files[seq_len(min(4, length(plot_files)))]
 
 ```{r trend captions, include=FALSE}
 trend_files <- list.files(
-  path = table_path,
+  path = TABLE_PATH,
   pattern = paste0("^MK_TrendSummary_", station_clean, "\\.csv$"),
   full.names = TRUE,
   ignore.case = TRUE
@@ -182,9 +187,11 @@ if (length(plot_files) >= 1) {
 }
 ```
 
+::: {custom-style="figure caption"}
 Figure `r fig_counter`. Median epilimnetic pH (red points) and conductivity (gray bars) by year, with corresponding trend lines shown as red and black dashed lines, respectively. Epilimnetic pH is
 `r get_trend(3)` and conductivity is 
 `r get_trend(1)` since monitoring began.
+:::
 
 ```{r fig counter 2, include FALSE}
 fig_counter <- fig_counter + 1
@@ -196,10 +203,12 @@ if (length(plot_files) >= 2) {
 }
 ```
 
+::: {custom-style="figure caption"}
 Figure `r fig_counter`. Median Secchi disk transparency (blue bars), epilimnetic phosphorus (red triangles), and chlorophyll-a (green points) by year, with corresponding trend lines shown as blue, red, and green dashed lines, respectively. Water transparency is
 `r get_trend(4)`, phosphorus is
 `r get_trend(5)`, and chlorophyll-a is
 `r get_trend(2)` since monitoring began.
+:::
 
 ```{r fig counter 3, include FALSE}
 fig_counter <- fig_counter + 1
@@ -211,7 +220,9 @@ if (length(plot_files) >= 3) {
 }
 ```
 
-Figure `r fig_counter`. 2025 vertical profiles of temperature (°C; green points, left plot) and dissolved oxygen (mg/L; blue points, right plot) plotted against depth (m). Profile month is indicated by point shape and color intensity, with lighter shades representing earlier-season samples and darker shades representing later-season samples. 
+::: {custom-style="figure caption"}
+Figure `r fig_counter`. `r params$year` vertical profiles of temperature (°C; green points, left plot) and dissolved oxygen (mg/L; blue points, right plot) plotted against depth (m). Profile month is indicated by point shape and color intensity, with lighter shades representing earlier-season samples and darker shades representing later-season samples.
+:::
 
 ```{r fig counter 4, include FALSE}
 fig_counter <- fig_counter + 1
@@ -223,9 +234,14 @@ if (length(plot_files) >= 4) {
 }
 ```
 
-Figure `r fig_counter`. Phytoplankton community composition over time, expressed as relative abundance of major taxonomic groups. 
+::: {custom-style="figure caption"}
+Figure `r fig_counter`. Phytoplankton community composition over time, expressed as relative abundance of major taxonomic groups.
+:::
 
-Table 2. 2025 Average Water Quality Data for `r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)`
+::: {custom-style="table caption"}
+Table 2. `r params$year` Average Water Quality Data for `r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)`
+:::
+
 ```{r avg water quality}
 lake <- params$lake
 town <- params$town   # NEW: town passed in from params
@@ -243,7 +259,7 @@ town_clean <- gsub("([\\(\\)\\[\\]\\+\\?\\*\\.\\^\\$])", "\\\\\\1", town_clean)
 pattern <- paste0("^CYA_", lake_clean, "_", town_clean, "\\.csv$")
 
 cya_file <- list.files(
-  table_path,
+  TABLE_PATH,
   pattern = pattern,
   full.names = TRUE,
   ignore.case = TRUE
@@ -270,7 +286,7 @@ if (length(cya_file) == 1) {
     align(align = "center", part = "header") |>
     line_spacing(space = 1) |> 
     padding(padding.top = 0, padding.bottom = 0, part = "all") |> 
-    fontsize(size = 9.5, part = "all") |>          
+    fontsize(size = 11.0, part = "all") |>          
     set_table_properties(layout = "autofit") |>
     font(fontname = "Calibri", part = "all")
   
@@ -313,8 +329,9 @@ if (length(cya_file) == 1) {
 
 ### **How does your lake compare to New Hampshire lakes and water quality standards?**
 
-
-Table 3. New Hampshire Median Lake Water Quality Values. *Median values generated from historic lake monitoring data.*
+::: {custom-style="table caption"}
+Table 3. New Hampshire Median Lake Water Quality Values. Median values generated from historic lake monitoring data.
+:::
 
 ``` {r NH median values, echo = FALSE, warning = FALSE}
 
@@ -349,8 +366,9 @@ ft_median
 ```
 
 
-
-Table 4. New Hampshire Water Quality Standards. *Numeric criteria for specific parameters. Water quality violation occurs if thresholds are exceeded.*
+::: {custom-style="table caption"}
+Table 4. New Hampshire Water Quality Standards. Numeric criteria for specific parameters. Water quality violation occurs if thresholds are exceeded.
+:::
 
 ``` {r NH water quality standards}
 # --- NH Water Quality Standards ---

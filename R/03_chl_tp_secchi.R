@@ -1,8 +1,10 @@
-make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
-  # Create output directory if it does not already exist
-  if (!dir.exists(output_path)) {
-    dir.create(output_path, recursive = TRUE)
+make_chl_tp_secchi <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
+  # Override OUTPUT_PATH if not explicitly provided
+  if (missing(OUTPUT_PATH) || is.null(OUTPUT_PATH)) {
+    OUTPUT_PATH <- file.path(OUTPUT_PATH, "chl_tp_secchi")
   }
+
+  dir.create(OUTPUT_PATH, recursive = TRUE, showWarnings = FALSE)
 
   # Get list of unique stations to process
   station_list <- data_plot |>
@@ -71,13 +73,17 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
     }
 
     # Mann Kendall
-    mk_file <- paste0("mannkendall/MannKendall_", station_id, ".csv")
+    mk_file <- file.path(
+      MK_PATH,
+      paste0("MannKendall_", station_id, ".csv")
+    )
+
     has_MK <- file.exists(mk_file)
     MK_table <- if (has_MK) read.csv(mk_file) else NULL
 
     # Output path
     temp_path <- file.path(
-      output_path,
+      OUTPUT_PATH,
       paste0(station_id, "_chl_tp_secchi.png")
     )
 
@@ -208,41 +214,82 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
 
     # Mann Kendall trend lines (if any)
     if (has_MK) {
-      add_mk_line <- function(var, col, lty, use_secchi = FALSE) {
-        slope <- MK_table |> filter(Parameter == var) |> pull(sen_slope)
-        if (length(slope) > 0 && !is.na(slope)) {
-          df_var <- df_plot |> filter(!is.na(.data[[var]]))
-          if (nrow(df_var) >= 2) {
-            med_year <- median(df_var$year)
-            med_val <- median(df_var[[var]])
-            intercept <- med_val - slope * med_year
-            x_vals <- range(df_var$year, na.rm = TRUE)
-            y_vals <- intercept + slope * x_vals
-            if (use_secchi) {
-              par(new = TRUE)
-              plot(
-                x_vals,
-                y_vals,
-                type = "l",
-                col = col,
-                lty = lty,
-                lwd = 1.75,
-                axes = FALSE,
-                xlab = "",
-                ylab = "",
-                ylim = c(y_max_right, 0),
-                yaxs = "i"
-              )
-            } else {
-              lines(x_vals, y_vals, col = col, lty = lty, lwd = 1.75)
-            }
-          }
+      add_mk_line <- function(var, col, lty) {
+        slope <- MK_table |>
+          filter(Parameter == var) |>
+          pull(sen_slope) |>
+          na.omit()
+
+        if (length(slope) != 1) {
+          return(NULL)
         }
+        slope <- slope[1]
+
+        df_var <- df_plot |> filter(!is.na(.data[[var]]))
+        if (nrow(df_var) < 2) {
+          return(NULL)
+        }
+
+        x_vals <- range(df_var$year, na.rm = TRUE)
+
+        intercept <- mean(df_var[[var]], na.rm = TRUE) -
+          slope * mean(df_var$year, na.rm = TRUE)
+
+        y_vals <- intercept + slope * x_vals
+
+        lines(
+          x_vals,
+          y_vals,
+          col = col,
+          lty = lty,
+          lwd = 1.75
+        )
       }
 
       add_mk_line("TP_epi", "red4", lty = 2)
       add_mk_line("CHL_comp", "green4", lty = 3)
-      add_mk_line(secchi_var, "blue4", lty = 4, use_secchi = TRUE)
+
+      scale_secchi_to_left <- function(y) {
+        # Map from [0, y_max_right] → [0, y_max_left]
+        (y / y_max_right) * y_max_left
+      }
+
+      add_mk_line_secchi <- function(var, col, lty) {
+        slope <- MK_table |>
+          filter(Parameter == var) |>
+          pull(sen_slope) |>
+          na.omit()
+
+        if (length(slope) != 1) {
+          return(NULL)
+        }
+        slope <- slope[1]
+
+        df_var <- df_plot |> filter(!is.na(.data[[var]]))
+        if (nrow(df_var) < 2) {
+          return(NULL)
+        }
+
+        x_vals <- range(df_var$year, na.rm = TRUE)
+
+        intercept <- mean(df_var[[var]], na.rm = TRUE) -
+          slope * mean(df_var$year, na.rm = TRUE)
+
+        y_vals <- intercept + slope * x_vals
+
+        # scale to left axis
+        y_vals_inverted <- y_max_right - y_vals
+        y_vals_scaled <- scale_secchi_to_left(y_vals_inverted)
+
+        lines(
+          x_vals,
+          y_vals_scaled,
+          col = col,
+          lty = lty,
+          lwd = 1.75
+        )
+      }
+      add_mk_line_secchi(secchi_var, "blue4", lty = 4)
     }
 
     # Legends (unchanged)
@@ -336,5 +383,5 @@ make_chl_tp_secchi <- function(data_plot, input_path, output_path) {
     magick::image_write(img_bordered, path = temp_path, format = "png")
   }
 
-  message("All plots saved to: ", output_path)
+  message("All plots saved to: ", OUTPUT_PATH)
 }

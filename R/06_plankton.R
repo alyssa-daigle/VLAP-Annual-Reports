@@ -1,17 +1,24 @@
-make_plankton <- function(output_path) {
+make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
+  # -----------------------------
   # Ensure output directory exists
-  if (!dir.exists(output_path)) {
-    dir.create(output_path, recursive = TRUE)
+  # -----------------------------
+  if (!dir.exists(OUTPUT_PATH)) {
+    dir.create(OUTPUT_PATH, recursive = TRUE)
   }
 
   # -----------------------------
-  # plankton data processing
+  # Load YEAR-driven plankton file
   # -----------------------------
-  data <- read_excel(paste0(
-    input_path,
-    "Historical_Phytoplankton_Data_Thru2025.xlsm"
-  ))
+  plankton_file <- file.path(
+    INPUT_PATH,
+    paste0("Historical_Phytoplankton_Data_Thru", YEAR, ".xlsm")
+  )
 
+  data <- read_excel(plankton_file)
+
+  # -----------------------------
+  # Processing
+  # -----------------------------
   data <- data |>
     mutate(
       year = year(date),
@@ -33,14 +40,6 @@ make_plankton <- function(output_path) {
 
   data <- rel_abund
 
-  # -----------------------------
-  # GLOBAL CHECK FOR 2024+ DATA
-  # -----------------------------
-  if (!any(data$year >= 2024, na.rm = TRUE)) {
-    message("No plankton data from 2024 or newer. No reports generated.")
-    return(invisible(NULL))
-  }
-
   # Get list of stations
   stations <- sort(unique(data$stationID))
 
@@ -52,13 +51,12 @@ make_plankton <- function(output_path) {
       filter(stationID == station_id)
 
     # -----------------------------
-    # STATION-LEVEL CHECK FOR 2025+
+    # STATION-LEVEL CHECK FOR YEAR+
     # -----------------------------
-    if (!any(plot_data$year >= 2025, na.rm = TRUE)) {
-      message("  -> Skipping ", station_id, " (no 2025 data)\n")
+    if (!any(plot_data$year >= YEAR, na.rm = TRUE)) {
+      message("  -> Skipping ", station_id, " (no ", YEAR, " data)\n")
       return(NULL)
     }
-
     # Full year range
     all_years <- seq(
       min(plot_data$year, na.rm = TRUE),
@@ -140,7 +138,7 @@ make_plankton <- function(output_path) {
     final_plot <- plot_grid(p_main, legend, rel_widths = c(6, 1.5))
 
     filename <- paste0(station_id, "_plankton.png")
-    temp_path <- file.path(output_path, filename)
+    temp_path <- file.path(OUTPUT_PATH, filename)
 
     ggsave(
       temp_path,

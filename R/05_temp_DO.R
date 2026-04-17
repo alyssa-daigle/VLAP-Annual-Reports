@@ -1,13 +1,24 @@
-make_temp_DO <- function(input_path, output_path) {
-  # Load data
-  data <- read_excel(paste0(input_path, "master-DO-2025 - working copy.xlsm"))
+make_temp_DO <- function(INPUT_PATH, OUTPUT_PATH) {
+  # -----------------------------
+  # Load data (YEAR-driven file)
+  # -----------------------------
+  do_file <- file.path(
+    INPUT_PATH,
+    paste0("master-DO-", YEAR, ".xlsm")
+  )
 
-  # Create output directory if missing
-  if (!dir.exists(output_path)) {
-    dir.create(output_path, recursive = TRUE)
+  data <- read_excel(do_file)
+
+  # -----------------------------
+  # Output directory
+  # -----------------------------
+  if (!dir.exists(OUTPUT_PATH)) {
+    dir.create(OUTPUT_PATH, recursive = TRUE)
   }
 
+  # -----------------------------
   # Clean and prepare
+  # -----------------------------
   temp_do <- data |>
     select(Depth, Date, Station, DO, Temp...12) |>
     rename(Temp = `Temp...12`) |>
@@ -169,7 +180,7 @@ make_temp_DO <- function(input_path, output_path) {
     combined_final <- plot_grid(
       ggdraw() +
         draw_label(
-          "Temperature and Dissolved Oxygen Profiles (2025)",
+          paste0("Temperature and Dissolved Oxygen Profiles (", YEAR, ")"),
           fontface = "bold",
           fontfamily = "Calibri",
           size = 13,
@@ -193,7 +204,7 @@ make_temp_DO <- function(input_path, output_path) {
 
     # Save
     filename <- paste0(stn, "_profile.png")
-    temp_path <- file.path(output_path, filename)
+    temp_path <- file.path(OUTPUT_PATH, filename)
 
     ggsave(
       temp_path,

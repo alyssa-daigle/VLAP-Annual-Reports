@@ -34,24 +34,7 @@ Thumbs.db
 *.jpeg
 
 # Ignore regression, table, and report outputs
-old_scripts/
-tables/
-mannkendall/
-regression/
-reports/
-lake_excerpts/
-reports-ADA/
-report_drafts_ADA/
-
-
-# other files
-data/pH_conduc.xlsx
-*excerpt.docx
-data/CYA_full.csv  
-data/REG_long.csv 
-data/VLAP_alldata2025.csv
-data/lookup.xlsx
+outputs/
+data/
 report_generation/sunapee_nearshore_tabletemplate.docx
-reports_drafts/
-snakeriver/
-
+report_generation/partridge_monthly_pre_poat_treatment.docx

@@ -1,12 +1,19 @@
-make_CYA_table <- function(data_long, table_path, input_path) {
-  # create output directory if needed
-  if (!dir.exists(table_path)) {
-    dir.create(table_path, recursive = TRUE)
+make_CYA_table <- function(data_long, TABLE_PATH, INPUT_PATH) {
+  # -----------------------------
+  # output directory
+  # -----------------------------
+  if (!dir.exists(TABLE_PATH)) {
+    dir.create(TABLE_PATH, recursive = TRUE)
   }
 
-  # read lake mapping file
-  LAKEMAP <- read.csv(file.path(input_path, "LAKEMAP.csv"))
+  # -----------------------------
+  # lake mapping
+  # -----------------------------
+  LAKEMAP <- read.csv(file.path(INPUT_PATH, "LAKEMAP.csv"))
 
+  # -----------------------------
+  # base table
+  # -----------------------------
   # base CYA table
   CYA_base <- data_long |>
     select(
@@ -157,14 +164,14 @@ make_CYA_table <- function(data_long, table_path, input_path) {
       gsub(" ", "_", town),
       ".csv"
     )
-    write_csv(lake_data_out, file.path(table_path, file_name), na = "No Value")
+    write_csv(lake_data_out, file.path(TABLE_PATH, file_name), na = "No Value")
   }
 
   message(
     "CYA tables exported for ",
     nrow(lake_town_pairs),
     " lake/town combinations to: ",
-    table_path
+    TABLE_PATH
   )
 
   return(CYA_updated)

@@ -1,0 +1,11 @@
+year: 2025
+
+paths:
+  data: data
+  outputs: outputs
+
+files:
+  vlap: VLAP_alldata{year}.csv
+  do: master-DO-{year}.xlsx
+  phyto: Historical_Phytoplankton_Data_Thru{year}.xlsm
+  lakemap: LAKEMAP.csv

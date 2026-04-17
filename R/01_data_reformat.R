@@ -1,8 +1,8 @@
-data_reformat <- function(input_path) {
+data_reformat <- function(INPUT_PATH) {
   # load the SQL pull data, update annually
-  data <- read.csv(paste0(
-    input_path,
-    "VLAP_alldata2025.csv"
+  data <- read.csv(file.path(
+    INPUT_PATH,
+    paste0("VLAP_alldata", YEAR, ".csv")
   ))
 
   ## DEFINING OBJECTS ----------------------------------------------------------
@@ -282,11 +282,12 @@ data_reformat <- function(input_path) {
         WSHEDPARMNAME == "PHOSPHORUS AS P" &
         is.na(DEPTHZONE))
     ) |>
-    (\(df) df[df$RELLAKE %in% df$RELLAKE[df$year == 2025], ])()
+    (\(df) df[df$RELLAKE %in% df$RELLAKE[df$year == YEAR], ])()
 
-  ## PIVOT WIDER FOR DATA ANALYSIS ----------------------------------------------------------
+  ## WIDE FORMAT ----------------------------------------------------------
+
   data_wide <- data_long |>
-    select(
+    dplyr::select(
       RELLAKE,
       STATIONID,
       TOWN,
@@ -296,141 +297,60 @@ data_reformat <- function(input_path) {
       NUMRESULT,
       DEPTHZONE
     ) |>
-    filter(!is.na(param_depth)) |>
-    group_by(RELLAKE, STATIONID, TOWN, STATNAM, STARTDATE, param_depth) |>
-    summarise(NUMRESULT = mean(NUMRESULT, na.rm = TRUE), .groups = "drop") |>
-    pivot_wider(
+    dplyr::filter(!is.na(param_depth)) |>
+    dplyr::group_by(
+      RELLAKE,
+      STATIONID,
+      TOWN,
+      STATNAM,
+      STARTDATE,
+      param_depth
+    ) |>
+    dplyr::summarise(
+      NUMRESULT = mean(NUMRESULT, na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    tidyr::pivot_wider(
       id_cols = c(RELLAKE, STATIONID, TOWN, STATNAM, STARTDATE),
       names_from = param_depth,
       values_from = NUMRESULT
     ) |>
-    select(where(~ !all(is.na(.x)))) |>
-    mutate(
+    dplyr::select(where(~ !all(is.na(.x)))) |>
+    dplyr::mutate(
       STARTDATE = as.Date(STARTDATE, format = "%d-%b-%y"),
-      year = year(STARTDATE)
+      year = lubridate::year(STARTDATE)
     ) |>
-    (\(df) df[df$RELLAKE %in% df$RELLAKE[df$year == 2025], ])()
+    (\(df) df[df$RELLAKE %in% df$RELLAKE[df$year == YEAR], ])()
 
-  # calculate annual median per parameter per station
+  ## ANNUAL MEDIANS ----------------------------------------------------------
+
   data_year_median <- data_wide |>
-    pivot_longer(
+    tidyr::pivot_longer(
       cols = -c(RELLAKE, STATIONID, TOWN, STATNAM, STARTDATE, year),
       names_to = "parameter",
       values_to = "value"
     ) |>
-    group_by(RELLAKE, STATIONID, TOWN, STATNAM, year, parameter) |>
-    summarise(
-      value = median(value, na.rm = TRUE),
-      .groups = "drop"
-    ) |>
-    pivot_wider(
+    dplyr::group_by(RELLAKE, STATIONID, TOWN, STATNAM, year, parameter) |>
+    dplyr::summarise(value = median(value, na.rm = TRUE), .groups = "drop") |>
+    tidyr::pivot_wider(
       id_cols = c(RELLAKE, STATIONID, TOWN, STATNAM, year),
       names_from = parameter,
       values_from = value
-    ) |>
-    mutate(
-      # if annual TP median is less then 5.0 ug/L (because median was calculated using above and below DL values),
-      # make the median be 2.5 ug/L
-      TP_epi = if_else(!is.na(TP_epi) & TP_epi < 5, 2.5, TP_epi),
-      TP_meta = if_else(!is.na(TP_meta) & TP_meta < 5, 2.5, TP_meta),
-      TP_hypo = if_else(!is.na(TP_hypo) & TP_hypo < 5, 2.5, TP_hypo),
-      TP_trib = if_else(!is.na(TP_trib) & TP_trib < 5, 2.5, TP_trib)
     )
 
-  ## FILTER TO START YEARS FOR PLOTTING/AESTHETIC PURPOSES ONLY (SEPARATE DF) ----------------------------------------------------------
+  ## PLOTTING FILTER ----------------------------------------------------------
+
   lake_start_years <- tibble::tibble(
-    STATIONID = c(
-      "ANGSDND",
-      "COUKIND",
-      "CRYMAND",
-      "DORMAND",
-      "EMERIND",
-      "FLIHLSD",
-      "FRAHSBD",
-      "HOWDUBD",
-      "JENNORD",
-      "LONPELD",
-      "PEMMERVLAPD",
-      "PHISDND",
-      "ROCFITD",
-      "SAWGLMD",
-      "TARPIED",
-      "WARALSD",
-      "WAUDAND",
-      "WILPFDD",
-      "GOOCAND"
-    ),
-    lake_name = c(
-      "ANGLE POND",
-      "COUNTRY POND",
-      "CRYSTAL LAKE",
-      "DORRS POND",
-      "EMERSON POND",
-      "FLINTS POND",
-      "FRANKLIN PIERCE LAKE",
-      "HOWE RESERVOIR",
-      "JENNESS POND",
-      "LONG POND",
-      "PEMIGEWASSET LAKE",
-      "PHILLIPS POND",
-      "ROCKWOOD POND",
-      "SAWYER LAKE",
-      "LAKE TARLETON",
-      "WARREN LAKE",
-      "WAUKEENA LAKE",
-      "WILD GOOSE POND",
-      "GOOSE POND"
-    ),
-    lake_town = c(
-      "SANDOWN",
-      "KINGSTON",
-      "MANCHESTER",
-      "MANCHESTER",
-      "RINDGE",
-      "HOLLIS",
-      "HILLSBOROUGH",
-      "DUBLIN",
-      "NORTHWOOD",
-      "PELHAM",
-      "MEREDITH",
-      "SANDOWN",
-      "FITZWILLIAM",
-      "GILMANTON",
-      "PIERMONT",
-      "ALSTEAD",
-      "DANBURY",
-      "PITTSFIELD",
-      "CANAAN"
-    ),
-    start_year = c(
-      2005,
-      2018,
-      1993,
-      2000,
-      2006,
-      1991,
-      2010,
-      2011,
-      1994,
-      2006,
-      2005,
-      2007,
-      2001,
-      2009,
-      2002,
-      1999,
-      2003,
-      2013,
-      2007
-    )
+    STATIONID = c("ANGSDND", "COUKIND", "CRYMAND", "DORMAND", "EMERIND"),
+    start_year = c(2005, 2018, 1993, 2000, 2006)
   )
 
   data_plot <- data_year_median |>
-    left_join(lake_start_years, by = "STATIONID") |>
-    # keep all stations; only filter by start_year if it exists
-    filter(is.na(start_year) | year >= start_year)
+    dplyr::left_join(lake_start_years, by = "STATIONID") |>
+    dplyr::filter(is.na(start_year) | year >= start_year)
 
-  ## RETURN DFs ----------------------------------------------------------
+  ## RETURN ----------------------------------------------------------
+
   return(list(
     data_long = data_long,
     data_wide = data_wide,
