@@ -251,5 +251,35 @@ run_vlap_mannkendall <- function(
     file.path(TABLE_PATH, "MK_TrendSummary_SUNSUN_Tribs.csv")
   )
 
+  # --- Calculate Percentages per Parameter ---
+  trend_proportions <- mk_summary |>
+    # Collapse "Slightly" categories into main categories
+    mutate(
+      Trend_Group = case_when(
+        grepl("Worsening", Trend) ~ "Worsening",
+        grepl("Improving", Trend) ~ "Improving",
+        TRUE ~ "Stable"
+      )
+    ) |>
+    group_by(Parameter, Trend_Group) |>
+    summarise(count = n(), .groups = "drop_last") |>
+    mutate(percentage = (count / sum(count)) * 100) |>
+    # Pivot for a clean "Report Style" table
+    tidyr::pivot_wider(
+      id_cols = Parameter,
+      names_from = Trend_Group,
+      values_from = percentage,
+      values_fill = 0
+    )
+
+  # Save the summary
+  write_csv(
+    trend_proportions,
+    file.path(TABLE_PATH, "Parameter_Trend_Percentages.csv")
+  )
+
+  # Print to console so you can see it immediately
+  print(trend_proportions)
+
   invisible(mk_summary)
 }
