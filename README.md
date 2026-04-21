@@ -1,6 +1,6 @@
 # VLAP Annual Report Generating Scripts
 
-This repository contains scripts used to streamline the Annual Report workflow by cleaning the data, performing Mann-Kendall for trend analysis, generating all plots, and generating a report document for each VLAP sampling station. All reports generated from this pipeline are ADA/WCAG compliant.
+This repository contains scripts used to streamline the Annual Report workflow by cleaning the data, performing Mann-Kendall for trend analysis, generating all plots, and generating a report document for each VLAP sampling station. All reports generated from this pipeline are ADA/WCAG compliant. To use each year, simply save the current year data to the **data** folder and update YEAR in the .env file.
 
 ## Repo Structure
 
