@@ -1,6 +1,22 @@
 # VLAP Annual Report Generating Scripts
 
-This repository contains scripts used to streamline the Annual Report workflow by performing Mann-Kendall for trend analysis, generating all plots, and generating a report document for each VLAP sampling station using a single script.
+This repository contains scripts used to streamline the Annual Report workflow by cleaning the data, performing Mann-Kendall for trend analysis, generating all plots, and generating a report document for each VLAP sampling station.
+
+## Repo structure
+
+-  **`R`**: Contains all of the R scripts necessary to generate the reports.
+- **`config`**: Contains the config file, which sets all of the file paths and defines them in the environment.
+- **`data`**: Contains all the data files needed to generate the reports. Data files need up be updated each year with most recent data. Note that some files are not on repo due to file size restrictions. See **Data Files** below.
+- **`report_generation`**: Contains the Word Doc template and R markdown file to create the report documents.
+- **`special-cases`**: Contains data and scripts for "special case" lakes (i.e., short time series).
+- **`outputs`**: Not visible on repo. Contains a folder for each year. Within each year folder, contains the following folders:
+    -**`FINAL`**: Where the final annual report PDFs are stored.
+    -**`lake_excerpts`**: Where the Observations word docs are stored.
+    -**`mannkendall`**: Where the statistical results of the Mann-Kendall analysis are stored.
+    -**`plots`**: Where the plots for each station are stored, broken into separate folders for each plot type.
+    -**`report_drafts_ADA`**: Where the assembled report drafts are stored, generated from adding the Observations to the report templates.
+    -**`report-templates`**: Where the report templates are stored (Word Docs containing only titles/headers, data tables, and plots without personalized observations).
+    -**`tables`**: Where the MK trend summary and CYA tables are stored.
 
 ## Main Script
 
