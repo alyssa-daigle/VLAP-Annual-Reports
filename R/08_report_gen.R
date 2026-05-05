@@ -52,10 +52,10 @@ report_gen <- function() {
       REPORT_PATH,
       paste0(
         YEAR,
-        "VLAPReport_",
-        gsub(" ", "_", lake),
-        "_",
-        gsub(" ", "_", town),
+        "-",
+        tolower(gsub(" ", "_", lake)),
+        "-",
+        tolower(gsub(" ", "_", town)),
         ".docx"
       )
     )

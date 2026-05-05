@@ -214,7 +214,7 @@ run_vlap_mannkendall <- function(
         TRUE ~ dplyr::recode(
           Parameter,
           "SPCD_epi" = "Conductivity (Epilimnion)",
-          "CHL_comp" = "Chlorophyll-a (Composite)",
+          "CHL_comp" = "Chlorophyll-a",
           "PH_epi" = "pH (Epilimnion)",
           "SECCHI_NVS" = "Transparency",
           "TP_epi" = "Phosphorus (Epilimnion)",
@@ -229,8 +229,30 @@ run_vlap_mannkendall <- function(
     purrr::walk(function(df) {
       st <- unique(df$STATIONID)
 
+      out <- df |>
+        dplyr::select(Parameter, Trend) |>
+        dplyr::mutate(pair_id = ceiling(dplyr::row_number() / 2)) |>
+        dplyr::mutate(
+          pos = ifelse(dplyr::row_number() %% 2 == 1, "left", "right")
+        ) |>
+        tidyr::pivot_wider(
+          id_cols = pair_id,
+          names_from = pos,
+          values_from = c(Parameter, Trend),
+          names_glue = "{pos}_{.value}"
+        ) |>
+        dplyr::select(
+          Parameter = left_Parameter,
+          Trend = left_Trend,
+          Parameter_2 = right_Parameter,
+          Trend_2 = right_Trend
+        )
+
+      # Rename columns to match your report format
+      names(out) <- c("Parameter", "Trend", "Parameter", "Trend")
+
       readr::write_csv(
-        df |> dplyr::select(Parameter, Trend),
+        out,
         file.path(TABLE_PATH, paste0("MK_TrendSummary_", st, ".csv"))
       )
     })
