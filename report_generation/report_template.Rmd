@@ -213,68 +213,169 @@ get_trend <- function(param_name) {
 
   "no significant"
 }
+
+all_no_sig <- function(params) {
+  trends <- sapply(params, get_trend)
+  all(trends == "no significant")
+}
 ```
 
-```{r fig counter 1, include FALSE}
+```{r fig setup, include=FALSE}
 fig_counter <- 1
+plot1_exists <- length(plot_files) >= 1
+plot2_exists <- length(plot_files) >= 2
+plot3_exists <- length(plot_files) >= 3
+plot4_exists <- length(plot_files) >= 4
 ```
 
 ```{r cond pH plot, out.width = '90%'}
-if (length(plot_files) >= 1) {
+if (plot1_exists) {
   knitr::include_graphics(plot_files[1])
 }
 ```
 
-::: {custom-style="figure caption"}
-Figure `r fig_counter`. Median epilimnetic conductivity (red points) and pH (gray bars) by year, with corresponding trend lines shown as red and black dashed lines, respectively. Epilimnetic pH is 
-`r get_trend("pH (Epilimnion)")` and conductivity is 
-`r get_trend("Conductivity (Epilimnion)")` since monitoring began.
-:::
+`r if (plot1_exists) {
 
-```{r fig counter 2, include FALSE}
-fig_counter <- fig_counter + 1
+paste0(
+"::: {custom-style=\"figure caption\"}\n",
+
+if (all_no_sig(c("pH (Epilimnion)", "Conductivity (Epilimnion)"))) {
+
+paste0(
+"Figure ", fig_counter,
+". Median epilimnetic conductivity (red points) and pH (gray bars) by year."
+)
+
+} else {
+
+paste0(
+"Figure ", fig_counter,
+". Median epilimnetic conductivity (red points) and pH (gray bars) by year, ",
+"with corresponding trend lines shown as red and black dashed lines, respectively. ",
+"Epilimnion pH is ", get_trend("pH (Epilimnion)"),
+" and conductivity is ", get_trend("Conductivity (Epilimnion)"),
+" since monitoring began."
+)
+
+},
+
+"\n:::"
+)
+
+} else {
+
+""  # no caption at all
+}`
+
+```{r cond pH plot fig counter, out.width = '90%'}
+if (plot1_exists) fig_counter <- fig_counter + 1
 ```
 
 ```{r chl tp trans plot, out.width = '90%'}
-if (length(plot_files) >= 2) {
+if (plot2_exists) {
   knitr::include_graphics(plot_files[2])
 }
 ```
 
-::: {custom-style="figure caption"}
-Figure `r fig_counter`. Median Secchi disk transparency (blue bars), epilimnetic phosphorus (red triangles), and chlorophyll-a (green points) by year, with corresponding trend lines shown as blue, red, and green dashed lines, respectively. Water transparency is 
-`r get_trend("Transparency")`, phosphorus is 
-`r get_trend("Phosphorus (Epilimnion)")`, and chlorophyll-a is 
-`r get_trend("Chlorophyll-a")` since monitoring began.
-:::
+`r if (plot2_exists) {
 
-```{r fig counter 3, include FALSE}
-fig_counter <- fig_counter + 1
+paste0(
+"::: {custom-style=\"figure caption\"}\n",
+
+if (all_no_sig(c(
+"Transparency",
+"Phosphorus (Epilimnion)",
+"Chlorophyll-a"
+))) {
+
+paste0(
+"Figure ", fig_counter,
+". Median Secchi disk transparency (blue bars), epilimnetic phosphorus (red triangles), ",
+"and chlorophyll-a (green points) by year."
+)
+
+} else {
+
+paste0(
+"Figure ", fig_counter,
+". Median Secchi disk transparency (blue bars), epilimnetic phosphorus (red triangles), ",
+"and chlorophyll-a (green points) by year, with corresponding trend lines shown as blue, red, ",
+"and green dashed lines, respectively. Water transparency is ",
+get_trend("Transparency"), ", phosphorus is ",
+get_trend("Phosphorus (Epilimnion)"), ", and chlorophyll-a is ",
+get_trend("Chlorophyll-a"),
+" since monitoring began."
+)
+
+},
+
+"\n:::"
+)
+
+} else {
+
+""
+}`
+
+```{r tp chl fig counter, include=FALSE}
+if (plot2_exists) fig_counter <- fig_counter + 1
 ```
 
+
 ```{r temp DO plot, out.width = '90%'}
-if (length(plot_files) >= 3) {
+if (plot3_exists) {
   knitr::include_graphics(plot_files[3])
 }
 ```
 
-::: {custom-style="figure caption"}
-Figure `r fig_counter`. `r params$year` vertical profiles of temperature (°C; green points, left plot) and dissolved oxygen (mg/L; blue points, right plot) plotted against depth (m). Profile month is indicated by point shape and color intensity, with lighter shades representing earlier-season samples and darker shades representing later-season samples.
-:::
+`r if (plot3_exists) {
 
-```{r fig counter 4, include FALSE}
-fig_counter <- fig_counter + 1
+paste0(
+"::: {custom-style=\"figure caption\"}\n",
+
+"Figure ", fig_counter,
+". ", params$year,
+" vertical profiles of temperature (°C; green points, left plot) and dissolved oxygen (mg/L; blue points, right plot) plotted against depth (m). ",
+"Profile month is indicated by point shape and color intensity, with lighter shades representing earlier-season samples and darker shades representing later-season samples.",
+
+"\n:::"
+)
+
+} else {
+
+""
+}`
+
+```{r temp DO fig counter, include=FALSE}
+if (plot3_exists) fig_counter <- fig_counter + 1
 ```
 
+
 ```{r plankton, out.width = '90%'}
-if (length(plot_files) >= 4) {
+if (plot4_exists) {
   knitr::include_graphics(plot_files[4])
 }
 ```
 
-::: {custom-style="figure caption"}
-Figure `r fig_counter`. Phytoplankton community composition over time, expressed as relative abundance of major taxonomic groups.
-:::
+`r if (plot4_exists) {
+
+paste0(
+"::: {custom-style=\"figure caption\"}\n",
+
+"Figure ", fig_counter,
+". Phytoplankton community composition over time, expressed as relative abundance of major taxonomic groups.",
+
+"\n:::"
+)
+
+} else {
+
+""
+}`
+
+```{r plankton fig counter, include=FALSE}
+if (plot4_exists) fig_counter <- fig_counter + 1
+```
 
 ::: {custom-style="table caption"}
 Table 2. `r params$year` Average Water Quality Data for `r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)`
