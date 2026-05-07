@@ -53,9 +53,9 @@ report_gen <- function() {
       paste0(
         YEAR,
         "-",
-        tolower(gsub(" ", "_", lake)),
+        tolower(gsub(" ", "-", lake)),
         "-",
-        tolower(gsub(" ", "_", town)),
+        tolower(gsub(" ", "-", town)),
         ".docx"
       )
     )
