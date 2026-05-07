@@ -28,6 +28,7 @@ if (file.exists(".env")) {
 # Access environment variables
 project_path <- CONFIG$PROJECT_PATH
 plot_path <- CONFIG$OUTPUT_PATH
+excerpt_path <- CONFIG$EXCERPT_PATH
 
 # Load libraries
 library(knitr)
@@ -36,13 +37,43 @@ library(kableExtra)
 library(flextable)
 library(officer)
 library(magrittr)
+
+lake_clean <- tolower(gsub(" ", "_", lake))
+town_clean <- tolower(gsub(" ", "_", town))
+
+# lake-specific excerpt directory
+lake_excerpt_dir <- file.path(
+  excerpt_path,
+  paste0(lake_clean, "_", town_clean)
+)
+
+summary_file <- file.path(
+  lake_excerpt_dir,
+  "summary.md"
+)
+
+recommendations_file <- file.path(
+  lake_excerpt_dir,
+  "recommendations.md"
+)
+
+observations_file <- file.path(
+  lake_excerpt_dir,
+  "observations.md"
+)
+
+read_md <- function(path) {
+  if (!file.exists(path)) return("")
+  paste(readLines(path, warn = FALSE), collapse = "\n")
+}
+
 ```
 
 # **`r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)` (`r params$year`)**
 
-**Water Quality Summary:**
+**Water Quality Summary:** `r read_md(summary_file)`
 
-**Recommended Actions:**
+**Recommended Actions:** `r read_md(recommendations_file)`
 
 ## **Historical Water Quality Trend Analysis**
 
@@ -455,19 +486,7 @@ if (length(cya_file) == 1) {
 
 ## **Observations** *(Refer to Table 2 and Historical Deep Spot Data Graphics)*:
 
-- **Chlorophyll-a (Chlor-a):** 
-
-- **Conductivity (Cond.) / Chloride:**
-
-- **Color:**
-
-- **Total Phosphorus (Total P):**
-
-- **Secchi Disk Transparency (Trans.):**
-
-- **Turbidity:**
-
-- **pH:** 
+`r read_md(observations_file)` 
 
 ### **How does your lake compare to New Hampshire lakes and water quality standards?**
 

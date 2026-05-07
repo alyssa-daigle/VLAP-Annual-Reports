@@ -25,6 +25,11 @@ if (length(missing) > 0) {
 # Derived paths (also centralized)
 CONFIG$OUTPUT_PATH <- file.path(CONFIG$OUTPUT_BASE, CONFIG$YEAR, "plots")
 CONFIG$TABLE_PATH <- file.path(CONFIG$OUTPUT_BASE, CONFIG$YEAR, "tables")
+CONFIG$EXCERPT_PATH <- file.path(
+  CONFIG$OUTPUT_BASE,
+  CONFIG$YEAR,
+  "lake_excerpts"
+)
 CONFIG$REPORT_PATH <- file.path(
   CONFIG$OUTPUT_BASE,
   CONFIG$YEAR,
@@ -37,6 +42,7 @@ dir.create(CONFIG$OUTPUT_PATH, recursive = TRUE, showWarnings = FALSE)
 dir.create(CONFIG$TABLE_PATH, recursive = TRUE, showWarnings = FALSE)
 dir.create(CONFIG$REPORT_PATH, recursive = TRUE, showWarnings = FALSE)
 dir.create(CONFIG$MK_PATH, recursive = TRUE, showWarnings = FALSE)
+dir.create(CONFIG$EXCERPT_PATH, recursive = TRUE, showWarnings = FALSE)
 
 PROJECT_PATH <- CONFIG$PROJECT_PATH
 YEAR <- CONFIG$YEAR
@@ -47,3 +53,4 @@ TABLE_PATH <- CONFIG$TABLE_PATH
 REPORT_PATH <- CONFIG$REPORT_PATH
 MK_PATH <- CONFIG$MK_PATH
 OUTPUT_PATH <- CONFIG$OUTPUT_PATH
+EXCERPT_PATH <- CONFIG$EXCERPT_PATH
