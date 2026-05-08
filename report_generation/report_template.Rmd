@@ -1,8 +1,7 @@
 ---
-title: "Volunteer Lake Assessment Program Individual Report"
 output:
   word_document:
-    reference_docx: "template.docx"
+    reference_docx: "template - Copy.docx"
 params:
   lake: NULL
   station: NULL
