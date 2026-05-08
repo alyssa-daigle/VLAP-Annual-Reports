@@ -37,6 +37,7 @@ library(kableExtra)
 library(flextable)
 library(officer)
 library(magrittr)
+library(officedown)
 
 lake_clean <- tolower(gsub(" ", "_", lake))
 town_clean <- tolower(gsub(" ", "_", town))
@@ -71,9 +72,9 @@ read_md <- function(path) {
 
 # **`r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)` (`r params$year`)**
 
-**Water Quality Summary:** `r read_md(summary_file)`
+**Water quality summary:** `r read_md(summary_file)`
 
-**Recommended Actions:** `r read_md(recommendations_file)`
+**Recommended actions:** `r read_md(recommendations_file)`
 
 ## **Historical Water Quality Trend Analysis**
 
@@ -333,7 +334,7 @@ paste0(
 "and chlorophyll-a (green points) by year, with corresponding trend lines shown as blue, red, ",
 "and green dashed lines, respectively. Water transparency is ",
 get_trend("Transparency"), ", phosphorus is ",
-get_trend("Phosphorus (Epilimnion)"), ", and chlorophyll-a is ",
+get_trend("Phosphorus (Epilimnion)"), " and chlorophyll-a is ",
 get_trend("Chlorophyll-a"),
 " since monitoring began."
 )
