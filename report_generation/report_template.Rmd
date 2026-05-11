@@ -259,7 +259,7 @@ plot3_exists <- length(plot_files) >= 3
 plot4_exists <- length(plot_files) >= 4
 ```
 
-```{r cond pH plot, out.width = '90%'}
+```{r cond pH plot, out.width = '95%'}
 if (plot1_exists) {
   knitr::include_graphics(plot_files[1])
 }
@@ -298,11 +298,11 @@ paste0(
 ""  # no caption at all
 }`
 
-```{r cond pH plot fig counter, out.width = '90%'}
+```{r cond pH plot fig counter, out.width = '95%'}
 if (plot1_exists) fig_counter <- fig_counter + 1
 ```
 
-```{r chl tp trans plot, out.width = '90%'}
+```{r chl tp trans plot, out.width = '95%'}
 if (plot2_exists) {
   knitr::include_graphics(plot_files[2])
 }
@@ -353,7 +353,7 @@ if (plot2_exists) fig_counter <- fig_counter + 1
 ```
 
 
-```{r temp DO plot, out.width = '90%'}
+```{r temp DO plot, out.width = '95%'}
 if (plot3_exists) {
   knitr::include_graphics(plot_files[3])
 }
@@ -382,7 +382,7 @@ if (plot3_exists) fig_counter <- fig_counter + 1
 ```
 
 
-```{r plankton, out.width = '90%'}
+```{r plankton, out.width = '95%'}
 if (plot4_exists) {
   knitr::include_graphics(plot_files[4])
 }
