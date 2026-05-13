@@ -394,7 +394,7 @@ paste0(
 "::: {custom-style=\"figure caption\"}\n",
 
 "Figure ", fig_counter,
-". Phytoplankton community composition over time, expressed as the average relative abundance of major taxonomic groups per year.",
+". Phytoplankton community composition over time, expressed as the average relative abundance of major taxonomic groups per year. Note that taxa with less than 3% abundance are grouped into Other.",
 
 "\n:::"
 )

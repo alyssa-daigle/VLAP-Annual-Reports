@@ -75,17 +75,17 @@ make_temp_DO <- function(INPUT_PATH, OUTPUT_PATH) {
       temp_do_avg,
       aes(x = Temp, y = Depth, group = Date, shape = Month, color = Month)
     ) +
-      geom_path(aes(color = Month)) +
+      geom_path(aes(color = Month), linewidth = 0.5) +
       geom_point(aes(fill = Month), size = 2.0, stroke = 0.5) +
       scale_color_manual(
-        values = scales::seq_gradient_pal("palegreen", "darkgreen")(seq(
+        values = scales::seq_gradient_pal("#7BC96F", "darkgreen")(seq(
           0,
           1,
           length.out = n_months
         ))
       ) +
       scale_fill_manual(
-        values = scales::seq_gradient_pal("palegreen", "darkgreen")(seq(
+        values = scales::seq_gradient_pal("#7BC96F", "darkgreen")(seq(
           0,
           1,
           length.out = n_months
@@ -120,7 +120,7 @@ make_temp_DO <- function(INPUT_PATH, OUTPUT_PATH) {
       temp_do_avg,
       aes(x = DO, y = Depth, group = Date, shape = Month, color = Month)
     ) +
-      geom_path(aes(color = Month)) +
+      geom_path(aes(color = Month), linewidth = 0.5) +
       geom_point(aes(fill = Month), size = 2.0, stroke = 0.5) +
       scale_color_manual(
         values = scales::seq_gradient_pal("steelblue1", "darkblue")(seq(
@@ -199,7 +199,7 @@ make_temp_DO <- function(INPUT_PATH, OUTPUT_PATH) {
         ),
       legend,
       ncol = 1,
-      rel_heights = c(0.12, 1, 0.18)
+      rel_heights = c(0.12, 1, 0.10)
     )
 
     # Save

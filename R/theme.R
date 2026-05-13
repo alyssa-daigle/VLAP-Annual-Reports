@@ -118,10 +118,10 @@ theme_temp_DO <- function() {
       axis.text.y = element_text(size = 10, family = "Calibri"),
       legend.position = "right",
       legend.text = element_text(size = 10, face = "bold", family = "Calibri"),
-      legend.spacing.y = unit(0.1, "cm"),
+      legend.spacing.y = unit(0.05, "cm"),
       legend.key.height = unit(0.3, "cm"),
       legend.margin = margin(t = 0, r = 0, b = 0, l = 0),
-      plot.margin = margin(5, 5, 5, 5)
+      plot.margin = margin(5, 5, 0, 5)
     )
   )
 }
@@ -134,12 +134,12 @@ theme_plankton <- function() {
       panel.grid.major.y = element_line(color = "whitesmoke"),
       panel.grid.minor.y = element_blank(),
       legend.position = "none",
-      plot.margin = margin(t = 10, r = 10, b = 10, l = 10),
+      plot.margin = margin(t = 10, r = 4, b = 10, l = 10),
       plot.title = element_text(
         hjust = 0.5,
         #vjust = -2.0,
         face = "bold",
-        margin = margin(b = 20),
+        margin = margin(b = 10),
         size = 14,
         family = "Calibri"
       ),
@@ -162,28 +162,3 @@ theme_plankton_legend <- function() {
     )
   )
 }
-
-#plankton color palette and renaming
-algae_colors <- c(
-  "UNKNOWN" = "#999999", # neutral gray (de-emphasized)
-  "GREEN" = "#009E73", # bluish green
-  "GOLDEN-BROWN" = "#E69F00", # orange
-  "EUGLENOID" = "#0072B2", # blue (distinct from green)
-  "DINOFLAGELLATE" = "#A34700", # dark burnt orange
-  "DIATOM" = "#56B4E9", # sky blue (kept, but separated from main blue)
-  "CYANOBACTERIA" = "#CC79A7", # reddish purple
-  "CRYPTOMONAD" = "#F0E442", # yellow (used sparingly but high luminance)
-  "XANTHOPHYTE" = "#000000" # black (anchor category)
-)
-
-algae_labels <- c(
-  "UNKNOWN" = "Unknown",
-  "GREEN" = "Greens",
-  "GOLDEN-BROWN" = "Golden-Browns",
-  "EUGLENOID" = "Euglenoids",
-  "DINOFLAGELLATE" = "Dinoflagellates",
-  "DIATOM" = "Diatoms",
-  "CYANOBACTERIA" = "Cyanobacteria",
-  "CRYPTOMONAD" = "Cryptomonads",
-  "XANTHOPHYTE" = "Xanthophytes"
-)

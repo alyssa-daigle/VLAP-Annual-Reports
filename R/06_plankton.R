@@ -26,6 +26,12 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
     ) |>
     select(-date)
 
+  data <- data |>
+    mutate(
+      group = as.character(group),
+      group = ifelse(is.na(group) | group == "UNKNOWN PHYTO", "OTHER", group)
+    )
+
   rel_abund <- data |>
     group_by(stationID, year, group) |>
     summarise(
@@ -35,6 +41,23 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
     group_by(stationID, year) |>
     mutate(
       rel_abundance = total_count / sum(total_count)
+    ) |>
+    ungroup()
+
+  rel_abund <- rel_abund |>
+    group_by(stationID, year, group) |>
+    summarise(
+      rel_abundance = sum(rel_abundance, na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    group_by(stationID, year) |>
+    mutate(
+      group = ifelse(rel_abundance < 0.03, "OTHER", group)
+    ) |>
+    group_by(stationID, year, group) |>
+    summarise(
+      rel_abundance = sum(rel_abundance, na.rm = TRUE),
+      .groups = "drop"
     ) |>
     ungroup()
 
@@ -64,22 +87,62 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
       by = 1
     )
 
+    algae_colors <- c(
+      "GREEN" = "#2E8B3A",
+      "GOLDEN-BROWN" = "#D4A017",
+      "EUGLENOID" = "#000000",
+      "DINOFLAGELLATE" = "#CC79A7",
+      "DIATOM" = "#0072B2",
+      "CYANOBACTERIA" = "#E8601C",
+      "CRYPTOMONAD" = "#56B4E9",
+      "XANTHOPHYTE" = "#C2B280",
+      "OTHER" = "grey70"
+    )
+
+    algae_labels <- c(
+      "GREEN" = "Greens",
+      "GOLDEN-BROWN" = "Golden-Browns",
+      "EUGLENOID" = "Euglenoids",
+      "DINOFLAGELLATE" = "Dinoflagellates",
+      "DIATOM" = "Diatoms",
+      "CYANOBACTERIA" = "Cyanobacteria",
+      "CRYPTOMONAD" = "Cryptomonads",
+      "XANTHOPHYTE" = "Xanthophytes",
+      "OTHER" = "Other"
+    )
+
+    legend_order <- c(
+      sort(setdiff(names(algae_colors), "OTHER")),
+      "OTHER"
+    )
+
     plot_data <- plot_data |>
-      mutate(
-        group = factor(group, levels = names(algae_colors))
-      ) |>
-      complete(
+      mutate(group = factor(group, levels = legend_order)) |>
+      tidyr::complete(
         year = all_years,
-        group = names(algae_colors),
+        group = legend_order,
         fill = list(rel_abundance = 0)
       )
+
+    present_groups <- plot_data |>
+      group_by(group) |>
+      summarise(total = sum(rel_abundance), .groups = "drop") |>
+      filter(total > 0) |>
+      pull(group)
 
     # -----------------------------
     # MAIN PLOT (no patterns)
     # -----------------------------
+
+    #plankton color palette and renaming
+
     p_main <- ggplot(
       plot_data,
-      aes(x = factor(year), y = rel_abundance, fill = group)
+      aes(
+        x = factor(year),
+        y = rel_abundance,
+        fill = group
+      )
     ) +
       geom_bar(
         stat = "identity",
@@ -93,13 +156,15 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
         limits = c(0, 1)
       ) +
       scale_fill_manual(
-        values = algae_colors,
+        values = algae_colors[present_groups],
+        labels = algae_labels[present_groups],
+        breaks = present_groups,
         drop = FALSE
       ) +
       labs(
         title = "Annual Phytoplankton Population",
         x = "Collection Year",
-        y = "Relative Percent of Taxa",
+        y = "Relative Abundance",
         fill = NULL
       ) +
       theme_bw() +
@@ -118,9 +183,9 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
         linewidth = 0.05
       ) +
       scale_fill_manual(
-        values = algae_colors,
-        labels = algae_labels,
-        breaks = rev(names(algae_labels)),
+        values = algae_colors[present_groups],
+        labels = algae_labels[present_groups],
+        breaks = present_groups,
         drop = FALSE
       ) +
       labs(fill = NULL) +
