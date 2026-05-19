@@ -69,6 +69,18 @@ read_md <- function(path) {
 
 ```
 
+::: {custom-style="Title"}
+Volunteer Lake Assessment Program – Individual Reports ![](des-logo.png){width=1.4in}
+:::
+
+::: {custom-style="SubHeading"}
+29 Hazen Drive, Concord, New Hampshire 03301 ● [(603) 271-2658](tel:603-271-2658) ● [www.des.nh.gov](http://www.des.nh.gov)
+:::
+
+::: {custom-style="SubSubHeading"}
+Report number: `r params$pub`
+:::
+
 # **`r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)` (`r params$year`)**
 
 **Water quality summary:** `r read_md(summary_file)`
