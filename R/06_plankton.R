@@ -211,7 +211,7 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
         color = "white",
         linewidth = 0.05,
 
-        pattern_fill = "grey35",
+        pattern_fill = "grey20",
         pattern_colour = NA,
         pattern_density = 0.12,
         pattern_spacing = 0.04,
@@ -246,12 +246,12 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
           ncol = 1,
           byrow = TRUE,
           override.aes = {
-            levs <- legend_order
+            levs <- legend_order[legend_order %in% names(algae_colors)]
 
             list(
-              pattern = unname(algae_patterns[levs]),
-              pattern_angle = unname(algae_pattern_angles[levs]),
-              pattern_fill = "grey35",
+              pattern = algae_patterns[levs],
+              pattern_angle = algae_pattern_angles[levs],
+              pattern_fill = "grey20",
               pattern_colour = NA,
               pattern_density = 0.12,
               pattern_spacing = 0.01,
