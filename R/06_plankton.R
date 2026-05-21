@@ -6,6 +6,8 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
     dir.create(OUTPUT_PATH, recursive = TRUE)
   }
 
+  library(ggpattern)
+
   # -----------------------------
   # Load YEAR-driven plankton file
   # -----------------------------
@@ -29,9 +31,18 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
   data <- data |>
     mutate(
       group = as.character(group),
-      group = ifelse(is.na(group) | group == "UNKNOWN PHYTO", "OTHER", group)
+      group = trimws(group),
+      group = toupper(group),
+      group = ifelse(
+        is.na(group) | group == "UNKNOWN PHYTO",
+        "OTHER",
+        group
+      )
     )
 
+  # -----------------------------
+  # Relative abundance
+  # -----------------------------
   rel_abund <- data |>
     group_by(stationID, year, group) |>
     summarise(
@@ -44,6 +55,9 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
     ) |>
     ungroup()
 
+  # -----------------------------
+  # Lump low abundance groups
+  # -----------------------------
   rel_abund <- rel_abund |>
     group_by(stationID, year, group) |>
     summarise(
@@ -52,7 +66,11 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
     ) |>
     group_by(stationID, year) |>
     mutate(
-      group = ifelse(rel_abundance < 0.03, "OTHER", group)
+      group = ifelse(
+        rel_abundance < 0.03,
+        "OTHER",
+        group
+      )
     ) |>
     group_by(stationID, year, group) |>
     summarise(
@@ -63,145 +81,207 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
 
   data <- rel_abund
 
+  # -----------------------------
+  # Color palette
+  # -----------------------------
+  algae_colors <- c(
+    "GREEN" = "#2E8B3A",
+    "GOLDEN-BROWN" = "#D4A017",
+    "EUGLENOID" = "#000000",
+    "DINOFLAGELLATE" = "#CC79A7",
+    "DIATOM" = "#0072B2",
+    "CYANOBACTERIA" = "#E8601C",
+    "CRYPTOMONAD" = "#56B4E9",
+    "XANTHOPHYTE" = "#C2B280",
+    "OTHER" = "grey70"
+  )
+
+  algae_labels <- c(
+    "GREEN" = "Greens",
+    "GOLDEN-BROWN" = "Golden-Browns",
+    "EUGLENOID" = "Euglenoids",
+    "DINOFLAGELLATE" = "Dinoflagellates",
+    "DIATOM" = "Diatoms",
+    "CYANOBACTERIA" = "Cyanobacteria",
+    "CRYPTOMONAD" = "Cryptomonads",
+    "XANTHOPHYTE" = "Xanthophytes",
+    "OTHER" = "Other"
+  )
+
+  # -----------------------------
+  # Pattern mappings
+  # -----------------------------
+  algae_patterns <- c(
+    "GREEN" = "none",
+    "GOLDEN-BROWN" = "stripe",
+    "EUGLENOID" = "none",
+    "DINOFLAGELLATE" = "stripe",
+    "DIATOM" = "stripe",
+    "CYANOBACTERIA" = "circle",
+    "CRYPTOMONAD" = "crosshatch",
+    "XANTHOPHYTE" = "crosshatch",
+    "OTHER" = "stripe"
+  )
+
+  algae_pattern_angles <- c(
+    "GREEN" = 30,
+    "GOLDEN-BROWN" = 90,
+    "EUGLENOID" = 90,
+    "DINOFLAGELLATE" = 30,
+    "DIATOM" = 0,
+    "CYANOBACTERIA" = 30,
+    "CRYPTOMONAD" = 0,
+    "XANTHOPHYTE" = 120,
+    "OTHER" = 120
+  )
+
+  # -----------------------------
+  # Legend order
+  # -----------------------------
+  legend_order <- c(
+    sort(setdiff(names(algae_colors), "OTHER")),
+    "OTHER"
+  )
+
+  # -----------------------------
   # Get list of stations
+  # -----------------------------
   stations <- sort(unique(data$stationID))
 
   lapply(stations, function(station_id) {
     message(paste0("Working on plankton for ", station_id, "\n"))
 
-    # Subset for station
+    # -----------------------------
+    # Subset station
+    # -----------------------------
     plot_data <- data |>
       filter(stationID == station_id)
 
     # -----------------------------
-    # STATION-LEVEL CHECK FOR YEAR+
+    # Skip if no YEAR data
     # -----------------------------
     if (!any(plot_data$year >= YEAR, na.rm = TRUE)) {
       message("  -> Skipping ", station_id, " (no ", YEAR, " data)\n")
       return(NULL)
     }
+
+    # -----------------------------
     # Full year range
+    # -----------------------------
     all_years <- seq(
       min(plot_data$year, na.rm = TRUE),
       max(plot_data$year, na.rm = TRUE),
       by = 1
     )
 
-    algae_colors <- c(
-      "GREEN" = "#2E8B3A",
-      "GOLDEN-BROWN" = "#D4A017",
-      "EUGLENOID" = "#000000",
-      "DINOFLAGELLATE" = "#CC79A7",
-      "DIATOM" = "#0072B2",
-      "CYANOBACTERIA" = "#E8601C",
-      "CRYPTOMONAD" = "#56B4E9",
-      "XANTHOPHYTE" = "#C2B280",
-      "OTHER" = "grey70"
-    )
-
-    algae_labels <- c(
-      "GREEN" = "Greens",
-      "GOLDEN-BROWN" = "Golden-Browns",
-      "EUGLENOID" = "Euglenoids",
-      "DINOFLAGELLATE" = "Dinoflagellates",
-      "DIATOM" = "Diatoms",
-      "CYANOBACTERIA" = "Cyanobacteria",
-      "CRYPTOMONAD" = "Cryptomonads",
-      "XANTHOPHYTE" = "Xanthophytes",
-      "OTHER" = "Other"
-    )
-
-    legend_order <- c(
-      sort(setdiff(names(algae_colors), "OTHER")),
-      "OTHER"
-    )
-
+    # -----------------------------
+    # Complete missing combinations
+    # -----------------------------
     plot_data <- plot_data |>
-      mutate(group = factor(group, levels = legend_order)) |>
+      mutate(
+        group = factor(group, levels = legend_order)
+      ) |>
       tidyr::complete(
         year = all_years,
         group = legend_order,
         fill = list(rel_abundance = 0)
+      ) |>
+      mutate(
+        group = factor(group, levels = legend_order)
       )
 
-    present_groups <- plot_data |>
-      group_by(group) |>
-      summarise(total = sum(rel_abundance), .groups = "drop") |>
-      filter(total > 0) |>
-      pull(group)
-
     # -----------------------------
-    # MAIN PLOT (no patterns)
+    # Main plot
     # -----------------------------
-
-    #plankton color palette and renaming
-
     p_main <- ggplot(
       plot_data,
       aes(
         x = factor(year),
         y = rel_abundance,
-        fill = group
+        fill = group,
+        pattern = group,
+        pattern_angle = group
       )
     ) +
-      geom_bar(
+
+      geom_bar_pattern(
         stat = "identity",
+        position = "stack",
+
         color = "white",
-        linewidth = 0.05
+        linewidth = 0.05,
+
+        pattern_fill = "grey35",
+        pattern_colour = NA,
+        pattern_density = 0.12,
+        pattern_spacing = 0.04,
+        pattern_key_scale_factor = 1.8
       ) +
+
       scale_y_continuous(
         labels = scales::percent,
         breaks = seq(0, 1, by = 0.1),
         expand = c(0, 0),
         limits = c(0, 1)
       ) +
+
       scale_fill_manual(
-        values = algae_colors[present_groups],
-        labels = algae_labels[present_groups],
-        breaks = present_groups,
+        values = algae_colors,
+        labels = algae_labels,
         drop = FALSE
       ) +
+
+      scale_pattern_manual(
+        values = algae_patterns,
+        drop = FALSE
+      ) +
+
+      scale_pattern_angle_manual(
+        values = algae_pattern_angles,
+        drop = FALSE
+      ) +
+
+      guides(
+        fill = guide_legend(
+          ncol = 1,
+          byrow = TRUE,
+          override.aes = {
+            levs <- legend_order
+
+            list(
+              pattern = unname(algae_patterns[levs]),
+              pattern_angle = unname(algae_pattern_angles[levs]),
+              pattern_fill = "grey35",
+              pattern_colour = NA,
+              pattern_density = 0.12,
+              pattern_spacing = 0.01,
+              pattern_key_scale_factor = 1.8
+            )
+          }
+        ),
+
+        pattern = "none",
+        pattern_angle = "none"
+      ) +
+
       labs(
         title = "Annual Phytoplankton Population",
         x = "Collection Year",
         y = "Relative Abundance",
         fill = NULL
       ) +
+
       theme_bw() +
       theme_plankton()
 
     # -----------------------------
-    # LEGEND-only plot (no patterns)
+    # Final plot
     # -----------------------------
-    p_legend <- ggplot(
-      plot_data,
-      aes(x = 1, y = 1, fill = group)
-    ) +
-      geom_bar(
-        stat = "identity",
-        color = "white",
-        linewidth = 0.05
-      ) +
-      scale_fill_manual(
-        values = algae_colors[present_groups],
-        labels = algae_labels[present_groups],
-        breaks = present_groups,
-        drop = FALSE
-      ) +
-      labs(fill = NULL) +
-      theme_void() +
-      theme_plankton_legend() +
-      guides(
-        fill = guide_legend(ncol = 1)
-      )
-
-    legend <- get_legend(p_legend)
+    final_plot <- p_main
 
     # -----------------------------
-    # Combine + SAVE
+    # Save
     # -----------------------------
-    final_plot <- plot_grid(p_main, legend, rel_widths = c(6, 1.5))
-
     filename <- paste0(station_id, "_plankton.png")
     temp_path <- file.path(OUTPUT_PATH, filename)
 
@@ -214,13 +294,21 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
       bg = "white"
     )
 
+    # -----------------------------
     # Add border
+    # -----------------------------
     img <- magick::image_read(temp_path)
+
     img_bordered <- magick::image_border(
       img,
       color = "black",
       geometry = "7x7"
     )
-    magick::image_write(img_bordered, path = temp_path, format = "png")
+
+    magick::image_write(
+      img_bordered,
+      path = temp_path,
+      format = "png"
+    )
   })
 }

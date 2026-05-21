@@ -133,7 +133,6 @@ theme_plankton <- function() {
       panel.grid.minor.x = element_blank(),
       panel.grid.major.y = element_line(color = "whitesmoke"),
       panel.grid.minor.y = element_blank(),
-      legend.position = "none",
       plot.margin = margin(t = 10, r = 4, b = 10, l = 10),
       plot.title = element_text(
         hjust = 0.5,
