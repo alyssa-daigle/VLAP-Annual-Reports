@@ -38,6 +38,20 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
         "OTHER",
         group
       )
+    ) |>
+    filter(
+      group %in%
+        c(
+          "GREEN",
+          "GOLDEN-BROWN",
+          "EUGLENOID",
+          "DINOFLAGELLATE",
+          "DIATOM",
+          "CYANOBACTERIA",
+          "CRYPTOMONAD",
+          "XANTHOPHYTE",
+          "OTHER"
+        )
     )
 
   # -----------------------------
@@ -243,6 +257,7 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
 
       guides(
         fill = guide_legend(
+          title = "Group",
           ncol = 1,
           byrow = TRUE,
           override.aes = {
@@ -272,7 +287,10 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
       ) +
 
       theme_bw() +
-      theme_plankton()
+      theme_plankton() +
+      theme(
+        legend.title = element_text(family = "Calibri", face = "bold")
+      )
 
     # -----------------------------
     # Final plot
