@@ -69,18 +69,24 @@ read_md <- function(path) {
 
 ```
 
-::: {custom-style="Title"}
-Volunteer Lake Assessment Program – Individual Reports ![](des-logo.png){width=1.4in}
+::: {.decorative}
+______________________________________________________________________
 :::
-
+::: {custom-style="Title"}
+Volunteer Lake Assessment Program – Individual Reports 
+:::
+::: {custom-style="SubHeading"}
+New Hampshire Department of Environmental Services
+:::
 ::: {custom-style="SubHeading"}
 29 Hazen Drive, Concord, New Hampshire 03301 ● [(603) 271-2658](tel:603-271-2658) ● [www.des.nh.gov](http://www.des.nh.gov)
 :::
-
 ::: {custom-style="SubSubHeading"}
 Report number: `r params$pub`
 :::
-
+::: {.decorative}
+______________________________________________________________________
+:::
 # **`r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)` (`r params$year`)**
 
 **Water quality summary:** `r read_md(summary_file)`
@@ -406,7 +412,7 @@ paste0(
 "::: {custom-style=\"figure caption\"}\n",
 
 "Figure ", fig_counter,
-". Phytoplankton community composition over time, expressed as the average relative abundance of major taxonomic groups per year. Note that taxa with less than 3% abundance are grouped into Other.",
+". Phytoplankton community composition over time, expressed as the average relative abundance of major taxonomic groups per year. Note that groups with less than 3% abundance are grouped into Other.",
 
 "\n:::"
 )
@@ -451,36 +457,57 @@ cya_file <- list.files(
 if (length(cya_file) == 1) {
 
   cya_data <- read.csv(cya_file, check.names = FALSE, stringsAsFactors = FALSE)
-  
+
   if ("STATNAME" %in% names(cya_data)) {
     names(cya_data)[names(cya_data) == "STATNAME"] <- "Station"
   }
-  
+
   cya_data <- cya_data |>
     select(where(~ !all(is.na(.x) | .x == ""))) |>
     mutate(across(where(is.numeric), round, 2))
-  
+
+  # -----------------------------
+  # Build flextable
+  # -----------------------------
   ft_cya <- flextable(cya_data) |>
     bold(part = "header") |>
-    bg(bg = accent1_80, part = "header") |>   # darker header
-    bg(bg = accent1_60, part = "body") |>     # light body
+    bg(bg = accent1_80, part = "header") |>
+    bg(bg = accent1_60, part = "body") |>
     border_outer(part = "all", border = fp_border(color = "black", width = 1)) |>
     border_inner_h(part = "all", border = fp_border(color = "black", width = 1)) |>
     border_inner_v(part = "all", border = fp_border(color = "black", width = 1)) |>
     align(align = "center", part = "header") |>
-    line_spacing(space = 1) |> 
-    padding(padding.top = 0, padding.bottom = 0, part = "all") |> 
-    fontsize(size = 11.0, part = "all") |>          
+    line_spacing(space = 1) |>
+    padding(padding.top = 0, padding.bottom = 0, part = "all") |>
+    fontsize(size = 11.0, part = "all") |>
     set_table_properties(layout = "autofit") |>
     font(fontname = "Calibri", part = "all")
-  
+
+  # -----------------------------
+  # Left align first column / numeric alignment
+  # -----------------------------
   if (nrow(cya_data) >= 2) {
     ft_cya <- align(ft_cya, j = 1, i = 2:nrow(cya_data), align = "left", part = "body")
   }
   if (ncol(cya_data) >= 2) {
     ft_cya <- align(ft_cya, j = 2:ncol(cya_data), align = "center", part = "body")
   }
-  
+
+  # -----------------------------
+  # Make "No Value" visually invisible (but readable)
+  # -----------------------------
+  for (j in seq_len(ncol(cya_data))) {
+    ft_cya <- flextable::compose(
+      ft_cya,
+      j = j,
+      i = cya_data[[j]] == "No Value",
+      value = as_paragraph(
+        as_chunk("No Value",
+                 props = fp_text(color = accent1_60))
+      )
+    )
+  }
+
   ft_cya
 
 } else if (length(cya_file) == 0) {
@@ -493,8 +520,6 @@ if (length(cya_file) == 1) {
 
 }
 ```
-
-*Note: “No Value” indicates that the parameter was not measured at this station during the reporting period.*
 
 ## **Observations** *(Refer to Table 2 and Historical Deep Spot Data Graphics)*:
 
