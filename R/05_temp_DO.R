@@ -76,16 +76,16 @@ make_temp_DO <- function(INPUT_PATH, OUTPUT_PATH) {
       aes(x = Temp, y = Depth, group = Date, shape = Month, color = Month)
     ) +
       geom_path(aes(color = Month), linewidth = 0.5) +
-      geom_point(aes(fill = Month), size = 2.0, stroke = 0.5) +
+      geom_point(aes(fill = Month), size = 2.2, stroke = 0.6) +
       scale_color_manual(
-        values = scales::seq_gradient_pal("#7BC96F", "darkgreen")(seq(
+        values = scales::seq_gradient_pal("#6AAE5E", "#0B4F1A")(seq(
           0,
           1,
           length.out = n_months
         ))
       ) +
       scale_fill_manual(
-        values = scales::seq_gradient_pal("#7BC96F", "darkgreen")(seq(
+        values = scales::seq_gradient_pal("#6AAE5E", "#0B4F1A")(seq(
           0,
           1,
           length.out = n_months
@@ -112,7 +112,9 @@ make_temp_DO <- function(INPUT_PATH, OUTPUT_PATH) {
         panel.grid.minor = element_blank(),
         legend.margin = margin(t = 0, r = 0, b = 0, l = 0),
         legend.box.margin = margin(t = 0, r = 0, b = 0, l = 0),
-        axis.title.x = element_text(margin = margin(t = 2))
+        axis.title.x = element_text(margin = margin(t = 2)),
+        axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 9)
       )
 
     # DO plot
@@ -121,16 +123,16 @@ make_temp_DO <- function(INPUT_PATH, OUTPUT_PATH) {
       aes(x = DO, y = Depth, group = Date, shape = Month, color = Month)
     ) +
       geom_path(aes(color = Month), linewidth = 0.5) +
-      geom_point(aes(fill = Month), size = 2.0, stroke = 0.5) +
+      geom_point(aes(fill = Month), size = 2.2, stroke = 0.6) +
       scale_color_manual(
-        values = scales::seq_gradient_pal("steelblue1", "darkblue")(seq(
+        values = scales::seq_gradient_pal("#5FA3D6", "#0B2E6B")(seq(
           0,
           1,
           length.out = n_months
         ))
       ) +
       scale_fill_manual(
-        values = scales::seq_gradient_pal("steelblue1", "darkblue")(seq(
+        values = scales::seq_gradient_pal("#5FA3D6", "#0B2E6B")(seq(
           0,
           1,
           length.out = n_months
@@ -157,7 +159,9 @@ make_temp_DO <- function(INPUT_PATH, OUTPUT_PATH) {
         panel.grid.minor = element_blank(),
         legend.margin = margin(t = 0, r = 0, b = 0, l = 0),
         legend.box.margin = margin(t = 0, r = 0, b = 0, l = 0),
-        axis.title.x = element_text(margin = margin(t = 2))
+        axis.title.x = element_text(margin = margin(t = 2)),
+        axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 9)
       )
 
     # Extract shared legend (black shapes only)
@@ -187,7 +191,14 @@ make_temp_DO <- function(INPUT_PATH, OUTPUT_PATH) {
           x = 0.5,
           hjust = 0.5
         ),
-      combined_panels,
+
+      plot_grid(
+        combined_panels,
+        ggdraw(), # <-- right-side spacer
+        ncol = 2,
+        rel_widths = c(1, 0.02) # SLIGHT right margin
+      ),
+
       ggdraw() +
         draw_label(
           "Month of Profile",
@@ -197,6 +208,7 @@ make_temp_DO <- function(INPUT_PATH, OUTPUT_PATH) {
           hjust = 0.5,
           y = 0.5
         ),
+
       legend,
       ncol = 1,
       rel_heights = c(0.12, 1, 0.10)
