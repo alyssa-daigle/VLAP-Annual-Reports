@@ -341,8 +341,15 @@ data_reformat <- function(INPUT_PATH) {
   ## PLOTTING FILTER ----------------------------------------------------------
 
   lake_start_years <- tibble::tibble(
-    STATIONID = c("ANGSDND", "COUKIND", "CRYMAND", "DORMAND", "EMERIND"),
-    start_year = c(2005, 2018, 1993, 2000, 2006)
+    STATIONID = c(
+      "ANGSDND",
+      "COUKIND",
+      "CRYMAND",
+      "DORMAND",
+      "EMERIND",
+      "GOOCAND"
+    ),
+    start_year = c(2005, 2018, 1993, 2000, 2006, 2007)
   )
 
   data_plot <- data_year_median |>
