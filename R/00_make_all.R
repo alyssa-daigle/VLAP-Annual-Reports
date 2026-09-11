@@ -104,6 +104,15 @@ make_temp_DO(
   file.path(OUTPUT_PATH, "temp_DO")
 )
 
+make_chl_tp_secchi_monthly(
+  data_monthly = data_monthly,
+  OUTPUT_PATH = file.path(
+    OUTPUT_BASE,
+    "2026",
+    "plots",
+    "monthly_chla_tp"
+  )
+)
 
 message("All plots completed.")
 

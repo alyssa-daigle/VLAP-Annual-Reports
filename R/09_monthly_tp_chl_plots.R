@@ -18,12 +18,67 @@ tp_data <- data_monthly %>%
   ) %>%
   mutate(
     # First 6 characters of STATIONID
-    STATION_SUFFIX = str_sub(
-      STATIONID,
-      1,
-      6
-    ),
+    STATION_SUFFIX = case_when(
+      # -------------------------------------------------------
+      # COBWIN
+      # North deep spot + all COBWIN tributaries
+      # South deep spot remains separate
+      # -------------------------------------------------------
 
+      STATIONID == "COBWINND" ~ "COBWINN",
+
+      STATIONID == "COBWINSD" ~ "COBWINS",
+
+      str_detect(
+        STATIONID,
+        "^COBWIN"
+      ) ~ "COBWINN",
+
+      # -------------------------------------------------------
+      # PEA lakes
+      # Deep spots and all associated tributaries use
+      # the first 7 characters
+      # -------------------------------------------------------
+
+      str_detect(
+        STATIONID,
+        "^PEABMAD"
+      ) ~ "PEABMAD",
+
+      str_detect(
+        STATIONID,
+        "^PEAMMAD"
+      ) ~ "PEAMMAD",
+
+      # -------------------------------------------------------
+      # Other special deep spots that need 7 characters
+      # -------------------------------------------------------
+
+      STATIONID %in%
+        c(
+          "PAWNOTND",
+          "PAWNOTSD",
+          "WINPLACD",
+          "WINTLACD",
+          "WINMBELD",
+          "WINMTILD"
+        ) ~ str_sub(
+        STATIONID,
+        1,
+        7
+      ),
+
+      # -------------------------------------------------------
+      # Default
+      # Use first 6 characters
+      # -------------------------------------------------------
+
+      TRUE ~ str_sub(
+        STATIONID,
+        1,
+        6
+      )
+    ),
     # Calendar month order
     month_name = factor(
       month_name,
@@ -271,7 +326,7 @@ for (i in seq_len(nrow(stations))) {
         color = TRIB_NAME,
         shape = TRIB_NAME
       ),
-      size = 3
+      size = 4
     ) +
 
     # -----------------------------------------------------
@@ -282,6 +337,12 @@ for (i in seq_len(nrow(stations))) {
       name = "Total Phosphorus (µg/L)"
     ) +
 
+    scale_fill_manual(
+      values = c(
+        "Epilimnion" = "gray50",
+        "Hypolimnion" = "gray80"
+      )
+    ) +
     # -----------------------------------------------------
     # Labels
     # -----------------------------------------------------
@@ -316,8 +377,9 @@ for (i in seq_len(nrow(stations))) {
         hjust = 1
       ),
 
-      legend.position = "bottom"
-    )
+      legend.position = "right"
+    ) +
+    theme_bw()
 
   # -------------------------------------------------------
   # Save plot
