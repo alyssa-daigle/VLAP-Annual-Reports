@@ -1,14 +1,7 @@
 # ==========================
 # Load environment variables FIRST
 # ==========================
-if (file.exists(".env")) {
-  if (!requireNamespace("dotenv", quietly = TRUE)) {
-    install.packages("dotenv")
-  }
-  library(dotenv)
-  load_dot_env(".env")
-}
-
+readRenviron(".env")
 # ==========================
 # NOW load config (creates PROJECT_PATH, YEAR, etc.)
 # ==========================
@@ -51,15 +44,15 @@ invisible(lapply(libs, library, character.only = TRUE))
 # ==========================
 # Source helper scripts
 # ==========================
-source(file.path(PROJECT_PATH, "R", "theme.R"))
-source(file.path(PROJECT_PATH, "R", "01_data_reformat.R"))
-source(file.path(PROJECT_PATH, "R", "02_mannkendall.R"))
-source(file.path(PROJECT_PATH, "R", "03_chl_tp_secchi.R"))
-source(file.path(PROJECT_PATH, "R", "04_pH_cond.R"))
-source(file.path(PROJECT_PATH, "R", "05_temp_DO.R"))
-source(file.path(PROJECT_PATH, "R", "06_plankton.R"))
-source(file.path(PROJECT_PATH, "R", "07_CYA_table.R"))
-source(file.path(PROJECT_PATH, "R", "08_report_gen.R"))
+source(file.path("R", "theme.R"))
+source(file.path("R", "01_data_reformat.R"))
+source(file.path("R", "02_mannkendall.R"))
+source(file.path("R", "03_chl_tp_secchi.R"))
+source(file.path("R", "04_pH_cond.R"))
+source(file.path("R", "05_temp_DO.R"))
+source(file.path("R", "06_plankton.R"))
+source(file.path("R", "07_CYA_table.R"))
+source(file.path("R", "08_report_gen.R"))
 
 # ====================
 # Reformatting data
@@ -71,6 +64,7 @@ data_long <- processed$data_long
 data_wide <- processed$data_wide
 data_year_median <- processed$data_year_median
 data_plot <- processed$data_plot
+data_monthly <- processed$data_monthly
 
 # ==========================
 # Mann-Kendall
@@ -84,6 +78,8 @@ message("Done running Mann-Kendall.")
 # ==========================
 message("Generating plots...")
 
+## Historical plots
+
 make_chl_tp_secchi(
   data_plot,
   INPUT_PATH,
@@ -96,15 +92,18 @@ make_pH_conduc(
   file.path(OUTPUT_PATH, "pH_conduc")
 )
 
+make_plankton(
+  INPUT_PATH = INPUT_PATH,
+  OUTPUT_PATH = file.path(OUTPUT_PATH, "plankton")
+)
+
+# monthly plots
+
 make_temp_DO(
   INPUT_PATH,
   file.path(OUTPUT_PATH, "temp_DO")
 )
 
-make_plankton(
-  INPUT_PATH = INPUT_PATH,
-  OUTPUT_PATH = file.path(OUTPUT_PATH, "plankton")
-)
 
 message("All plots completed.")
 

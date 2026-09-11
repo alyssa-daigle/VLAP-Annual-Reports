@@ -68,9 +68,9 @@ make_CYA_table <- function(data_long, TABLE_PATH, INPUT_PATH) {
     ) |>
     filter(!is.na(param_depth))
 
-  # aggregate 2025
-  CYA_2025 <- CYA_base |>
-    filter(YEAR == 2025) |>
+  # aggregate 2026
+  CYA_2026 <- CYA_base |>
+    filter(YEAR == 2026) |>
     group_by(RELLAKE, STATNAME, STATIONID, TOWN, param_depth) |>
     summarise(avg_result = mean(NUMRESULT, na.rm = TRUE), .groups = "drop") |>
     pivot_wider(names_from = param_depth, values_from = avg_result) |>
@@ -94,14 +94,14 @@ make_CYA_table <- function(data_long, TABLE_PATH, INPUT_PATH) {
     "pH",
     "E. coli (mpn/100 mL)"
   )
-  CYA_2025 <- CYA_2025 |>
+  CYA_2026 <- CYA_2026 |>
     mutate(across(
       any_of(numeric_cols),
       ~ if (is.numeric(.)) round(., 2) else .
     ))
 
   # enforce parameter column order
-  CYA_2025 <- CYA_2025 |>
+  CYA_2026 <- CYA_2026 |>
     select(
       RELLAKE,
       STATNAME,
@@ -111,7 +111,7 @@ make_CYA_table <- function(data_long, TABLE_PATH, INPUT_PATH) {
     )
 
   # join with lake map to update RELLAKE names
-  CYA_updated <- CYA_2025 |>
+  CYA_updated <- CYA_2026 |>
     left_join(LAKEMAP |> select(STATIONID, lake = RELLAKE), by = "STATIONID") |>
     mutate(RELLAKE = ifelse(!is.na(lake), lake, RELLAKE)) |>
     select(-lake)

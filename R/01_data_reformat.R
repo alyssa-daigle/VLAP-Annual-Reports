@@ -272,17 +272,60 @@ data_reformat <- function(INPUT_PATH) {
         NUMRESULT
       ),
 
-      STARTDATE = as.Date(STARTDATE, format = "%d-%b-%y"),
+      STARTDATE = as.Date(STARTDATE, format = "%m/%d/%Y"),
       year = lubridate::year(STARTDATE)
     ) |>
-    # DROP Sunapee samples where they samples "1m off the bottom"
+    # Drop Sunapee samples where they sampled "1m off the bottom"
     filter(
       !(str_detect(STATIONID, "SUNSUN") &
         str_detect(STATNAM, "DEEP") &
         WSHEDPARMNAME == "PHOSPHORUS AS P" &
         is.na(DEPTHZONE))
+    )
+
+  # Keep all records for lakes that have data in the current YEAR
+  lake_years <- data_long |>
+    filter(year == YEAR) |>
+    distinct(RELLAKE)
+
+  data_long <- data_long |>
+    semi_join(lake_years, by = "RELLAKE")
+
+  ## CURRENT YEAR MONTHLY DATA -------------------------------------------------
+
+  data_monthly <- data_long |>
+    dplyr::filter(year == YEAR) |>
+    dplyr::mutate(
+      month = lubridate::month(STARTDATE),
+      month_name = lubridate::month(
+        STARTDATE,
+        label = TRUE,
+        abbr = FALSE
+      )
     ) |>
-    (\(df) df[df$RELLAKE %in% df$RELLAKE[df$year == YEAR], ])()
+    dplyr::select(
+      RELLAKE,
+      STATIONID,
+      TOWN,
+      STATNAM,
+      STARTDATE,
+      year,
+      month,
+      month_name,
+      DEPTHZONE,
+      DEPTH,
+      WSHEDPARMNAME,
+      param_depth,
+      NUMRESULT,
+      TEXTRESULT,
+      QUALIFIER,
+      DETLIM,
+      ANALYTICALMETHOD,
+      CURRENT_TROPHIC_STATUS,
+      BEST_TROPHIC_CLASS,
+      ACTCMTS,
+      RESULTCMT
+    )
 
   ## WIDE FORMAT ----------------------------------------------------------
 
@@ -347,9 +390,11 @@ data_reformat <- function(INPUT_PATH) {
       "CRYMAND",
       "DORMAND",
       "EMERIND",
-      "GOOCAND"
+      "GOOCAND",
+      "WAUDAND",
+      "WILPFDD"
     ),
-    start_year = c(2005, 2018, 1993, 2000, 2006, 2007)
+    start_year = c(2005, 2018, 1993, 2000, 2006, 2007, 2003, 2013)
   )
 
   data_plot <- data_year_median |>
@@ -358,9 +403,12 @@ data_reformat <- function(INPUT_PATH) {
 
   ## RETURN ----------------------------------------------------------
 
+  ## RETURN ----------------------------------------------------------
+
   return(list(
     data_long = data_long,
     data_wide = data_wide,
+    data_monthly = data_monthly,
     data_year_median = data_year_median,
     data_plot = data_plot
   ))
