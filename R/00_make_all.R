@@ -108,7 +108,7 @@ make_chl_tp_secchi_monthly(
   data_monthly = data_monthly,
   OUTPUT_PATH = file.path(
     OUTPUT_BASE,
-    "2026",
+    "2025",
     "plots",
     "monthly_chla_tp"
   )

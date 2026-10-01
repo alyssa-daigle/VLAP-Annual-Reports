@@ -36,9 +36,9 @@ make_chl_tp_secchi <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
       ) |>
       arrange(year)
 
-    # Skip station if no data or if 2026 is missing
-    if (nrow(df_plot) == 0 || !any(df_plot$year == 2026)) {
-      warning("No data or missing 2026 for ", station_id, ", skipping...")
+    # Skip station if no data or if 2025 is missing
+    if (nrow(df_plot) == 0 || !any(df_plot$year == 2025)) {
+      warning("No data or missing 2025 for ", station_id, ", skipping...")
       next
     }
 

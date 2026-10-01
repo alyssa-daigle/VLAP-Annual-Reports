@@ -44,7 +44,7 @@ make_chl_tp_secchi_monthly <- function(
 
   station_list <- data_monthly |>
     filter(
-      year == 2026,
+      year == 2025,
       grepl(
         "DEEP",
         STATNAM,
@@ -69,12 +69,12 @@ make_chl_tp_secchi_monthly <- function(
     )
 
     # -----------------------------------------------------
-    # Get raw 2026 data for this station
+    # Get raw 2025 data for this station
     # -----------------------------------------------------
 
     df_plot <- data_monthly |>
       filter(
-        year == 2026,
+        year == 2025,
         STATIONID == station_id,
         (WSHEDPARMNAME %in%
           c(
@@ -225,7 +225,7 @@ make_chl_tp_secchi_monthly <- function(
       OUTPUT_PATH,
       paste0(
         station_id,
-        "_chl_tp_secchi_monthly_2026.png"
+        "_chl_tp_secchi_monthly_2025.png"
       )
     )
 

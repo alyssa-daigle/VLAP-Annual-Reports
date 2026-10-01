@@ -19,7 +19,7 @@ make_pH_conduc <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
       filter(!is.na(PH_epi) | !is.na(SPCD_epi)) |>
       arrange(year)
 
-    if (nrow(df_plot) == 0 || !any(df_plot$year == 2026)) {
+    if (nrow(df_plot) == 0 || !any(df_plot$year == 2025)) {
       next
     }
 

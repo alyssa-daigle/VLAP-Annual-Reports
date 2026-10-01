@@ -1,0 +1,710 @@
+---
+output:
+  word_document:
+    reference_docx: "template - Copy.docx"
+params:
+  lake: NULL
+  station: NULL
+  stations: NULL
+  town: NULL
+  TABLE_PATH: NULL
+  pub: NULL
+  year: NULL
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+
+# Load dotenv if available
+if (file.exists(".env")) {
+  if (!requireNamespace("dotenv", quietly = TRUE)) {
+    install.packages("dotenv")
+  }
+  library(dotenv)
+  load_dot_env(".env")
+}
+
+# Access environment variables
+project_path <- CONFIG$PROJECT_PATH
+plot_path <- CONFIG$OUTPUT_PATH
+excerpt_path <- CONFIG$EXCERPT_PATH
+
+# Load libraries
+library(knitr)
+library(dplyr)
+library(kableExtra)
+library(flextable)
+library(officer)
+library(magrittr)
+library(officedown)
+
+lake_clean <- tolower(gsub(" ", "_", lake))
+town_clean <- tolower(gsub(" ", "_", town))
+
+# lake-specific excerpt directory
+lake_excerpt_dir <- file.path(
+  excerpt_path,
+  paste0(lake_clean, "_", town_clean)
+)
+
+summary_file <- file.path(
+  lake_excerpt_dir,
+  "summary.md"
+)
+
+recommendations_file <- file.path(
+  lake_excerpt_dir,
+  "recommendations.md"
+)
+
+observations_file <- file.path(
+  lake_excerpt_dir,
+  "observations.md"
+)
+
+read_md <- function(path) {
+  if (!file.exists(path)) return("")
+  paste(readLines(path, warn = FALSE), collapse = "\n")
+}
+
+```
+
+::: {.decorative}
+______________________________________________________________________
+:::
+::: {custom-style="Title"}
+Volunteer Lake Assessment Program – Individual Reports 
+:::
+::: {custom-style="SubHeading"}
+New Hampshire Department of Environmental Services
+:::
+::: {custom-style="SubHeading"}
+29 Hazen Drive, Concord, New Hampshire 03301 ● [(603) 271-2658](tel:603-271-2658) ● [www.des.nh.gov](http://www.des.nh.gov)
+:::
+::: {custom-style="SubSubHeading"}
+Report number: `r params$pub`
+:::
+::: {.decorative}
+______________________________________________________________________
+:::
+# **`r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)` (`r params$year`)**
+
+**Water quality summary:** `r read_md(summary_file)`
+
+**Recommended actions:** `r read_md(recommendations_file)`
+
+## **Historical Water Quality Trend Analysis**
+
+::: {custom-style="table caption"}
+Table 1. Historical Water Quality Trends for `r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)`
+:::
+
+``` {r trend table}
+
+accent1_60 <- "#DCE6F1"  # light blue fill (body)
+accent1_80 <- "#C6D9F1"  # slightly darker blue (header)
+
+# clean and escape station id for regex
+station_clean <- gsub(" ", "_", stations)
+station_clean <- gsub("([\\(\\)\\[\\]\\+\\?\\*\\.\\^\\$])", "\\\\\\1", station_clean)
+
+trend_file <- list.files(
+  path = TABLE_PATH,
+  pattern = paste0("^MK_TrendSummary_", station_clean, "\\.csv$"),
+  full.names = TRUE,
+  ignore.case = TRUE
+)
+
+if (length(trend_file) == 1) {
+  
+  trend_data <- read.csv(trend_file, stringsAsFactors = FALSE)
+  
+  # Clean column names and round numeric values
+  trend_data <- trend_data |>
+    rename_with(~ gsub("_", " ", .x)) |>
+    mutate(across(where(is.numeric), round, 2))
+  
+  # Convert to flextable
+  ft_trend <- flextable(trend_data) |>
+    
+    # styling
+    bold(part = "header") |>
+    bold(j = c(1, 3), part = "body") |>     # parameter columns
+    
+    # background colors
+    bg(bg = accent1_80, part = "header") |> # darker header
+    bg(bg = accent1_60, part = "body") |>   # light body
+    
+    # borders
+    border_outer(part = "all", border = fp_border(color="black", width=1)) |>
+    border_inner_h(part = "all", border = fp_border(color="black", width=1)) |>
+    border_inner_v(part = "all", border = fp_border(color="black", width=1)) |>
+    
+    # alignment (ALL centered)
+    align(align = "center", part = "all") |>
+    
+    # spacing & typography
+    line_spacing(space = 1) |>
+    padding(padding.top = 0, padding.bottom = 0, part = "all") |>
+    fontsize(size = 11, part = "all") |>
+    font(fontname = "Calibri", part = "all") |>
+    
+    # layout
+    set_table_properties(width = 0.4, layout = "autofit") |>
+    autofit()
+  
+  ft_trend
+  
+} else {
+  cat("**Trend summary not found for", stations, "**")
+}
+
+```
+
+```{r plots, echo=FALSE, results='asis', include=FALSE}
+station_id <- params$stations
+
+plot_dirs <- c(
+  file.path(plot_path, "temp_DO"),
+  file.path(plot_path, "monthly_chl_tp_secchi"),
+  file.path(plot_path, "chl_tp_secchi"),
+  file.path(plot_path, "monthly_pH_conduc"),
+  file.path(plot_path, "pH_conduc"),
+  file.path(plot_path, "plankton_monthly"),
+  file.path(plot_path, "plankton")
+)
+
+plot_files <- unlist(lapply(plot_dirs, function(d) {
+  if (dir.exists(d)) {
+    files <- list.files(
+      d,
+      pattern = paste0(station_id, ".*\\.(png|jpg)$"),
+      full.names = TRUE,
+      ignore.case = TRUE
+    )
+    files[file.exists(files)]
+  } else {
+    character(0)
+  }
+}), use.names = FALSE)
+
+plot_files <- plot_files[!is.na(plot_files) & nzchar(plot_files)]
+
+# Include up to 8 plots
+plot_files <- plot_files[seq_len(min(7, length(plot_files)))]
+```
+
+```{r trend captions, include=FALSE}
+trend_files <- list.files(
+  path = TABLE_PATH,
+  pattern = paste0("^MK_TrendSummary_", station_clean, "\\.csv$"),
+  full.names = TRUE,
+  ignore.case = TRUE
+)
+
+trend_data <- NULL
+trend_lookup <- NULL
+
+if (length(trend_files) > 0) {
+
+  # deterministic file selection
+  trend_file <- trend_files[1]
+  trend_data <- read.csv(trend_file, stringsAsFactors = FALSE)
+
+  # OPTIONAL: ordering (only if column exists)
+  param_order <- c(
+    "Conductivity (Epilimnion)",
+    "Chlorophyll-a",
+    "pH (Epilimnion)",
+    "Transparency",
+    "Phosphorus (Epilimnion)",
+    "Phosphorus (Hypolimnion)"
+  )
+
+  if ("Parameter" %in% names(trend_data)) {
+
+    trend_data <- trend_data |>
+      mutate(
+        PARAM_UPPER = toupper(Parameter),
+        param_index = match(PARAM_UPPER, toupper(param_order))
+      ) |>
+      arrange(param_index)
+
+# --- FIX: gather BOTH column pairs into long format ---
+trend_long <- trend_data |>
+  dplyr::transmute(
+    Parameter_1 = Parameter,
+    Trend_1 = Trend,
+    Parameter_2 = Parameter.1,
+    Trend_2 = Trend.1
+  ) |>
+  tidyr::pivot_longer(
+    cols = everything(),
+    names_to = c(".value", "idx"),
+    names_pattern = "(Parameter|Trend)_(.)"
+  ) |>
+  dplyr::filter(!is.na(Parameter))
+
+# Build lookup from ALL parameters
+    trend_lookup <- setNames(
+      tolower(trend_long$Trend),
+      trend_long$Parameter
+    )
+  }
+}
+
+# SAFE helper (never breaks captions)
+get_trend <- function(param_name) {
+  if (is.null(trend_lookup)) {
+    return("no significant")
+  }
+
+  if (param_name %in% names(trend_lookup)) {
+    return(trend_lookup[[param_name]])
+  }
+
+  "no significant"
+}
+
+all_no_sig <- function(params) {
+  trends <- sapply(params, get_trend)
+  all(trends == "no significant")
+}
+```
+
+```{r fig setup, include=FALSE}
+fig_counter <- 1
+
+plot1_exists <- length(plot_files) >= 1
+plot2_exists <- length(plot_files) >= 2
+plot3_exists <- length(plot_files) >= 3
+plot4_exists <- length(plot_files) >= 4
+plot5_exists <- length(plot_files) >= 5
+plot6_exists <- length(plot_files) >= 6
+plot7_exists <- length(plot_files) >= 7
+```
+
+## **Temperature and Dissolved Oxygen** 
+
+```{r temp DO plot, out.width = '95%'}
+if (plot1_exists) {
+  knitr::include_graphics(plot_files[1])
+}
+```
+
+`r if (plot1_exists) {
+
+paste0(
+"::: {custom-style=\"figure caption\"}\n",
+
+"Figure ", fig_counter,
+". ", params$year,
+" vertical profiles of temperature (°C; green points, left plot) and dissolved oxygen (mg/L; blue points, right plot) plotted against depth (m). ",
+"Profile month is indicated by point shape and color intensity, with lighter shades representing earlier-season samples and darker shades representing later-season samples.",
+
+"\n:::"
+)
+
+} else {
+
+""
+}`
+
+```{r temp DO fig counter, include=FALSE}
+if (plot1_exists) fig_counter <- fig_counter + 1
+```
+
+## **Chlorophyll-a, Total Phosphorus, and Secchi Disk Transparency**
+
+```{r monthly chla, tp, trans plot, out.width = '95%'}
+if (plot2_exists) {
+  knitr::include_graphics(plot_files[2])
+}
+```
+
+`r if (plot2_exists) {
+
+paste0(
+"::: {custom-style=\"figure caption\"}\n",
+
+"Figure ", fig_counter,
+". ", params$year,
+" monthly Secchi disk transparency (blue bars), epilimnetic phosphorus (red triangles), ",
+"and chlorophyll-a (green points) levels.",
+
+"\n:::"
+)
+
+} else {
+
+""
+}`
+
+```{r monthly chla, tp, trans plot counter, include=FALSE}
+if (plot2_exists) fig_counter <- fig_counter + 1
+```
+
+```{r ANNUAL chl tp trans plot, out.width = '95%'}
+if (plot3_exists) {
+  knitr::include_graphics(plot_files[3])
+}
+```
+
+`r if (plot3_exists) {
+
+paste0(
+"::: {custom-style=\"figure caption\"}\n",
+
+if (all_no_sig(c(
+"Transparency",
+"Phosphorus (Epilimnion)",
+"Chlorophyll-a"
+))) {
+
+paste0(
+"Figure ", fig_counter,
+". Median Secchi disk transparency (blue bars), epilimnetic phosphorus (red triangles), ",
+"and chlorophyll-a (green points) by year."
+)
+
+} else {
+
+paste0(
+"Figure ", fig_counter,
+". Median Secchi disk transparency (blue bars), epilimnetic phosphorus (red triangles), ",
+"and chlorophyll-a (green points) by year, with corresponding trend lines shown as blue, red, ",
+"and green dashed lines, respectively. Water transparency is ",
+get_trend("Transparency"), ", phosphorus is ",
+get_trend("Phosphorus (Epilimnion)"), " and chlorophyll-a is ",
+get_trend("Chlorophyll-a"),
+" since monitoring began."
+)
+
+},
+
+"\n:::"
+)
+
+} else {
+
+""
+}`
+
+```{r annual chla, tp, trans plot counter, include=FALSE}
+if (plot3_exists) fig_counter <- fig_counter + 1
+```
+
+## **Conductivity and pH**
+
+```{r monthly pH cond plot, out.width = '95%'}
+if (plot4_exists) {
+  knitr::include_graphics(plot_files[4])
+}
+```
+
+`r if (plot4_exists) {
+
+paste0(
+"::: {custom-style=\"figure caption\"}\n",
+
+"Figure ", fig_counter,
+". ", params$year,
+" monthly epilimnetic conductivity (red points) and pH (gray bars) levels.",
+
+"\n:::"
+)
+
+} else {
+
+""
+}`
+
+```{r monthly pH cond plot counter, include=FALSE}
+if (plot4_exists) fig_counter <- fig_counter + 1
+```
+
+```{r ANNUAL pH cond, out.width = '95%'}
+if (plot5_exists) {
+  knitr::include_graphics(plot_files[5])
+}
+```
+
+`r if (plot5_exists) {
+
+paste0(
+"::: {custom-style=\"figure caption\"}\n",
+
+if (all_no_sig(c("pH (Epilimnion)", "Conductivity (Epilimnion)"))) {
+
+paste0(
+"Figure ", fig_counter,
+". Median epilimnetic conductivity (red points) and pH (gray bars) by year."
+)
+
+} else {
+
+paste0(
+"Figure ", fig_counter,
+". Median epilimnetic conductivity (red points) and pH (gray bars) by year, ",
+"with corresponding trend lines shown as red and black dashed lines, respectively. ",
+"Epilimnion pH is ", get_trend("pH (Epilimnion)"),
+" and conductivity is ", get_trend("Conductivity (Epilimnion)"),
+" since monitoring began."
+)
+
+},
+
+"\n:::"
+)
+
+} else {
+
+""  # no caption at all
+}`
+
+```{r annual pH cond plot counter, include=FALSE}
+if (plot5_exists) fig_counter <- fig_counter + 1
+```
+
+## **Plankton Community Dynamics**
+
+```{r monthly phytoplankton, out.width = '95%'}
+if (plot6_exists) {
+  knitr::include_graphics(plot_files[6])
+}
+```
+
+`r if (plot6_exists) {
+
+paste0(
+"::: {custom-style=\"figure caption\"}\n",
+
+"Figure ", fig_counter,
+". ", params$year,
+" phytoplankton community composition over time, expressed as the relative abundance of major taxonomic groups per month. Note that groups with less than 3% abundance are grouped into Other.",
+
+"\n:::"
+)
+
+} else {
+
+""
+}`
+
+```{r monthly phytoplankton fig counter, include=FALSE}
+if (plot6_exists) fig_counter <- fig_counter + 1
+```
+
+
+```{r annual phyto, out.width = '95%'}
+if (plot7_exists) {
+  knitr::include_graphics(plot_files[7])
+}
+```
+
+`r if (plot7_exists) {
+
+paste0(
+"::: {custom-style=\"figure caption\"}\n",
+
+"Figure ", fig_counter,
+". Phytoplankton community composition over time, expressed as the average relative abundance of major taxonomic groups per year. Note that groups with less than 3% abundance are grouped into Other.",
+
+"\n:::"
+)
+
+} else {
+
+""
+}`
+
+```{r annual phyto fig counter, include=FALSE}
+if (plot7_exists) fig_counter <- fig_counter + 1
+```
+
+## **Average Water Quality Data Summary**
+
+::: {custom-style="table caption"}
+Table 2. `r params$year` Average Water Quality Data for `r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)`
+:::
+
+```{r avg water quality}
+lake <- params$lake
+town <- params$town   # NEW: town passed in from params
+accent1_60 <- "#DCE6F1"
+accent1_80 <- "#C6D9F1"  # darker header
+
+# Clean lake & town strings for file matching
+lake_clean <- gsub(" ", "_", lake)
+town_clean <- gsub(" ", "_", town)
+
+# Escape regex special characters
+lake_clean <- gsub("([\\(\\)\\[\\]\\+\\?\\*\\.\\^\\$])", "\\\\\\1", lake_clean)
+town_clean <- gsub("([\\(\\)\\[\\]\\+\\?\\*\\.\\^\\$])", "\\\\\\1", town_clean)
+
+# Search pattern: Lake_Town_CYA.csv
+pattern <- paste0("^CYA_", lake_clean, "_", town_clean, "\\.csv$")
+
+cya_file <- list.files(
+  TABLE_PATH,
+  pattern = pattern,
+  full.names = TRUE,
+  ignore.case = TRUE
+)
+
+if (length(cya_file) == 1) {
+
+  cya_data <- read.csv(cya_file, check.names = FALSE, stringsAsFactors = FALSE)
+
+  if ("STATNAME" %in% names(cya_data)) {
+    names(cya_data)[names(cya_data) == "STATNAME"] <- "Station"
+  }
+
+  cya_data <- cya_data |>
+    select(where(~ !all(is.na(.x) | .x == ""))) |>
+    mutate(across(where(is.numeric), round, 2))
+
+  # -----------------------------
+  # Build flextable
+  # -----------------------------
+  ft_cya <- flextable(cya_data) |>
+    bold(part = "header") |>
+    bg(bg = accent1_80, part = "header") |>
+    bg(bg = accent1_60, part = "body") |>
+    border_outer(part = "all", border = fp_border(color = "black", width = 1)) |>
+    border_inner_h(part = "all", border = fp_border(color = "black", width = 1)) |>
+    border_inner_v(part = "all", border = fp_border(color = "black", width = 1)) |>
+    align(align = "center", part = "header") |>
+    line_spacing(space = 1) |>
+    padding(padding.top = 0, padding.bottom = 0, part = "all") |>
+    fontsize(size = 11.0, part = "all") |>
+    set_table_properties(layout = "autofit") |>
+    font(fontname = "Calibri", part = "all")
+
+  # -----------------------------
+  # Left align first column / numeric alignment
+  # -----------------------------
+  if (nrow(cya_data) >= 2) {
+    ft_cya <- align(ft_cya, j = 1, i = 2:nrow(cya_data), align = "left", part = "body")
+  }
+  if (ncol(cya_data) >= 2) {
+    ft_cya <- align(ft_cya, j = 2:ncol(cya_data), align = "center", part = "body")
+  }
+
+  # -----------------------------
+  # Make "No Value" visually invisible (but readable)
+  # -----------------------------
+  for (j in seq_len(ncol(cya_data))) {
+    ft_cya <- flextable::compose(
+      ft_cya,
+      j = j,
+      i = cya_data[[j]] == "No Value",
+      value = as_paragraph(
+        as_chunk("No Value",
+                 props = fp_text(color = accent1_60))
+      )
+    )
+  }
+
+  ft_cya
+
+} else if (length(cya_file) == 0) {
+
+  cat("**CYA summary not found for ", lake, ", ", town, "**")
+
+} else {
+
+  cat("**Multiple CYA files found for ", lake, ", ", town, " – please check directory**")
+
+}
+```
+
+## **Other Observations:**
+
+## **How does your lake compare to New Hampshire lakes and water quality standards?**
+
+::: {custom-style="table caption"}
+Table 3. New Hampshire Median Lake Water Quality Values. Median values generated from historic lake monitoring data.
+:::
+
+``` {r NH median values, echo = FALSE, warning = FALSE}
+accent1_60 <- "#DCE6F1"
+accent1_80 <- "#C6D9F1"  # darker header
+
+# --- NH Median Lake Water Quality Values ---
+median_values <- data.frame(
+  Parameter = c("Alkalinity", "Chlorophyll-a", "Chloride", "Conductivity", 
+                "Total Phosphorus", "Transparency", "pH"),
+  `Median Value` = c("4.5 mg/L", "4.39 μg/L", "5 mg/L", "42.3 μS/cm",
+                    "11 μg/L", "3.3 m", "6.6"),
+  check.names = FALSE
+)
+
+ft_median <- flextable(median_values) |>
+  bold(part = "header") |>
+  bold(j = 1, part = "body") |>
+
+  # background styling (split header vs body)
+  bg(bg = accent1_80, part = "header") |>
+  bg(bg = accent1_60, part = "body") |>
+
+  border_outer(part = "all", border = fp_border(color="black", width=1)) |>
+  border_inner_h(part = "all", border = fp_border(color="black", width=1)) |>
+  border_inner_v(part = "all", border = fp_border(color="black", width=1)) |>
+
+  align(align = "center", part = "header") |>
+
+  line_spacing(space = 1) |> 
+  padding(padding.top = 0, padding.bottom = 0, part = "all") |> 
+  fontsize(size = 11, part = "all") |>
+  set_table_properties(width = 0.35, layout = "autofit") |>
+  font(fontname = "Calibri", part = "all") |>
+  autofit()
+
+ft_median
+
+```
+
+
+::: {custom-style="table caption"}
+Table 4. New Hampshire Water Quality Standards. Numeric criteria for specific parameters. Water quality violation occurs if thresholds are exceeded.
+:::
+
+``` {r NH water quality standards}
+# --- NH Water Quality Standards ---
+accent1_60 <- "#DCE6F1"
+accent1_80 <- "#C6D9F1"  # darker header
+
+water_quality_standards <- data.frame(
+  Parameter = c("Chloride", "E. coli (beach)", "E. coli (surface water)", 
+                "pH", "Turbidity"),
+  Threshold = c("> 230 mg/L (chronic)", "> 88 cts/100 mL", "> 406 cts/100 mL",
+                "between 6.5-8.0 (unless naturally occurring)", 
+                "> 10 NTU above natural"),
+  check.names = FALSE
+)
+
+ft_standards <- flextable(water_quality_standards) |>
+  bold(part = "header") |>
+  bold(j = 1, part = "body") |>
+
+  # background styling split
+  bg(bg = accent1_80, part = "header") |>
+  bg(bg = accent1_60, part = "body") |>
+
+  border_outer(part = "all", border = fp_border(color="black", width=1)) |>
+  border_inner_h(part = "all", border = fp_border(color="black", width=1)) |>
+  border_inner_v(part = "all", border = fp_border(color="black", width=1)) |>
+
+  align(align = "center", part = "header") |>
+
+  line_spacing(space = 1) |> 
+  padding(padding.top = 0, padding.bottom = 0, part = "all") |> 
+  fontsize(size = 11, part = "all") |> 
+  set_table_properties(width = 0.5, layout = "autofit") |>
+  font(fontname = "Calibri", part = "all") |>
+  autofit()
+
+ft_standards
+```
+

@@ -8,6 +8,9 @@ report_gen <- function() {
     load_dot_env(".env")
   }
 
+  # ---- hardcoded test output path ----
+  REPORT_PATH <- "S:/WD-Watershed/Monitoring/Volunteer/VLAP/Data Reporting/VLAP-Annual-Reports/outputs/2025/2026-report-concepts"
+
   # ---- sanity checks ----
   if (!dir.exists(INPUT_PATH)) {
     stop("Input path does not exist: ", INPUT_PATH)
@@ -62,7 +65,7 @@ report_gen <- function() {
 
     # ---- render Rmd ----
     rmarkdown::render(
-      input = file.path(TEMPLATE_PATH, "report_template.Rmd"),
+      input = file.path(TEMPLATE_PATH, "concept_template.Rmd"),
       output_file = output_file,
       params = list(
         lake = lake,

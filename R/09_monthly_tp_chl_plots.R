@@ -3,7 +3,7 @@ library(tidyverse)
 # ---------------------------------------------------------
 # Monthly TP + Tributary plots
 # One plot per 6-character STATIONID suffix
-# 2026 only
+# 2025 only
 # ---------------------------------------------------------
 
 # ---------------------------------------------------------
@@ -12,7 +12,7 @@ library(tidyverse)
 
 tp_data <- data_monthly %>%
   filter(
-    year == 2026,
+    year == 2025,
     WSHEDPARMNAME == "PHOSPHORUS AS P",
     !is.na(NUMRESULT)
   ) %>%
@@ -189,7 +189,7 @@ stations <- tp_data %>%
 
 plot_dir <- file.path(
   OUTPUT_BASE,
-  "2026",
+  "2025",
   "plots",
   "monthly"
 )
@@ -390,7 +390,7 @@ for (i in seq_len(nrow(stations))) {
       plot_dir,
       paste0(
         station,
-        "_monthly_2026.png"
+        "_monthly_2025.png"
       )
     ),
 

@@ -272,7 +272,7 @@ data_reformat <- function(INPUT_PATH) {
         NUMRESULT
       ),
 
-      STARTDATE = as.Date(STARTDATE, format = "%m/%d/%Y"),
+      STARTDATE = as.Date(STARTDATE, format = "%d-%b-%y"),
       year = lubridate::year(STARTDATE)
     ) |>
     # Drop Sunapee samples where they sampled "1m off the bottom"
