@@ -29,9 +29,12 @@ The individual scripts called by **`00_make_all.R`** include:
 -   **`01_data_reformat.R`**: Reformats data to rename columns and make data handling easier.
 -   **`02_mannkendall.R`**: Runs Mann-Kendall analysis to determine whether significant parameter trends are increasing, decreasing, or stable. Uses R package [**trend**](https://cran.r-project.org/web/packages/trend/index.html).
 -   **`03_chl_tp_secchi.R`**: Contains the function to generate historical Chlorophyll-a, Total Phosphorus, and Secchi Disk transparency plots for each station. Annual medians plotted with Sen's Slope from MK test.
+-   **`03-5_monthly_chl_tp_plots.R`**: Contains the function to generate monthly Chlorophyll-a, Total Phosphorus, and Secchi Disk Transparency plots for the current year at each station.
 -   **`04_ph_cond.R`**: Contains the function to generate historical pH and Conductivity plots for each station. Annual medians plotted with Sen's Slope from MK test.
+-   **`04-5_monthly_ph_cond.R`**: Contains the function to generate monthly pH and Conductivity plots for the current year at each station.
 -   **`05_temp_DO.R`**: Contains the function to generate seasonal Temperature/Dissolved Oxygen profile plots for each station (currently requires master Excel data sheet).
 -   **`06_plankton.R`**: Contains the function to generate seasonal Phytoplankton Population plots for each station (currently requires master Excel data sheet).
+-   **`06-5_plankton.R`**: Contains the function to generate monthly Phytoplankton Population plots for each station (currently requires master Excel data sheet). Will eventualyl contain a portion of code for generating monthly Zooplankton Population plots.
 -   **`07_CYA_table.R`**: Contains the function to generate Current Year Average tables for each lake.
 -   **`08_report_gen.R`**: Contains the function to generate a report according to **`report_template.Rmd`** for each sampling station by looping through a lake map. Uses **`template.docx`** as a template Word document, including NHDES headings and contact info. A .docx is generated for each station that pulls together all plots and tables. Leaves room to manually enter observations and recommendations (typically lake-specific).
 
