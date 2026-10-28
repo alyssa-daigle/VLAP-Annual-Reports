@@ -6,36 +6,17 @@ make_chl_tp_secchi_monthly <- function(
   # Output path
   # -------------------------------------------------------
 
-  if (missing(OUTPUT_PATH) || is.null(OUTPUT_PATH)) {
-    OUTPUT_BASE <- file.path(
-      OUTPUT_BASE,
-      "chl_tp_secchi_monthly"
-    )
-  }
+  OUTPUT_PATH <- file.path(
+    OUTPUT_BASE,
+    as.character(YEAR),
+    "plots",
+    "monthly_chl_tp_secchi"
+  )
 
   dir.create(
     OUTPUT_PATH,
     recursive = TRUE,
     showWarnings = FALSE
-  )
-
-  # -------------------------------------------------------
-  # Month order
-  # -------------------------------------------------------
-
-  month_levels <- c(
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
   )
 
   # -------------------------------------------------------
@@ -86,10 +67,14 @@ make_chl_tp_secchi_monthly <- function(
         !is.na(NUMRESULT)
       ) |>
       mutate(
-        month_name = factor(
-          month_name,
-          levels = month_levels
-        )
+        STARTDATE = if (inherits(STARTDATE, "Date")) {
+          STARTDATE
+        } else {
+          as.Date(
+            STARTDATE,
+            format = "%d-%b-%y"
+          )
+        }
       )
 
     # -----------------------------------------------------
@@ -113,7 +98,8 @@ make_chl_tp_secchi_monthly <- function(
         )
       ) |>
       filter(
-        !is.na(PARAMETER)
+        !is.na(PARAMETER),
+        !is.na(STARTDATE)
       )
 
     # -----------------------------------------------------
@@ -131,31 +117,32 @@ make_chl_tp_secchi_monthly <- function(
     }
 
     # -----------------------------------------------------
-    # Get only months that actually contain data
+    # Get unique sampling dates
+    #
+    # Each date receives its own equally spaced position.
     # -----------------------------------------------------
 
-    data_months <- df_plot |>
+    data_dates <- df_plot |>
       distinct(
-        month,
-        month_name
+        STARTDATE
       ) |>
       arrange(
-        month
+        STARTDATE
       )
 
     # -----------------------------------------------------
-    # Skip stations with only one month of data
+    # Skip stations with only one sampling date
     # -----------------------------------------------------
 
-    n_months <- nrow(data_months)
+    n_dates <- nrow(data_dates)
 
-    if (n_months < 2) {
+    if (n_dates < 2) {
       message(
         "Skipping ",
         station_id,
         ": only ",
-        n_months,
-        " month of data"
+        n_dates,
+        " sampling date of data"
       )
 
       next
@@ -199,7 +186,7 @@ make_chl_tp_secchi_monthly <- function(
         left_values,
         na.rm = TRUE
       ) *
-        1.5
+        1.30
     } else {
       1
     }
@@ -212,7 +199,7 @@ make_chl_tp_secchi_monthly <- function(
         right_values,
         na.rm = TRUE
       ) *
-        1.5
+        1.30
     } else {
       1
     }
@@ -231,44 +218,41 @@ make_chl_tp_secchi_monthly <- function(
 
     # -----------------------------------------------------
     # Start PNG
+    #
+    # Match pH/conductivity plot dimensions and resolution.
     # -----------------------------------------------------
 
     png(
       temp_path,
-      width = 8,
-      height = 4,
+      width = 6.0,
+      height = 4.5,
       units = "in",
-      res = 200
+      res = 250
     )
+
+    # -----------------------------------------------------
+    # Plot margins
+    # -----------------------------------------------------
 
     par(
       family = "Calibri",
       mar = c(
-        3.8,
-        4,
-        4.2,
-        3.8
+        6.0, # bottom
+        4.8, # left
+        4.5, # top
+        5.0 # right
       )
     )
 
     # -----------------------------------------------------
     # X positions
-    #
-    # One position for each month that actually has data
     # -----------------------------------------------------
 
-    x_values <- seq_len(
-      nrow(data_months)
+    x_values <- seq_along(
+      data_dates$STARTDATE
     )
 
-    # -----------------------------------------------------
-    # Create lookup from actual month number to x position
-    # -----------------------------------------------------
-
-    month_lookup <- data_months |>
-      mutate(
-        x = x_values
-      )
+    x_dates <- data_dates$STARTDATE
 
     # -----------------------------------------------------
     # Empty left-axis plot
@@ -283,7 +267,7 @@ make_chl_tp_secchi_monthly <- function(
       type = "n",
       xlim = c(
         0.5,
-        n_months + 0.5
+        n_dates + 0.5
       ),
       ylim = c(
         0,
@@ -296,16 +280,22 @@ make_chl_tp_secchi_monthly <- function(
       yaxs = "i"
     )
 
-    box()
+    box(
+      lwd = 1.4
+    )
 
     # -----------------------------------------------------
     # Title
     # -----------------------------------------------------
 
     title(
-      main = "Monthly Chlorophyll-a, Epilimnetic Phosphorus, and Transparency Data",
-      line = 2.5,
-      cex.main = 1.25
+      main = paste0(
+        "Monthly Results ",
+        unique(data_monthly$year)
+      ),
+      line = 2.8,
+      cex.main = 1.65,
+      font.main = 2
     )
 
     # -----------------------------------------------------
@@ -321,48 +311,51 @@ make_chl_tp_secchi_monthly <- function(
       ),
       font.axis = 2,
       las = 1,
-      cex.axis = 0.75
+      cex.axis = 1.20
     )
 
     mtext(
       "Chlorophyll-a & Total Phosphorus (µg/L)",
       side = 2,
-      line = 2.5,
-      cex = 0.85,
+      line = 3.0,
+      cex = 1.30,
       font = 2
     )
 
     # -----------------------------------------------------
-    # X-axis labels
-    # Only months that actually have data
+    # X-axis: sampling dates
+    #
+    # Match pH/conductivity label font, angle, and position.
     # -----------------------------------------------------
 
     axis(
       side = 1,
       at = x_values,
-      labels = FALSE
+      labels = FALSE,
+      font.axis = 2,
+      cex.axis = 1.20
     )
 
     text(
-      x = x_values,
+      x = x_values + 0.08,
       y = par("usr")[3] -
-        0.06 *
-          diff(par("usr")[3:4]),
-      labels = month.abb[
-        data_months$month
-      ],
+        0.075 * diff(par("usr")[3:4]),
+      labels = format(
+        x_dates,
+        "%b %d"
+      ),
       srt = 45,
       adj = 1,
       xpd = TRUE,
       font = 2,
-      cex = 0.65
+      cex = 1.20
     )
 
     mtext(
-      "Month",
+      "Sampling Date",
       side = 1,
-      line = 2,
-      cex = 0.85,
+      line = 4.0,
+      cex = 1.30,
       font = 2
     )
 
@@ -370,7 +363,9 @@ make_chl_tp_secchi_monthly <- function(
     # Secchi overlay
     # -----------------------------------------------------
 
-    par(new = TRUE)
+    par(
+      new = TRUE
+    )
 
     plot(
       x_values,
@@ -384,7 +379,7 @@ make_chl_tp_secchi_monthly <- function(
       ylab = "",
       xlim = c(
         0.5,
-        n_months + 0.5
+        n_dates + 0.5
       ),
       ylim = c(
         y_max_right,
@@ -395,21 +390,21 @@ make_chl_tp_secchi_monthly <- function(
 
     # -----------------------------------------------------
     # Secchi bars
-    #
-    # Only draw bars for months with Secchi data
     # -----------------------------------------------------
 
     if (nrow(secchi_data) > 0) {
       secchi_plot <- secchi_data |>
-        left_join(
-          month_lookup,
-          by = c(
-            "month",
-            "month_name"
+        arrange(
+          STARTDATE
+        ) |>
+        mutate(
+          x = match(
+            STARTDATE,
+            x_dates
           )
         )
 
-      bar_width <- 0.2
+      bar_width <- 0.22
 
       rect(
         secchi_plot$x - bar_width,
@@ -420,7 +415,8 @@ make_chl_tp_secchi_monthly <- function(
           "lightsteelblue2",
           alpha.f = 0.5
         ),
-        border = "gray20"
+        border = "gray20",
+        lwd = 1
       )
     }
 
@@ -441,15 +437,15 @@ make_chl_tp_secchi_monthly <- function(
         by = 1
       ),
       font.axis = 2,
-      cex.axis = 0.75,
+      cex.axis = 1.20,
       las = 2
     )
 
     mtext(
       "Transparency (m)",
       side = 4,
-      line = 1.8,
-      cex = 0.85,
+      line = 2.8,
+      cex = 1.30,
       font = 2,
       las = 3
     )
@@ -458,7 +454,9 @@ make_chl_tp_secchi_monthly <- function(
     # TP overlay
     # -----------------------------------------------------
 
-    par(new = TRUE)
+    par(
+      new = TRUE
+    )
 
     plot(
       x_values,
@@ -472,7 +470,7 @@ make_chl_tp_secchi_monthly <- function(
       ylab = "",
       xlim = c(
         0.5,
-        n_months + 0.5
+        n_dates + 0.5
       ),
       ylim = c(
         0,
@@ -487,15 +485,14 @@ make_chl_tp_secchi_monthly <- function(
 
     if (nrow(tp_data) > 0) {
       tp_plot <- tp_data |>
-        left_join(
-          month_lookup,
-          by = c(
-            "month",
-            "month_name"
-          )
-        ) |>
         arrange(
-          month
+          STARTDATE
+        ) |>
+        mutate(
+          x = match(
+            STARTDATE,
+            x_dates
+          )
         )
 
       lines(
@@ -504,8 +501,8 @@ make_chl_tp_secchi_monthly <- function(
         type = "o",
         pch = 17,
         col = "red4",
-        cex = 1.5,
-        lwd = 1.75
+        cex = 2.0,
+        lwd = 2.2
       )
     }
 
@@ -515,15 +512,14 @@ make_chl_tp_secchi_monthly <- function(
 
     if (nrow(chl_data) > 0) {
       chl_plot <- chl_data |>
-        left_join(
-          month_lookup,
-          by = c(
-            "month",
-            "month_name"
-          )
-        ) |>
         arrange(
-          month
+          STARTDATE
+        ) |>
+        mutate(
+          x = match(
+            STARTDATE,
+            x_dates
+          )
         )
 
       lines(
@@ -532,13 +528,15 @@ make_chl_tp_secchi_monthly <- function(
         type = "o",
         pch = 16,
         col = "springgreen4",
-        cex = 1.5,
-        lwd = 1.75
+        cex = 2.0,
+        lwd = 2.2
       )
     }
 
     # -----------------------------------------------------
     # Legend
+    #
+    # Retains the existing three-item legend configuration.
     # -----------------------------------------------------
 
     par(
@@ -549,43 +547,16 @@ make_chl_tp_secchi_monthly <- function(
       x = "top",
       inset = -0.18,
       legend = c(
-        "Transparency (m)",
-        "Chlorophyll-a (µg/L)",
-        "Total Phosphorus (µg/L)"
+        "Chlor-a (µg/L)",
+        "Total P (µg/L)",
+        "Trans. (m)"
       ),
-      pch = c(
-        22,
-        16,
-        17
-      ),
-      pt.bg = c(
-        "lightsteelblue2",
-        NA,
-        NA
-      ),
-      col = c(
-        "black",
-        "springgreen4",
-        "red4"
-      ),
-      lty = c(
-        0,
-        1,
-        1
-      ),
-      lwd = c(
-        1,
-        1.1,
-        1.1
-      ),
-      pt.cex = c(
-        1.75,
-        1.25,
-        1.25
-      ),
+      pch = c(16, 17, 22),
+      pt.bg = c(NA, NA, adjustcolor("lightsteelblue2", alpha.f = 0.5)),
+      col = c("springgreen4", "red4", "gray20"),
+      pt.cex = 1.8,
       bty = "n",
       ncol = 3,
-      cex = 0.85,
       text.font = 2
     )
 

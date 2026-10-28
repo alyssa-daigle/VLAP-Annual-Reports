@@ -38,3 +38,6 @@ outputs/
 data/
 report_generation/sunapee_nearshore_tabletemplate.docx
 report_generation/partridge_monthly_pre_poat_treatment.docx
+R/11_hypoTO_DO_plots.R
+VLAPdatapull2.sql
+

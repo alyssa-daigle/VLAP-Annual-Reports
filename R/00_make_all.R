@@ -48,7 +48,9 @@ source(file.path("R", "theme.R"))
 source(file.path("R", "01_data_reformat.R"))
 source(file.path("R", "02_mannkendall.R"))
 source(file.path("R", "03_chl_tp_secchi.R"))
+source(file.path("R", "03-5_monthly_tp_chl_plots.R"))
 source(file.path("R", "04_pH_cond.R"))
+source(file.path("R", "04-5_monthly_pH_cond.R"))
 source(file.path("R", "05_temp_DO.R"))
 source(file.path("R", "06_plankton.R"))
 source(file.path("R", "07_CYA_table.R"))
@@ -97,7 +99,9 @@ make_plankton(
   OUTPUT_PATH = file.path(OUTPUT_PATH, "plankton")
 )
 
-# monthly plots
+# ==========================
+# Monthly plots
+# ==========================
 
 make_temp_DO(
   INPUT_PATH,
@@ -106,12 +110,12 @@ make_temp_DO(
 
 make_chl_tp_secchi_monthly(
   data_monthly = data_monthly,
-  OUTPUT_PATH = file.path(
-    OUTPUT_BASE,
-    "2025",
-    "plots",
-    "monthly_chla_tp"
-  )
+  OUTPUT_BASE = OUTPUT_BASE
+)
+
+make_pH_conduc_monthly(
+  data_monthly = data_monthly,
+  OUTPUT_BASE = OUTPUT_BASE
 )
 
 message("All plots completed.")
