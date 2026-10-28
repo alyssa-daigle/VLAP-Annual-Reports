@@ -99,12 +99,12 @@ ______________________________________________________________________
 Table 1. Historical Water Quality Trends for `r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)`
 :::
 
-``` {r trend table}
+```{r trend table}
 
 accent1_60 <- "#DCE6F1"  # light blue fill (body)
 accent1_80 <- "#C6D9F1"  # slightly darker blue (header)
 
-# clean and escape station id for regex
+# Clean and escape station id for regex
 station_clean <- gsub(" ", "_", stations)
 station_clean <- gsub("([\\(\\)\\[\\]\\+\\?\\*\\.\\^\\$])", "\\\\\\1", station_clean)
 
@@ -116,49 +116,54 @@ trend_file <- list.files(
 )
 
 if (length(trend_file) == 1) {
-  
+
   trend_data <- read.csv(trend_file, stringsAsFactors = FALSE)
-  
+
   # Clean column names and round numeric values
   trend_data <- trend_data |>
     rename_with(~ gsub("_", " ", .x)) |>
     mutate(across(where(is.numeric), round, 2))
-  
+
+  # Combine the four columns into two columns
+  trend_data <- data.frame(
+    Parameter = c(trend_data[[1]], trend_data[[3]]),
+    Trend = c(trend_data[[2]], trend_data[[4]])
+  )
+
   # Convert to flextable
   ft_trend <- flextable(trend_data) |>
-    
-    # styling
+
+    # Styling
     bold(part = "header") |>
-    bold(j = c(1, 3), part = "body") |>     # parameter columns
-    
-    # background colors
-    bg(bg = accent1_80, part = "header") |> # darker header
-    bg(bg = accent1_60, part = "body") |>   # light body
-    
-    # borders
-    border_outer(part = "all", border = fp_border(color="black", width=1)) |>
-    border_inner_h(part = "all", border = fp_border(color="black", width=1)) |>
-    border_inner_v(part = "all", border = fp_border(color="black", width=1)) |>
-    
-    # alignment (ALL centered)
+    bold(j = 1, part = "body") |>
+
+    # Background colors
+    bg(bg = accent1_80, part = "header") |>
+    bg(bg = accent1_60, part = "body") |>
+
+    # Borders
+    border_outer(part = "all", border = fp_border(color = "black", width = 1)) |>
+    border_inner_h(part = "all", border = fp_border(color = "black", width = 1)) |>
+    border_inner_v(part = "all", border = fp_border(color = "black", width = 1)) |>
+
+    # Alignment
     align(align = "center", part = "all") |>
-    
-    # spacing & typography
+
+    # Spacing and typography
     line_spacing(space = 1) |>
     padding(padding.top = 0, padding.bottom = 0, part = "all") |>
     fontsize(size = 11, part = "all") |>
     font(fontname = "Calibri", part = "all") |>
-    
-    # layout
+
+    # Layout
     set_table_properties(width = 0.4, layout = "autofit") |>
     autofit()
-  
+
   ft_trend
-  
+
 } else {
   cat("**Trend summary not found for", stations, "**")
 }
-
 ```
 
 ```{r plots, echo=FALSE, results='asis', include=FALSE}
@@ -284,9 +289,16 @@ plot6_exists <- length(plot_files) >= 6
 plot7_exists <- length(plot_files) >= 7
 ```
 
-## **Temperature and Dissolved Oxygen** 
-A temperature and dissolved oxygen profile depicts the amount of oxygen dissolved in water at various temperatures from the lake’s surface to bottom. Dissolved oxygen (DO) in lake water is used by all forms of aquatic life and can help to assess the “health” of the lake ecosystem. NH’s lakes typically mix twice annually; spring and fall. Spring turnover of lake water occurs after ice out as warmer air temperatures heat up surface waters. Eventually, the lake becomes thermally stratified with a layer of warm surface water overlying layers of dense cold water. Eventually three distinct layers form called the Epilimnion, Metalimnion, and Hypolimnion, and waters in these layers do not mix freely during summer months. Layers can be determined by looking at the DO/Temperature profile and graphic. Typically, DO is greater in the epilimnion due to wind and wave action mixing atmospheric oxygen into surface waters, as well as algal growth producing oxygen as a by-product of photosynthesis. As you move into the Metalimnion and Hypolimnion, DO can decrease to low levels as these layers do not get re-oxygenated and microbial activity utilizes DO to break down organic matter in bottom sediments. When fall arrives and colder air temperatures cool surface waters, fall turnover occurs, mixing the thermal layers until they are a uniform temperature and DO levels recover at deeper depths. Understanding DO and temperature patterns is important to lake management. These patterns reflect and influence lake productivity, physical properties, phosphorus cycling, and fish and aquatic animal populations.
+\newpage
 
+## **Temperature and Dissolved Oxygen** 
+
+::: {custom-style="Description"}
+A temperature and dissolved oxygen profile depicts the amount of oxygen dissolved in water at various temperatures from the lake’s surface to bottom. Dissolved oxygen (DO) in lake water is used by all forms of aquatic life and can help to assess the “health” of the lake ecosystem. NH’s lakes typically mix twice annually; spring and fall. Spring turnover of lake water occurs after ice out as warmer air temperatures heat up surface waters. Eventually, the lake becomes thermally stratified with a layer of warm surface water overlying layers of dense cold water. Eventually three distinct layers form called the Epilimnion, Metalimnion, and Hypolimnion, and waters in these layers do not mix freely during summer months. Layers can be determined by looking at the DO/Temperature profile and graphic. 
+:::
+::: {custom-style="Description"}
+Typically, DO is greater in the epilimnion due to wind and wave action mixing atmospheric oxygen into surface waters, as well as algal growth producing oxygen as a by-product of photosynthesis. As you move into the Metalimnion and Hypolimnion, DO can decrease to low levels as these layers do not get re-oxygenated and microbial activity utilizes DO to break down organic matter in bottom sediments. When fall arrives and colder air temperatures cool surface waters, fall turnover occurs, mixing the thermal layers until they are a uniform temperature and DO levels recover at deeper depths. Understanding DO and temperature patterns is important to lake management. These patterns reflect and influence lake productivity, physical properties, phosphorus cycling, and fish and aquatic animal populations.
+:::
 
 ```{r temp DO plot, out.width = '95%'}
 if (plot1_exists) {
@@ -316,17 +328,21 @@ paste0(
 if (plot1_exists) fig_counter <- fig_counter + 1
 ```
 
+\newpage
+
 ## **Chlorophyll-a, Total Phosphorus, and Secchi Disk Transparency**
 
+::: {custom-style="Description"}
 Chlorophyll-a is a photosynthetic pigment found in plants, including algae, and measured to estimate amount of algal growth in a
 lake system. Elevated chl-a levels indicate excessive algal growth typically caused by too many nutrients (phosphorus). Total phosphorus is a measure of all the phosphorus forms present in the water, including both inorganic and organic forms. In freshwater, it is the limiting nutrient that determines the amount of algal growth that can occur. Too much phosphorus can lead to excessive algal and cyanobacteria populations. Transparency, a measure of water clarity, is affected by the amount of algae, color, and particulate matter within a lake. It is measured using a 20 cm black and white Secchi disk.
+:::
 
 * **Chlorophyll-a (Chlor-a):**
 * **Total Phosphorus (Total P):**
 * **Transparency (Trans.):**
 
 
-```{r monthly chla, tp, trans plot, out.width = '95%'}
+```{r monthly chla, tp, trans plot, out.width = '45%'}
 if (plot2_exists) {
   knitr::include_graphics(plot_files[2])
 }
@@ -404,15 +420,19 @@ get_trend("Chlorophyll-a"),
 if (plot3_exists) fig_counter <- fig_counter + 1
 ```
 
+\newpage
+
 ## **Conductivity and pH**
 
+::: {custom-style="Description"}
 Conductivity measures the ability of water to carry an electrical current. It is determined by the number of ions and minerals present. Chloride ion is naturally occurring in seawater, but less so in freshwaters. NH’s soft water has naturally low conductivity and chloride values. Elevated conductivity and chloride may indicate pollution from such sources as road salting, septic systems, wastewater treatment plants, or agriculture runoff. pH is a measure of the hydrogen ions in the water or, in general terms, the acidity. New Hampshire lakes historically have slightly acidic pH levels due to acid rain and granite bedrock lacking in minerals that counteract inputs of the acid rain. Lake pH is important to the survival and reproduction of fish and other aquatic life.
+:::
 
 * **Conductivity (Cond.)/Chloride:**
 * **pH:**
 
 
-```{r monthly pH cond plot, out.width = '95%'}
+```{r monthly pH cond plot, out.width = '45%'}
 if (plot4_exists) {
   knitr::include_graphics(plot_files[4])
 }
@@ -482,9 +502,13 @@ paste0(
 if (plot5_exists) fig_counter <- fig_counter + 1
 ```
 
+\newpage
+
 ## **Plankton Community Dynamics**
 
+::: {custom-style="Description"}
 Microscopic plants, or algae, form the basis of the lake’s food chain. They need sunlight and nutrients to grow and are typically found in the warmer Epilimnetic and Metalimnetic waters. The type of phytoplankton present in a lake can be used as an indicator of general lake quality and shifts in the dominant algal population over time can be an early warning to shifts in the aquatic ecosystem. Diatoms and golden-brown algae are typically found in the spring and fall, while green algae and cyanobacteria are more common in mid to late summer. An abundance or shift to cyanobacteria dominance over time may indicate excessive phosphorus or that the lake ecology is out of balance. Diatoms and golden-brown algae are typical of NH’s less productive lakes.
+:::
 
 ```{r monthly phytoplankton, out.width = '95%'}
 if (plot6_exists) {
@@ -539,6 +563,8 @@ paste0(
 ```{r annual phyto fig counter, include=FALSE}
 if (plot7_exists) fig_counter <- fig_counter + 1
 ```
+
+\newpage
 
 ## **Average Water Quality Data Summary**
 
@@ -642,6 +668,8 @@ if (length(cya_file) == 1) {
 * **Color:**
 * **Turbidity (Turb.):**
 * **E. coli:**
+
+\newpage
 
 ## **How does your lake compare to New Hampshire lakes and water quality standards?**
 
