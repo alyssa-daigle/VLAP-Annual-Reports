@@ -300,7 +300,7 @@ A temperature and dissolved oxygen profile depicts the amount of oxygen dissolve
 Typically, DO is greater in the epilimnion due to wind and wave action mixing atmospheric oxygen into surface waters, as well as algal growth producing oxygen as a by-product of photosynthesis. As you move into the Metalimnion and Hypolimnion, DO can decrease to low levels as these layers do not get re-oxygenated and microbial activity utilizes DO to break down organic matter in bottom sediments. When fall arrives and colder air temperatures cool surface waters, fall turnover occurs, mixing the thermal layers until they are a uniform temperature and DO levels recover at deeper depths. Understanding DO and temperature patterns is important to lake management. These patterns reflect and influence lake productivity, physical properties, phosphorus cycling, and fish and aquatic animal populations.
 :::
 
-```{r temp DO plot, out.width = '95%'}
+```{r temp DO plot, fig.alt="A graph showing temperature and dissolved oxygen profiles in the lake by depth.", out.width = '95%'}
 if (plot1_exists) {
   knitr::include_graphics(plot_files[1])
 }

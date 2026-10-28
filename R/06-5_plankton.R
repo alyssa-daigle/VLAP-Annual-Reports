@@ -18,7 +18,7 @@ make_plankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
   # -----------------------------
   plankton_file <- file.path(
     INPUT_PATH,
-    paste0("Historical_Phytoplankton_Data_Thru", YEAR, ".xlsm")
+    paste0("Historical_Phytoplankton_Data_Thru", YEAR, ".xlsx")
   )
 
   data <- read_excel(plankton_file)
