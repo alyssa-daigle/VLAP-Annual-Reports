@@ -204,18 +204,13 @@ get_plot <- function(folder) {
 # ---------------------------------------------------------
 
 plot_temp_DO <- get_plot("temp_DO")
-
 plot_monthly_chla <- get_plot("monthly_chl_tp_secchi")
-
 plot_annual_chla <- get_plot("chl_tp_secchi")
-
 plot_monthly_ph <- get_plot("monthly_ph_conduc")
-
 plot_annual_ph <- get_plot("pH_conduc")
-
 plot_monthly_plankton <- get_plot("plankton_monthly")
-
 plot_annual_plankton <- get_plot("plankton")
+plot_zooplankton <- get_plot("zooplankton_monthly")
 
 
 # ---------------------------------------------------------
@@ -229,6 +224,7 @@ plot4_exists <- length(plot_monthly_ph) > 0
 plot5_exists <- length(plot_annual_ph) > 0
 plot6_exists <- length(plot_monthly_plankton) > 0
 plot7_exists <- length(plot_annual_plankton) > 0
+plot8_exists <- length(plot_zooplankton) > 0
 ```
 
 ```{r trend captions, include=FALSE}
@@ -547,7 +543,7 @@ if (plot6_exists || plot7_exists) {
 }
 ```
 
-```{r monthly phytoplankton, out.width = '95%'}
+```{r monthly phytoplankton, out.width = '45%'}
 if (plot6_exists) {
   knitr::include_graphics(plot_monthly_plankton)
 }
@@ -575,7 +571,7 @@ if (plot6_exists) fig_counter <- fig_counter + 1
 ```
 
 
-```{r annual phyto, out.width = '45%'}
+```{r annual phyto, out.width = '95%'}
 if (plot7_exists) {
   knitr::include_graphics(plot_annual_plankton)
 }
@@ -673,18 +669,30 @@ if (length(cya_file) == 1) {
   }
 
   # -----------------------------
-  # Make "No Value" visually invisible (but readable)
+  # Make "No Value" smaller and visually invisible
   # -----------------------------
   for (j in seq_len(ncol(cya_data))) {
-    ft_cya <- flextable::compose(
-      ft_cya,
-      j = j,
-      i = cya_data[[j]] == "No Value",
-      value = as_paragraph(
-        as_chunk("No Value",
-                 props = fp_text(color = accent1_60))
+
+    no_value_rows <- which(cya_data[[j]] == "No Value")
+
+    if (length(no_value_rows) > 0) {
+
+      ft_cya <- flextable::compose(
+        ft_cya,
+        j = j,
+        i = no_value_rows,
+        value = as_paragraph(
+          as_chunk(
+            "No Value",
+            props = fp_text(
+              color = accent1_60,
+              font.size = 6,
+              font.family = "Calibri"
+            )
+          )
+        )
       )
-    )
+    }
   }
 
   ft_cya
@@ -797,7 +805,38 @@ ft_standards
 
 \newpage
 
-## **Supplementary Data**
+# **Supplementary Data**
+
+```{r zooplankton section, results='asis', echo=FALSE}
+
+if (plot8_exists) {
+
+  cat("## **Zooplankton Community Dynamics**\n\n")
+
+}
+```
+
+```{r zooplankton plot, out.width='95%'}
+if (plot8_exists) {
+  knitr::include_graphics(plot_zooplankton)
+}
+```
+
+`r if (plot8_exists) {
+  paste0(
+    "::: {custom-style=\"figure caption\"}\n",
+    "Figure ", fig_counter,
+    ". Monthly zooplankton community composition, expressed as the relative abundance of major taxonomic groups.\n",
+    "\n:::"
+  )
+} else {
+  ""
+}`
+
+```{r zooplankton fig counter, include=FALSE}
+if (plot8_exists) fig_counter <- fig_counter + 1
+```
+
 
 ::: {custom-style="table caption"}
 Table 5. `r params$year` Individual sampling results for `r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)`. **Please Note:** pH (units), TP (ug/L) (ND = < 5 ug/L), Cond (uS/cm), Secchi (M) VS = ViewScope, NVS=NonViewScope, EC = E. coli (cts/100mL), Turbidity (NTU), ANC (mg/L), Chloride (mg/L), Chl-A (mg/M3), Color is Apparent Color (PCU).
@@ -872,7 +911,7 @@ ft_points <- flextable(points_data) |>
     padding.right = 3,
     part = "all"
   ) |>
-  fontsize(size = 8, part = "all") |>
+  fontsize(size = 10, part = "all") |>
   font(fontname = "Calibri", part = "all") |>
 
   # Layout
@@ -882,21 +921,38 @@ ft_points <- flextable(points_data) |>
   ) |>
   autofit()
 
-# Make only "No Value" cells visually invisible
+# Make only "No Value" cells smaller and visually invisible
 for (j in seq_len(ncol(points_data))) {
-  ft_points <- flextable::compose(
-    ft_points,
-    j = j,
-    i = which(points_data[[j]] == "No Value"),
-    value = as_paragraph(
-      as_chunk(
-        "No Value",
-        props = fp_text(color = accent1_60)
+
+  no_value_rows <- which(points_data[[j]] == "No Value")
+
+  if (length(no_value_rows) > 0) {
+
+    ft_points <- flextable::compose(
+      ft_points,
+      j = j,
+      i = no_value_rows,
+      value = as_paragraph(
+        as_chunk(
+          "No Value",
+          props = fp_text(
+            font.size = 6,
+            font.family = "Calibri",
+            color = accent1_60
+          )
+        )
       )
     )
-  )
+
+    ft_points <- flextable::fontsize(
+      ft_points,
+      i = no_value_rows,
+      j = j,
+      size = 6,
+      part = "body"
+    )
+  }
 }
 
 ft_points
-
 ```
