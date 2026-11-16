@@ -121,6 +121,7 @@ data_reformat <- function(INPUT_PATH) {
       STATNAME,
       TOWN,
       RELLAKE,
+      ACTIVITYID,
       DEPTHZONE,
       DEPTH,
       STARTDATE,
@@ -327,6 +328,133 @@ data_reformat <- function(INPUT_PATH) {
       RESULTCMT
     )
 
+  ## CURRENT YEAR INDIVIDUAL DATA POINTS -----------------------------------
+
+  data_current_year_points <- data_long |>
+    dplyr::filter(year == YEAR) |>
+
+    # Keep individual sample information
+    dplyr::select(
+      STATIONID,
+      STATNAM,
+      TOWN,
+      RELLAKE,
+      DEPTHZONE,
+      DEPTH,
+      STARTDATE,
+      ACTIVITYID,
+      param_depth,
+      NUMRESULT
+    ) |>
+
+    # Assign display names to parameters
+    dplyr::mutate(
+      parameter = dplyr::case_when(
+        stringr::str_detect(param_depth, "^color_") ~ "Color",
+        stringr::str_detect(param_depth, "^chloride_") ~ "Cl",
+        param_depth == "CHL_comp" ~ "Chl-a",
+        stringr::str_detect(param_depth, "^alk_") ~ "ANC",
+        stringr::str_detect(param_depth, "^PH_") ~ "PH",
+        stringr::str_detect(param_depth, "^TP_") ~ "TP",
+        param_depth == "SECCHI_NVS" ~ "Trans. (NVS)",
+        param_depth == "SECCHI" ~ "Trans. (VS)",
+        stringr::str_detect(param_depth, "^SPCD_") ~ "Cond",
+        stringr::str_detect(param_depth, "^turb_") ~ "Turb",
+        TRUE ~ NA_character_
+      ),
+
+      # Shorten depth zone names
+      Zone = dplyr::recode(
+        DEPTHZONE,
+        "EPILIMNION" = "Epi",
+        "HYPOLIMNION" = "Hypo",
+        "METALIMNION" = "Meta",
+        "COMPOSITE" = "Comp",
+        .default = DEPTHZONE
+      )
+    ) |>
+
+    # Remove parameters without an assigned display name
+    dplyr::filter(!is.na(parameter)) |>
+
+    # Reshape so each parameter has its own column
+    tidyr::pivot_wider(
+      id_cols = c(
+        STATIONID,
+        STATNAM,
+        TOWN,
+        RELLAKE,
+        Zone,
+        DEPTH,
+        STARTDATE,
+        ACTIVITYID
+      ),
+      names_from = parameter,
+      values_from = NUMRESULT
+    ) |>
+
+    # Arrange columns in the desired order
+    dplyr::select(
+      STATIONID,
+      STATNAM,
+      Zone,
+      DEPTH,
+      STARTDATE,
+      ACTIVITYID,
+      Color,
+      Cl,
+      `Chl-a`,
+      ANC,
+      PH,
+      TP,
+      `Trans. (NVS)`,
+      `Trans. (VS)`,
+      Cond,
+      Turb,
+      dplyr::everything()
+    ) |>
+
+    # Rename columns for final presentation
+    dplyr::rename(
+      `Station ID` = STATIONID,
+      `Station Name` = STATNAM,
+      `Depth Zone` = Zone,
+      Depth = DEPTH,
+      Date = STARTDATE,
+      `Activity ID` = ACTIVITYID
+    ) |>
+
+    # Sort stations and depth zones
+    dplyr::mutate(
+      station_order = dplyr::if_else(
+        stringr::str_detect(
+          stringr::str_to_upper(`Station Name`),
+          "DEEP SPOT"
+        ),
+        1L,
+        2L
+      ),
+
+      zone_order = dplyr::case_when(
+        `Depth Zone` == "Comp" ~ 1L,
+        `Depth Zone` == "Epi" ~ 2L,
+        `Depth Zone` == "Meta" ~ 3L,
+        `Depth Zone` == "Hypo" ~ 4L,
+        TRUE ~ 5L
+      )
+    ) |>
+
+    dplyr::arrange(
+      station_order,
+      `Station ID`,
+      zone_order,
+      Depth,
+      Date
+    ) |>
+
+    # Remove sorting columns
+    dplyr::select(-station_order, -zone_order)
+
   ## WIDE FORMAT ----------------------------------------------------------
 
   data_wide <- data_long |>
@@ -409,6 +537,7 @@ data_reformat <- function(INPUT_PATH) {
     data_long = data_long,
     data_wide = data_wide,
     data_monthly = data_monthly,
+    data_current_year_points = data_current_year_points,
     data_year_median = data_year_median,
     data_plot = data_plot
   ))

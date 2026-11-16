@@ -575,7 +575,7 @@ if (plot6_exists) fig_counter <- fig_counter + 1
 ```
 
 
-```{r annual phyto, out.width = '95%'}
+```{r annual phyto, out.width = '45%'}
 if (plot7_exists) {
   knitr::include_graphics(plot_annual_plankton)
 }
@@ -795,3 +795,108 @@ ft_standards <- flextable(water_quality_standards) |>
 ft_standards
 ```
 
+\newpage
+
+## **Supplementary Data**
+
+::: {custom-style="table caption"}
+Table 5. `r params$year` Individual sampling results for `r stringr::str_to_title(lake)` – `r stringr::str_to_title(town)`. **Please Note:** pH (units), TP (ug/L) (ND = < 5 ug/L), Cond (uS/cm), Secchi (M) VS = ViewScope, NVS=NonViewScope, EC = E. coli (cts/100mL), Turbidity (NTU), ANC (mg/L), Chloride (mg/L), Chl-A (mg/M3), Color is Apparent Color (PCU).
+:::
+
+
+```{r current-year-data-points}
+
+accent1_60 <- "#DCE6F1"  # light blue fill (body)
+accent1_80 <- "#C6D9F1"  # slightly darker blue (header)
+
+# Prepare current year individual data points
+points_data <- data_current_year_points |>
+  dplyr::filter(
+    RELLAKE == lake,
+    TOWN == town
+  ) |>
+  dplyr::select(-RELLAKE, -TOWN) |>
+  dplyr::mutate(
+    Date = format(Date, "%m/%d/%Y"),
+    dplyr::across(where(is.numeric), ~ round(.x, 2)),
+    `Station Name` = stringr::str_remove(`Station Name`, "^.*-")
+  )
+
+# Replace empty cells with "No Value"
+points_data <- points_data |>
+  dplyr::mutate(
+    dplyr::across(
+      everything(),
+      ~ dplyr::if_else(
+        is.na(.x) | as.character(.x) == "",
+        "No Value",
+        as.character(.x)
+      )
+    )
+  )
+
+# Convert to flextable
+ft_points <- flextable(points_data) |>
+
+  # Styling
+  bold(part = "header") |>
+
+  # Background colors
+  bg(bg = accent1_80, part = "header") |>
+  bg(bg = accent1_60, part = "body") |>
+
+  # Borders
+  border_outer(
+    part = "all",
+    border = fp_border(color = "black", width = 1)
+  ) |>
+  border_inner_h(
+    part = "all",
+    border = fp_border(color = "black", width = 0.5)
+  ) |>
+  border_inner_v(
+    part = "all",
+    border = fp_border(color = "black", width = 0.5)
+  ) |>
+
+  # Alignment
+  align(align = "center", part = "all") |>
+  valign(valign = "center", part = "all") |>
+
+  # Spacing and typography
+  line_spacing(space = 1) |>
+  padding(
+    padding.top = 2,
+    padding.bottom = 2,
+    padding.left = 3,
+    padding.right = 3,
+    part = "all"
+  ) |>
+  fontsize(size = 8, part = "all") |>
+  font(fontname = "Calibri", part = "all") |>
+
+  # Layout
+  set_table_properties(
+    width = 1,
+    layout = "autofit"
+  ) |>
+  autofit()
+
+# Make only "No Value" cells visually invisible
+for (j in seq_len(ncol(points_data))) {
+  ft_points <- flextable::compose(
+    ft_points,
+    j = j,
+    i = which(points_data[[j]] == "No Value"),
+    value = as_paragraph(
+      as_chunk(
+        "No Value",
+        props = fp_text(color = accent1_60)
+      )
+    )
+  )
+}
+
+ft_points
+
+```

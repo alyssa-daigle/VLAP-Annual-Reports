@@ -67,6 +67,7 @@ data_wide <- processed$data_wide
 data_year_median <- processed$data_year_median
 data_plot <- processed$data_plot
 data_monthly <- processed$data_monthly
+data_current_year_points <- processed$data_current_year_points
 
 # ==========================
 # Mann-Kendall
