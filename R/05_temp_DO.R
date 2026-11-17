@@ -20,8 +20,8 @@ make_temp_DO <- function(INPUT_PATH, OUTPUT_PATH) {
   # Clean and prepare
   # -----------------------------
   temp_do <- data |>
-    select(Depth, Date, Station, DO, Temp...12) |>
-    rename(Temp = `Temp...12`) |>
+    select(Depth, Date, Station, DO, Temp...11) |>
+    rename(Temp = `Temp...11`) |>
     mutate(
       Date = as.Date(Date),
       Month = factor(format(Date, "%B"), levels = month.name, ordered = TRUE)
@@ -55,6 +55,7 @@ make_temp_DO <- function(INPUT_PATH, OUTPUT_PATH) {
 
     # --- Automatic x-axis limits ---
     temp_range <- range(temp_do_avg$Temp, na.rm = TRUE)
+
     temp_limits <- if (diff(temp_range) < 1) {
       # nearly isothermal
       c(floor(temp_range[1] - 1), ceiling(temp_range[2] + 1))
@@ -63,6 +64,7 @@ make_temp_DO <- function(INPUT_PATH, OUTPUT_PATH) {
     }
 
     DO_range <- range(temp_do_avg$DO, na.rm = TRUE)
+
     DO_limits <- if (diff(DO_range) < 1) {
       # nearly uniform DO
       c(floor(DO_range[1] - 1), ceiling(DO_range[2] + 1))
@@ -70,7 +72,9 @@ make_temp_DO <- function(INPUT_PATH, OUTPUT_PATH) {
       DO_range
     }
 
+    # -----------------------------
     # Temperature plot
+    # -----------------------------
     p_temp <- ggplot(
       temp_do_avg,
       aes(x = Temp, y = Depth, group = Date, shape = Month, color = Month)
@@ -117,7 +121,9 @@ make_temp_DO <- function(INPUT_PATH, OUTPUT_PATH) {
         axis.text.y = element_text(size = 9)
       )
 
+    # -----------------------------
     # DO plot
+    # -----------------------------
     p_DO <- ggplot(
       temp_do_avg,
       aes(x = DO, y = Depth, group = Date, shape = Month, color = Month)
@@ -164,14 +170,18 @@ make_temp_DO <- function(INPUT_PATH, OUTPUT_PATH) {
         axis.text.y = element_text(size = 9)
       )
 
-    # Extract shared legend (black shapes only)
+    # -----------------------------
+    # Extract shared legend
+    # -----------------------------
     legend <- cowplot::get_legend(p_temp)
 
     # Remove legends from individual plots
     p_temp_noleg <- p_temp + theme(legend.position = "none")
     p_DO_noleg <- p_DO + theme(legend.position = "none")
 
+    # -----------------------------
     # Combine plots side-by-side
+    # -----------------------------
     combined_panels <- plot_grid(
       p_temp_noleg,
       p_DO_noleg,
@@ -180,7 +190,9 @@ make_temp_DO <- function(INPUT_PATH, OUTPUT_PATH) {
       rel_widths = c(1, 1)
     )
 
+    # -----------------------------
     # Add shared title + legend
+    # -----------------------------
     combined_final <- plot_grid(
       ggdraw() +
         draw_label(
@@ -194,9 +206,9 @@ make_temp_DO <- function(INPUT_PATH, OUTPUT_PATH) {
 
       plot_grid(
         combined_panels,
-        ggdraw(), # <-- right-side spacer
+        ggdraw(),
         ncol = 2,
-        rel_widths = c(1, 0.02) # SLIGHT right margin
+        rel_widths = c(1, 0.02)
       ),
 
       ggdraw() +
@@ -214,12 +226,33 @@ make_temp_DO <- function(INPUT_PATH, OUTPUT_PATH) {
       rel_heights = c(0.12, 1, 0.10)
     )
 
-    # Save
+    # -----------------------------
+    # Output filenames
+    # -----------------------------
     filename <- paste0(stn, "_profile.png")
-    temp_path <- file.path(OUTPUT_PATH, filename)
 
+    output_file <- file.path(
+      OUTPUT_PATH,
+      filename
+    )
+
+    temp_file <- tempfile(
+      pattern = "temp_DO_",
+      tmpdir = OUTPUT_PATH,
+      fileext = ".png"
+    )
+
+    border_file <- tempfile(
+      pattern = "temp_DO_border_",
+      tmpdir = OUTPUT_PATH,
+      fileext = ".png"
+    )
+
+    # -----------------------------
+    # Save plot to temporary file
+    # -----------------------------
     ggsave(
-      temp_path,
+      filename = temp_file,
       plot = combined_final,
       width = 8,
       height = 4,
@@ -227,9 +260,44 @@ make_temp_DO <- function(INPUT_PATH, OUTPUT_PATH) {
       bg = "white"
     )
 
-    # Add border
-    img <- magick::image_read(temp_path)
-    img_bordered <- magick::image_border(img, color = "black", geometry = "7x7")
-    magick::image_write(img_bordered, path = temp_path, format = "png")
+    # -----------------------------
+    # Add border to separate file
+    # -----------------------------
+    img <- magick::image_read(temp_file)
+
+    img_bordered <- magick::image_border(
+      img,
+      color = "black",
+      geometry = "7x7"
+    )
+
+    magick::image_write(
+      img_bordered,
+      path = border_file,
+      format = "png"
+    )
+
+    # -----------------------------
+    # Copy bordered image to final output
+    # -----------------------------
+    if (file.exists(output_file)) {
+      file.remove(output_file)
+    }
+
+    file.copy(
+      from = border_file,
+      to = output_file,
+      overwrite = TRUE
+    )
+
+    # -----------------------------
+    # Clean up temporary files
+    # -----------------------------
+    unlink(
+      c(
+        temp_file,
+        border_file
+      )
+    )
   })
 }

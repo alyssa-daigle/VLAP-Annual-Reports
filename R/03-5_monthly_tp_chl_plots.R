@@ -25,7 +25,7 @@ make_chl_tp_secchi_monthly <- function(
 
   station_list <- data_monthly |>
     filter(
-      year == 2025,
+      year == YEAR,
       grepl(
         "DEEP",
         STATNAM,
@@ -50,12 +50,12 @@ make_chl_tp_secchi_monthly <- function(
     )
 
     # -----------------------------------------------------
-    # Get raw 2025 data for this station
+    # Get raw current year data for this station
     # -----------------------------------------------------
 
     df_plot <- data_monthly |>
       filter(
-        year == 2025,
+        year == YEAR,
         STATIONID == station_id,
         (WSHEDPARMNAME %in%
           c(
@@ -118,8 +118,6 @@ make_chl_tp_secchi_monthly <- function(
 
     # -----------------------------------------------------
     # Get unique sampling dates
-    #
-    # Each date receives its own equally spaced position.
     # -----------------------------------------------------
 
     data_dates <- df_plot |>
@@ -205,25 +203,37 @@ make_chl_tp_secchi_monthly <- function(
     }
 
     # -----------------------------------------------------
-    # Output filename
+    # Output filenames
     # -----------------------------------------------------
 
-    temp_path <- file.path(
+    output_file <- file.path(
       OUTPUT_PATH,
       paste0(
         station_id,
-        "_chl_tp_secchi_monthly_2025.png"
+        "_chl_tp_secchi_monthly_2026.png"
       )
+    )
+
+    # Temporary filenames
+    temp_file <- tempfile(
+      pattern = "chl_tp_secchi_monthly_",
+      tmpdir = OUTPUT_PATH,
+      fileext = ".png"
+    )
+
+    border_file <- tempfile(
+      pattern = "chl_tp_secchi_monthly_border_",
+      tmpdir = OUTPUT_PATH,
+      fileext = ".png"
     )
 
     # -----------------------------------------------------
     # Start PNG
-    #
-    # Match pH/conductivity plot dimensions and resolution.
+    # Match pH/conductivity plot dimensions and resolution
     # -----------------------------------------------------
 
     png(
-      temp_path,
+      temp_file,
       width = 6.0,
       height = 4.5,
       units = "in",
@@ -237,10 +247,10 @@ make_chl_tp_secchi_monthly <- function(
     par(
       family = "Calibri",
       mar = c(
-        6.0, # bottom
-        4.8, # left
-        4.5, # top
-        5.0 # right
+        6.0,
+        4.8,
+        4.5,
+        5.0
       )
     )
 
@@ -324,8 +334,6 @@ make_chl_tp_secchi_monthly <- function(
 
     # -----------------------------------------------------
     # X-axis: sampling dates
-    #
-    # Match pH/conductivity label font, angle, and position.
     # -----------------------------------------------------
 
     axis(
@@ -535,8 +543,6 @@ make_chl_tp_secchi_monthly <- function(
 
     # -----------------------------------------------------
     # Legend
-    #
-    # Retains the existing three-item legend configuration.
     # -----------------------------------------------------
 
     par(
@@ -567,11 +573,11 @@ make_chl_tp_secchi_monthly <- function(
     dev.off()
 
     # -----------------------------------------------------
-    # Add black border
+    # Add black border using separate temporary file
     # -----------------------------------------------------
 
     img <- magick::image_read(
-      temp_path
+      temp_file
     )
 
     img_bordered <- magick::image_border(
@@ -582,8 +588,38 @@ make_chl_tp_secchi_monthly <- function(
 
     magick::image_write(
       img_bordered,
-      path = temp_path,
+      path = border_file,
       format = "png"
+    )
+
+    # -----------------------------------------------------
+    # Replace original output with finished image
+    # -----------------------------------------------------
+
+    if (file.exists(output_file)) {
+      file.remove(output_file)
+    }
+
+    file.copy(
+      from = border_file,
+      to = output_file,
+      overwrite = TRUE
+    )
+
+    # -----------------------------------------------------
+    # Clean up temporary files
+    # -----------------------------------------------------
+
+    unlink(
+      c(
+        temp_file,
+        border_file
+      )
+    )
+
+    message(
+      " -> Saved: ",
+      basename(output_file)
     )
   }
 

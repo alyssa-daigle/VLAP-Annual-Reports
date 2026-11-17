@@ -25,7 +25,7 @@ make_pH_conduc_monthly <- function(
 
   station_list <- data_monthly |>
     filter(
-      year == 2025,
+      year == YEAR,
       grepl(
         "DEEP",
         STATNAM,
@@ -50,12 +50,12 @@ make_pH_conduc_monthly <- function(
     )
 
     # -----------------------------------------------------
-    # Get raw 2025 data for this station
+    # Get raw current year data for this station
     # -----------------------------------------------------
 
     df_plot <- data_monthly |>
       filter(
-        year == 2025,
+        year == YEAR,
         STATIONID == station_id,
         DEPTHZONE == "EPILIMNION",
         !is.na(NUMRESULT),
@@ -65,17 +65,11 @@ make_pH_conduc_monthly <- function(
         SAMPLE_DATE = as.Date(STARTDATE),
 
         PARAMETER = case_when(
-          # Match pH as a standalone term.
-          # This prevents phosphorus from being
-          # incorrectly classified as pH.
-
           grepl(
             "\\bpH\\b",
             WSHEDPARMNAME,
             ignore.case = TRUE
           ) ~ "PH",
-
-          # Conductivity
 
           grepl(
             "CONDUCT",
@@ -249,25 +243,37 @@ make_pH_conduc_monthly <- function(
     }
 
     # -----------------------------------------------------
-    # Output filename
+    # Output filenames
     # -----------------------------------------------------
 
-    temp_path <- file.path(
+    output_file <- file.path(
       OUTPUT_PATH,
       paste0(
         station_id,
-        "_pH_conduc_sampling_dates_2025.png"
+        "_pH_conduc_sampling_dates_",
+        YEAR,
+        ".png"
       )
+    )
+
+    temp_file <- tempfile(
+      pattern = "pH_conduc_monthly_",
+      tmpdir = OUTPUT_PATH,
+      fileext = ".png"
+    )
+
+    border_file <- tempfile(
+      pattern = "pH_conduc_monthly_border_",
+      tmpdir = OUTPUT_PATH,
+      fileext = ".png"
     )
 
     # -----------------------------------------------------
     # Start PNG
-    #
-    # Slightly wider rectangular dimensions
     # -----------------------------------------------------
 
     png(
-      temp_path,
+      temp_file,
       width = 6.0,
       height = 4.5,
       units = "in",
@@ -281,10 +287,10 @@ make_pH_conduc_monthly <- function(
     par(
       family = "Calibri",
       mar = c(
-        6.0, # bottom, extra space for rotated date labels
-        4.8, # left
-        4.5, # top
-        5.0 # right, extra room for pH axis label
+        6.0,
+        4.8,
+        4.5,
+        5.0
       )
     )
 
@@ -325,7 +331,7 @@ make_pH_conduc_monthly <- function(
     title(
       main = paste0(
         "Monthly Results ",
-        unique(data_monthly$year)
+        YEAR
       ),
       line = 2.8,
       cex.main = 1.65,
@@ -353,9 +359,6 @@ make_pH_conduc_monthly <- function(
 
     # -----------------------------------------------------
     # X-axis: chronological sampling dates
-    #
-    # Display up to 12 labels to prevent crowding.
-    # All observations retain their individual date positions.
     # -----------------------------------------------------
 
     label_positions <- unique(
@@ -455,8 +458,6 @@ make_pH_conduc_monthly <- function(
       cex.axis = 1.20
     )
 
-    # Move the pH axis label farther to the right
-
     mtext(
       "pH",
       side = 4,
@@ -467,8 +468,6 @@ make_pH_conduc_monthly <- function(
 
     # -----------------------------------------------------
     # Legend
-    #
-    # Larger symbols and reduced symbol-to-text spacing
     # -----------------------------------------------------
 
     par(
@@ -498,11 +497,11 @@ make_pH_conduc_monthly <- function(
     dev.off()
 
     # -----------------------------------------------------
-    # Add black border
+    # Add black border using separate temporary file
     # -----------------------------------------------------
 
     img <- magick::image_read(
-      temp_path
+      temp_file
     )
 
     img_bordered <- magick::image_border(
@@ -513,8 +512,33 @@ make_pH_conduc_monthly <- function(
 
     magick::image_write(
       img_bordered,
-      path = temp_path,
+      path = border_file,
       format = "png"
+    )
+
+    # -----------------------------------------------------
+    # Copy bordered image to final output filename
+    # -----------------------------------------------------
+
+    if (file.exists(output_file)) {
+      file.remove(output_file)
+    }
+
+    file.copy(
+      from = border_file,
+      to = output_file,
+      overwrite = TRUE
+    )
+
+    # -----------------------------------------------------
+    # Clean up temporary files
+    # -----------------------------------------------------
+
+    unlink(
+      c(
+        temp_file,
+        border_file
+      )
     )
   }
 

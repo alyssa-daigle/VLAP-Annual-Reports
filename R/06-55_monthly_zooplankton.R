@@ -571,15 +571,31 @@ make_zooplankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
     )
 
     # -----------------------------------------------------
-    # Save plot
+    # Save plot and add border
     # -----------------------------------------------------
-    temp_path <- file.path(
+
+    # Original output filename
+    output_file <- file.path(
       monthly_output,
       filename
     )
 
+    # Temporary filenames
+    temp_file <- tempfile(
+      pattern = "zooplankton_",
+      tmpdir = monthly_output,
+      fileext = ".png"
+    )
+
+    border_file <- tempfile(
+      pattern = "zooplankton_border_",
+      tmpdir = monthly_output,
+      fileext = ".png"
+    )
+
+    # Save the ggplot
     ggplot2::ggsave(
-      filename = temp_path,
+      filename = temp_file,
       plot = p_main,
       width = 8,
       height = 4,
@@ -587,24 +603,37 @@ make_zooplankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
       bg = "white"
     )
 
-    # -----------------------------------------------------
-    # Add black border
-    # -----------------------------------------------------
-    img <- magick::image_read(temp_path)
+    # Add border using magick
+    img <- magick::image_read(temp_file)
 
-    img_bordered <- magick::image_border(
+    img <- magick::image_border(
       img,
       color = "black",
-      geometry = "7x7"
+      geometry = "2x2"
     )
 
+    # Write bordered image to a separate file
     magick::image_write(
-      img_bordered,
-      path = temp_path,
+      img,
+      path = border_file,
       format = "png"
     )
 
-    message("  -> Saved: ", filename)
+    # Replace original output with finished image
+    if (file.exists(output_file)) {
+      file.remove(output_file)
+    }
+
+    file.copy(
+      from = border_file,
+      to = output_file,
+      overwrite = TRUE
+    )
+
+    # Clean up temporary files
+    unlink(c(temp_file, border_file))
+
+    message(" -> Saved: ", filename)
   })
 
   message(

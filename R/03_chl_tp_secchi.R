@@ -1,14 +1,13 @@
 make_chl_tp_secchi <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
   # Override OUTPUT_PATH if not explicitly provided
   if (missing(OUTPUT_PATH) || is.null(OUTPUT_PATH)) {
-    OUTPUT_PATH <- file.path(OUTPUT_PATH, "chl_tp_secchi")
+    OUTPUT_PATH <- file.path(OUTPUT_BASE, "chl_tp_secchi")
   }
 
   dir.create(OUTPUT_PATH, recursive = TRUE, showWarnings = FALSE)
 
   # Get list of unique stations to process
   station_list <- data_plot |>
-    # only include stations with DEEP in STATNAM
     filter(grepl("DEEP", STATNAM, ignore.case = TRUE)) |>
     distinct(STATIONID) |>
     pull(STATIONID)
@@ -28,7 +27,6 @@ make_chl_tp_secchi <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
     }
 
     # Subset data to current station
-    # Keep rows with at least one plotting variable present
     df_plot <- data_plot |>
       filter(STATIONID == station_id) |>
       filter(
@@ -81,14 +79,27 @@ make_chl_tp_secchi <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
     has_MK <- file.exists(mk_file)
     MK_table <- if (has_MK) read.csv(mk_file) else NULL
 
-    # Output path
-    temp_path <- file.path(
+    # Final output path
+    output_file <- file.path(
       OUTPUT_PATH,
       paste0(station_id, "_chl_tp_secchi.png")
     )
 
+    # Temporary filenames
+    temp_file <- tempfile(
+      pattern = "chl_tp_secchi_",
+      tmpdir = OUTPUT_PATH,
+      fileext = ".png"
+    )
+
+    border_file <- tempfile(
+      pattern = "chl_tp_secchi_border_",
+      tmpdir = OUTPUT_PATH,
+      fileext = ".png"
+    )
+
     # Begin plotting
-    png(temp_path, width = 8, height = 4, units = "in", res = 200)
+    png(temp_file, width = 8, height = 4, units = "in", res = 200)
     par(family = "Calibri", mar = c(3.8, 4, 4.2, 3.8))
 
     n_years <- length(unique(df_plot$year))
@@ -250,7 +261,6 @@ make_chl_tp_secchi <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
       add_mk_line("CHL_comp", "green4", lty = 3)
 
       scale_secchi_to_left <- function(y) {
-        # Map from [0, y_max_right] → [0, y_max_left]
         (y / y_max_right) * y_max_left
       }
 
@@ -277,7 +287,7 @@ make_chl_tp_secchi <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
 
         y_vals <- intercept + slope * x_vals
 
-        # scale to left axis
+        # Scale to left axis
         y_vals_inverted <- y_max_right - y_vals
         y_vals_scaled <- scale_secchi_to_left(y_vals_inverted)
 
@@ -289,6 +299,7 @@ make_chl_tp_secchi <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
           lwd = 1.75
         )
       }
+
       add_mk_line_secchi(secchi_var, "blue4", lty = 4)
     }
 
@@ -324,30 +335,31 @@ make_chl_tp_secchi <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
       slope_sec <- MK_table |>
         filter(Parameter == secchi_var) |>
         pull(sen_slope)
+
       if (length(slope_sec) > 0 && !is.na(slope_sec)) {
         trend_items <- c(trend_items, "Transparency Trend")
         col_items <- c(col_items, "blue4")
-        # Secchi
         lty_items <- c(lty_items, 4)
-
-        # CHL
         lty_items <- c(lty_items, 3)
-
-        # TP
         lty_items <- c(lty_items, 2)
-
         lwd_items <- c(lwd_items, 1.75)
       }
+
       slope_chl <- MK_table |>
         filter(Parameter == "CHL_comp") |>
         pull(sen_slope)
+
       if (length(slope_chl) > 0 && !is.na(slope_chl)) {
         trend_items <- c(trend_items, "Chlorophyll-a Trend")
         col_items <- c(col_items, "green4")
         lty_items <- c(lty_items, 2)
         lwd_items <- c(lwd_items, 1.75)
       }
-      slope_tp <- MK_table |> filter(Parameter == "TP_epi") |> pull(sen_slope)
+
+      slope_tp <- MK_table |>
+        filter(Parameter == "TP_epi") |>
+        pull(sen_slope)
+
       if (length(slope_tp) > 0 && !is.na(slope_tp)) {
         trend_items <- c(trend_items, "Total Phosphorus Trend")
         col_items <- c(col_items, "red4")
@@ -373,14 +385,36 @@ make_chl_tp_secchi <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
 
     dev.off()
 
-    # Add black border
-    img <- magick::image_read(temp_path)
+    # Add black border using a separate temporary file
+    img <- magick::image_read(temp_file)
+
     img_bordered <- magick::image_border(
       img,
       color = "black",
       geometry = "3.5x3.5"
     )
-    magick::image_write(img_bordered, path = temp_path, format = "png")
+
+    magick::image_write(
+      img_bordered,
+      path = border_file,
+      format = "png"
+    )
+
+    # Replace original output with finished image
+    if (file.exists(output_file)) {
+      file.remove(output_file)
+    }
+
+    file.copy(
+      from = border_file,
+      to = output_file,
+      overwrite = TRUE
+    )
+
+    # Clean up temporary files
+    unlink(c(temp_file, border_file))
+
+    message(" -> Saved: ", basename(output_file))
   }
 
   message("All plots saved to: ", OUTPUT_PATH)

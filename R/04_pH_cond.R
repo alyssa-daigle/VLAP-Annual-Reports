@@ -1,7 +1,7 @@
 make_pH_conduc <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
-  # Ensure output directory exists (year-safe via config)
+  # Ensure output directory exists
   if (missing(OUTPUT_PATH) || is.null(OUTPUT_PATH)) {
-    OUTPUT_PATH <- file.path(OUTPUT_PATH, "pH_conduc")
+    OUTPUT_PATH <- file.path(INPUT_PATH, "pH_conduc")
   }
 
   dir.create(OUTPUT_PATH, recursive = TRUE, showWarnings = FALSE)
@@ -60,16 +60,31 @@ make_pH_conduc <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
       MK_PATH,
       paste0("MannKendall_", station_id, ".csv")
     )
+
     has_MK <- file.exists(mk_file)
     MK_table <- if (has_MK) read.csv(mk_file) else NULL
 
-    temp_path <- file.path(
+    # ---- Output filenames ----
+    output_file <- file.path(
       OUTPUT_PATH,
       paste0(station_id, "_pH_conduc.png")
     )
 
+    temp_file <- tempfile(
+      pattern = "pH_conduc_",
+      tmpdir = OUTPUT_PATH,
+      fileext = ".png"
+    )
+
+    border_file <- tempfile(
+      pattern = "pH_conduc_border_",
+      tmpdir = OUTPUT_PATH,
+      fileext = ".png"
+    )
+
     # ---- Plot ----
-    png(temp_path, width = 8, height = 4, units = "in", res = 200)
+    png(temp_file, width = 8, height = 4, units = "in", res = 200)
+
     par(family = "Calibri")
     par(mar = c(3.8, 4, 4.2, 3.8))
 
@@ -88,6 +103,7 @@ make_pH_conduc <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
       ylab = "",
       yaxs = "i"
     )
+
     box()
 
     title(
@@ -103,6 +119,7 @@ make_pH_conduc <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
       las = 1,
       cex.axis = 0.75
     )
+
     mtext(
       "Conductivity (µS/cm)",
       side = 2,
@@ -113,7 +130,9 @@ make_pH_conduc <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
 
     # X-axis
     axis(side = 1, at = df_plot$year, labels = FALSE)
+
     y_pos <- par("usr")[3] - 0.06 * diff(par("usr")[3:4])
+
     text(
       df_plot$year + 0.15,
       y_pos,
@@ -124,6 +143,7 @@ make_pH_conduc <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
       font = 2,
       cex = 0.65
     )
+
     mtext("Year", side = 1, line = 2, cex = 0.85, font = 2)
 
     # ---- pH bars (scaled to conductivity axis) ----
@@ -136,7 +156,7 @@ make_pH_conduc <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
         0,
         year + bar_width,
         (PH_epi - min_pH) * scale_factor,
-        col = "lightgray", # <-- darker fill
+        col = "lightgray",
         border = "black"
       )
     )
@@ -162,6 +182,7 @@ make_pH_conduc <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
       las = 1,
       cex.axis = 0.75
     )
+
     mtext(
       "pH",
       side = 4,
@@ -173,10 +194,14 @@ make_pH_conduc <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
     # ---- MK trend lines ----
     if (has_MK) {
       add_mk_line <- function(var, col, lty, is_ph = FALSE) {
-        slope <- MK_table |> filter(Parameter == var) |> pull(sen_slope)
+        slope <- MK_table |>
+          filter(Parameter == var) |>
+          pull(sen_slope)
 
         if (length(slope) > 0 && !is.na(slope)) {
-          df_var <- df_plot |> filter(!is.na(.data[[var]]))
+          df_var <- df_plot |>
+            filter(!is.na(.data[[var]]))
+
           if (nrow(df_var) < 2) {
             return()
           }
@@ -193,7 +218,13 @@ make_pH_conduc <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
             y_vals <- intercept + slope * x_vals
           }
 
-          lines(x_vals, y_vals, col = col, lty = lty, lwd = 1.75)
+          lines(
+            x_vals,
+            y_vals,
+            col = col,
+            lty = lty,
+            lwd = 1.75
+          )
         }
       }
 
@@ -201,7 +232,7 @@ make_pH_conduc <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
       add_mk_line("PH_epi", "black", lty = 3, is_ph = TRUE)
     }
 
-    # --- Dynamic legend with trend numbers ---
+    # ---- Dynamic legend with trend numbers ----
     par(xpd = NA)
 
     # First legend: points
@@ -219,7 +250,7 @@ make_pH_conduc <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
       ncol = 2,
       cex = 0.85,
       text.font = 2,
-      x.intersp = 0.3, # minimal space between items
+      x.intersp = 0.3,
       adj = 0
     )
 
@@ -231,8 +262,11 @@ make_pH_conduc <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
 
     if (has_MK) {
       # pH trend
-      slope_ph <- MK_table |> filter(Parameter == "PH_epi") |> pull(sen_slope)
-      if (!is.na(slope_ph) & length(slope_ph) > 0) {
+      slope_ph <- MK_table |>
+        filter(Parameter == "PH_epi") |>
+        pull(sen_slope)
+
+      if (length(slope_ph) > 0 && !is.na(slope_ph)) {
         trend_items <- c(trend_items, "pH Trend")
         col_items <- c(col_items, "black")
         lty_items <- c(lty_items, 3)
@@ -243,7 +277,8 @@ make_pH_conduc <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
       slope_cond <- MK_table |>
         filter(Parameter == "SPCD_epi") |>
         pull(sen_slope)
-      if (!is.na(slope_cond) & length(slope_cond) > 0) {
+
+      if (length(slope_cond) > 0 && !is.na(slope_cond)) {
         trend_items <- c(trend_items, "Conductivity Trend")
         col_items <- c(col_items, "red3")
         lty_items <- c(lty_items, 2)
@@ -271,14 +306,34 @@ make_pH_conduc <- function(data_plot, INPUT_PATH, OUTPUT_PATH) {
 
     dev.off()
 
-    # ---- Black border ----
-    img <- magick::image_read(temp_path)
+    # ---- Add black border using separate temporary file ----
+    img <- magick::image_read(temp_file)
+
     img_bordered <- magick::image_border(
       img,
       color = "black",
       geometry = "3.5x3.5"
     )
-    magick::image_write(img_bordered, temp_path)
+
+    magick::image_write(
+      img_bordered,
+      path = border_file,
+      format = "png"
+    )
+
+    # ---- Replace final output file ----
+    if (file.exists(output_file)) {
+      file.remove(output_file)
+    }
+
+    file.copy(
+      from = border_file,
+      to = output_file,
+      overwrite = TRUE
+    )
+
+    # ---- Clean up temporary files ----
+    unlink(c(temp_file, border_file))
   }
 
   message("All pH/Conductivity plots saved to: ", OUTPUT_PATH)

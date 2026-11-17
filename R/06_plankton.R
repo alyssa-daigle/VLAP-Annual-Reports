@@ -301,13 +301,35 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
     final_plot <- p_main
 
     # -----------------------------
-    # Save
+    # Output filenames
     # -----------------------------
-    filename <- paste0(WQDStationID, "_plankton.png")
-    temp_path <- file.path(OUTPUT_PATH, filename)
+    filename <- paste0(
+      WQDStationID,
+      "_plankton.png"
+    )
 
+    output_file <- file.path(
+      OUTPUT_PATH,
+      filename
+    )
+
+    temp_file <- tempfile(
+      pattern = "plankton_",
+      tmpdir = OUTPUT_PATH,
+      fileext = ".png"
+    )
+
+    border_file <- tempfile(
+      pattern = "plankton_border_",
+      tmpdir = OUTPUT_PATH,
+      fileext = ".png"
+    )
+
+    # -----------------------------
+    # Save plot to temporary file
+    # -----------------------------
     ggsave(
-      temp_path,
+      filename = temp_file,
       plot = final_plot,
       width = 8,
       height = 4,
@@ -316,9 +338,9 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
     )
 
     # -----------------------------
-    # Add border
+    # Add border to separate file
     # -----------------------------
-    img <- magick::image_read(temp_path)
+    img <- magick::image_read(temp_file)
 
     img_bordered <- magick::image_border(
       img,
@@ -328,8 +350,31 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
 
     magick::image_write(
       img_bordered,
-      path = temp_path,
+      path = border_file,
       format = "png"
+    )
+
+    # -----------------------------
+    # Copy bordered image to final output
+    # -----------------------------
+    if (file.exists(output_file)) {
+      file.remove(output_file)
+    }
+
+    file.copy(
+      from = border_file,
+      to = output_file,
+      overwrite = TRUE
+    )
+
+    # -----------------------------
+    # Clean up temporary files
+    # -----------------------------
+    unlink(
+      c(
+        temp_file,
+        border_file
+      )
     )
   })
 }
