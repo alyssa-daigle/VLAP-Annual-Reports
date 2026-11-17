@@ -53,6 +53,8 @@ source(file.path("R", "04_pH_cond.R"))
 source(file.path("R", "04-5_monthly_pH_cond.R"))
 source(file.path("R", "05_temp_DO.R"))
 source(file.path("R", "06_plankton.R"))
+source(file.path("R", "06-5_plankton.R"))
+source(file.path("R", "06-55_monthly_zooplankton.R"))
 source(file.path("R", "07_CYA_table.R"))
 source(file.path("R", "08_report_gen.R"))
 
@@ -117,6 +119,16 @@ make_chl_tp_secchi_monthly(
 make_pH_conduc_monthly(
   data_monthly = data_monthly,
   OUTPUT_BASE = OUTPUT_BASE
+)
+
+make_plankton_monthly(
+  INPUT_PATH = INPUT_PATH,
+  OUTPUT_PATH = OUTPUT_PATH
+)
+
+make_zooplankton_monthly(
+  INPUT_PATH = INPUT_PATH,
+  OUTPUT_PATH = OUTPUT_PATH
 )
 
 message("All plots completed.")

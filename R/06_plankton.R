@@ -13,7 +13,7 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
   # -----------------------------
   plankton_file <- file.path(
     INPUT_PATH,
-    paste0("Historical_Phytoplankton_Data_Thru", YEAR, ".xlsm")
+    paste0("Historical_Phytoplankton_Data_Thru", YEAR, ".xlsx")
   )
 
   data <- read_excel(plankton_file)
@@ -23,24 +23,27 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
   # -----------------------------
   data <- data |>
     mutate(
-      year = year(date),
-      month = month(date)
+      year = lubridate::year(`date-time`),
+      month = lubridate::month(`date-time`)
     ) |>
-    select(-date)
+    select(-`date-time`)
 
+  # -----------------------------
+  # Standardize COMMENTS
+  # -----------------------------
   data <- data |>
     mutate(
-      group = as.character(group),
-      group = trimws(group),
-      group = toupper(group),
-      group = ifelse(
-        is.na(group) | group == "UNKNOWN PHYTO",
+      COMMENTS = as.character(COMMENTS),
+      COMMENTS = trimws(COMMENTS),
+      COMMENTS = toupper(COMMENTS),
+      COMMENTS = ifelse(
+        is.na(COMMENTS) | COMMENTS == "UNKNOWN PHYTO",
         "OTHER",
-        group
+        COMMENTS
       )
     ) |>
     filter(
-      group %in%
+      COMMENTS %in%
         c(
           "GREEN",
           "GOLDEN-BROWN",
@@ -58,12 +61,12 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
   # Relative abundance
   # -----------------------------
   rel_abund <- data |>
-    group_by(stationID, year, group) |>
+    group_by(WQDStationID, year, COMMENTS) |>
     summarise(
-      total_count = sum(count, na.rm = TRUE),
+      total_count = sum(Percent, na.rm = TRUE),
       .groups = "drop"
     ) |>
-    group_by(stationID, year) |>
+    group_by(WQDStationID, year) |>
     mutate(
       rel_abundance = total_count / sum(total_count)
     ) |>
@@ -73,20 +76,20 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
   # Lump low abundance groups
   # -----------------------------
   rel_abund <- rel_abund |>
-    group_by(stationID, year, group) |>
+    group_by(WQDStationID, year, COMMENTS) |>
     summarise(
       rel_abundance = sum(rel_abundance, na.rm = TRUE),
       .groups = "drop"
     ) |>
-    group_by(stationID, year) |>
+    group_by(WQDStationID, year) |>
     mutate(
-      group = ifelse(
+      COMMENTS = ifelse(
         rel_abundance < 0.03,
         "OTHER",
-        group
+        COMMENTS
       )
     ) |>
-    group_by(stationID, year, group) |>
+    group_by(WQDStationID, year, COMMENTS) |>
     summarise(
       rel_abundance = sum(rel_abundance, na.rm = TRUE),
       .groups = "drop"
@@ -160,22 +163,22 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
   # -----------------------------
   # Get list of stations
   # -----------------------------
-  stations <- sort(unique(data$stationID))
+  stations <- sort(unique(data$WQDStationID))
 
-  lapply(stations, function(station_id) {
-    message(paste0("Working on plankton for ", station_id, "\n"))
+  lapply(stations, function(WQDStationID) {
+    message(paste0("Working on plankton for ", WQDStationID, "\n"))
 
     # -----------------------------
     # Subset station
     # -----------------------------
     plot_data <- data |>
-      filter(stationID == station_id)
+      filter(.data$WQDStationID == .env$WQDStationID)
 
     # -----------------------------
     # Skip if no YEAR data
     # -----------------------------
     if (!any(plot_data$year >= YEAR, na.rm = TRUE)) {
-      message("  -> Skipping ", station_id, " (no ", YEAR, " data)\n")
+      message("  -> Skipping ", WQDStationID, " (no ", YEAR, " data)\n")
       return(NULL)
     }
 
@@ -193,15 +196,15 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
     # -----------------------------
     plot_data <- plot_data |>
       mutate(
-        group = factor(group, levels = legend_order)
+        COMMENTS = factor(COMMENTS, levels = legend_order)
       ) |>
       tidyr::complete(
         year = all_years,
-        group = legend_order,
+        COMMENTS = legend_order,
         fill = list(rel_abundance = 0)
       ) |>
       mutate(
-        group = factor(group, levels = legend_order)
+        COMMENTS = factor(COMMENTS, levels = legend_order)
       )
 
     # -----------------------------
@@ -212,9 +215,9 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
       aes(
         x = factor(year),
         y = rel_abundance,
-        fill = group,
-        pattern = group,
-        pattern_angle = group
+        fill = COMMENTS,
+        pattern = COMMENTS,
+        pattern_angle = COMMENTS
       )
     ) +
 
@@ -300,7 +303,7 @@ make_plankton <- function(INPUT_PATH, OUTPUT_PATH) {
     # -----------------------------
     # Save
     # -----------------------------
-    filename <- paste0(station_id, "_plankton.png")
+    filename <- paste0(WQDStationID, "_plankton.png")
     temp_path <- file.path(OUTPUT_PATH, filename)
 
     ggsave(

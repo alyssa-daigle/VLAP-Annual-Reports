@@ -28,33 +28,38 @@ make_plankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
   # -----------------------------
   data <- data |>
     mutate(
-      year = lubridate::year(date),
-      month = lubridate::month(date)
+      year = lubridate::year(`date-time`),
+      month = lubridate::month(`date-time`),
+      WQDStationID = trimws(as.character(WQDStationID))
     ) |>
-    select(-date)
+    select(-`date-time`)
 
   # -----------------------------
   # Keep only YEAR data
   # -----------------------------
   data <- data |>
-    filter(year == YEAR)
+    filter(
+      year == YEAR,
+      !is.na(WQDStationID),
+      WQDStationID != ""
+    )
 
   # -----------------------------
-  # Clean groups
+  # Clean COMMENTS
   # -----------------------------
   data <- data |>
     mutate(
-      group = as.character(group),
-      group = trimws(group),
-      group = toupper(group),
-      group = ifelse(
-        is.na(group) | group == "UNKNOWN PHYTO",
+      COMMENTS = as.character(COMMENTS),
+      COMMENTS = trimws(COMMENTS),
+      COMMENTS = toupper(COMMENTS),
+      COMMENTS = ifelse(
+        is.na(COMMENTS) | COMMENTS == "UNKNOWN PHYTO",
         "OTHER",
-        group
+        COMMENTS
       )
     ) |>
     filter(
-      group %in%
+      COMMENTS %in%
         c(
           "GREEN",
           "GOLDEN-BROWN",
@@ -69,41 +74,58 @@ make_plankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
     )
 
   # -----------------------------
-  # Find LAKES with at least
-  # 2 months of data
+  # Find LAKE + STATION combinations
+  # with at least 2 months of data
   # -----------------------------
-  lakes_with_multiple_months <- data |>
-    distinct(RELLAKE, month) |>
-    count(RELLAKE, name = "n_months") |>
-    filter(n_months >= 2) |>
-    pull(RELLAKE)
+  stations_with_multiple_months <- data |>
+    distinct(lake, WQDStationID, month) |>
+    count(
+      lake,
+      WQDStationID,
+      name = "n_months"
+    ) |>
+    filter(n_months >= 2)
 
   message(
     "Found ",
-    length(lakes_with_multiple_months),
-    " lakes with at least 2 months of ",
+    nrow(stations_with_multiple_months),
+    " lake and station combinations with at least 2 months of ",
     YEAR,
     " plankton data."
   )
 
   # -----------------------------
-  # Keep only lakes with
+  # Keep only stations with
   # at least 2 months of data
   # -----------------------------
   data <- data |>
-    filter(RELLAKE %in% lakes_with_multiple_months)
+    semi_join(
+      stations_with_multiple_months,
+      by = c("lake", "WQDStationID")
+    )
 
   # -----------------------------
   # Relative abundance by
-  # lake + year + month
+  # lake + station + year + month
   # -----------------------------
   rel_abund <- data |>
-    group_by(RELLAKE, year, month, group) |>
+    group_by(
+      lake,
+      WQDStationID,
+      year,
+      month,
+      COMMENTS
+    ) |>
     summarise(
-      total_count = sum(count, na.rm = TRUE),
+      total_count = sum(Percent, na.rm = TRUE),
       .groups = "drop"
     ) |>
-    group_by(RELLAKE, year, month) |>
+    group_by(
+      lake,
+      WQDStationID,
+      year,
+      month
+    ) |>
     mutate(
       rel_abundance = total_count / sum(total_count)
     ) |>
@@ -113,20 +135,37 @@ make_plankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
   # Lump groups <3% into OTHER
   # -----------------------------
   rel_abund <- rel_abund |>
-    group_by(RELLAKE, year, month, group) |>
+    group_by(
+      lake,
+      WQDStationID,
+      year,
+      month,
+      COMMENTS
+    ) |>
     summarise(
       rel_abundance = sum(rel_abundance, na.rm = TRUE),
       .groups = "drop"
     ) |>
-    group_by(RELLAKE, year, month) |>
+    group_by(
+      lake,
+      WQDStationID,
+      year,
+      month
+    ) |>
     mutate(
-      group = ifelse(
+      COMMENTS = ifelse(
         rel_abundance < 0.03,
         "OTHER",
-        group
+        COMMENTS
       )
     ) |>
-    group_by(RELLAKE, year, month, group) |>
+    group_by(
+      lake,
+      WQDStationID,
+      year,
+      month,
+      COMMENTS
+    ) |>
     summarise(
       rel_abundance = sum(rel_abundance, na.rm = TRUE),
       .groups = "drop"
@@ -216,24 +255,44 @@ make_plankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
   )
 
   # -----------------------------
-  # Get list of lakes
+  # Get list of lake + station
+  # combinations
   # -----------------------------
-  lakes <- sort(unique(data$RELLAKE))
+  plot_keys <- data |>
+    distinct(lake, WQDStationID) |>
+    arrange(lake, WQDStationID)
 
-  lapply(lakes, function(lake_name) {
+  message(
+    "Generating monthly plots for ",
+    nrow(plot_keys),
+    " lake and station combinations."
+  )
+
+  # -----------------------------
+  # Generate one plot per station
+  # -----------------------------
+  lapply(seq_len(nrow(plot_keys)), function(i) {
+    lake_name <- plot_keys$lake[i]
+    station_id <- plot_keys$WQDStationID[i]
+
     message(
       paste0(
         "Working on monthly plankton for ",
         lake_name,
+        " | Station: ",
+        station_id,
         "\n"
       )
     )
 
     # -----------------------------
-    # Subset lake
+    # Subset lake + station
     # -----------------------------
     plot_data <- data |>
-      filter(RELLAKE == lake_name)
+      filter(
+        .data$lake == .env$lake_name,
+        .data$WQDStationID == .env$station_id
+      )
 
     # -----------------------------
     # Get months with data
@@ -248,7 +307,7 @@ make_plankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
     if (length(months_with_data) < 2) {
       message(
         "  -> Skipping ",
-        lake_name,
+        station_id,
         " (fewer than 2 months of ",
         YEAR,
         " data)\n"
@@ -263,8 +322,8 @@ make_plankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
     # -----------------------------
     plot_data <- plot_data |>
       mutate(
-        group = factor(
-          group,
+        COMMENTS = factor(
+          COMMENTS,
           levels = legend_order
         ),
         month = factor(
@@ -277,14 +336,14 @@ make_plankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
       ) |>
       tidyr::complete(
         month = levels(month),
-        group = legend_order,
+        COMMENTS = legend_order,
         fill = list(
           rel_abundance = 0
         )
       ) |>
       mutate(
-        group = factor(
-          group,
+        COMMENTS = factor(
+          COMMENTS,
           levels = legend_order
         ),
         month = factor(
@@ -303,9 +362,9 @@ make_plankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
       aes(
         x = month,
         y = rel_abundance,
-        fill = group,
-        pattern = group,
-        pattern_angle = group
+        fill = COMMENTS,
+        pattern = COMMENTS,
+        pattern_angle = COMMENTS
       )
     ) +
 
@@ -378,6 +437,10 @@ make_plankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
           " Monthly Phytoplankton Population - ",
           YEAR
         ),
+        subtitle = paste0(
+          "Station: ",
+          station_id
+        ),
         x = "Month",
         y = "Relative Abundance",
         fill = NULL
@@ -394,11 +457,17 @@ make_plankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
       )
 
     # -----------------------------
-    # Save
+    # Save using WQDStationID
     # -----------------------------
     filename <- paste0(
-      lake_name,
+      station_id,
       "_monthly_plankton.png"
+    )
+
+    filename <- gsub(
+      "[^A-Za-z0-9_.-]",
+      "_",
+      filename
     )
 
     temp_path <- file.path(

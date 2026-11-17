@@ -9,7 +9,7 @@ report_gen <- function() {
   }
 
   # ---- hardcoded test output path ----
-  REPORT_PATH <- "S:/WD-Watershed/Monitoring/Volunteer/VLAP/Data Reporting/VLAP-Annual-Reports/outputs/2025/2026-report-concepts"
+  REPORT_PATH <- "S:/WD-Watershed/Monitoring/Volunteer/VLAP/Data Reporting/VLAP-Annual-Reports/outputs/2026/report-drafts"
 
   # ---- sanity checks ----
   if (!dir.exists(INPUT_PATH)) {
