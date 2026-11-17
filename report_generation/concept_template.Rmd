@@ -854,7 +854,7 @@ points_data <- data_current_year_points |>
     RELLAKE == lake,
     TOWN == town
   ) |>
-  dplyr::select(-RELLAKE, -TOWN) |>
+  dplyr::select(-RELLAKE, -TOWN, -`Activity ID`) |>
   dplyr::mutate(
     Date = format(Date, "%m/%d/%Y"),
     dplyr::across(where(is.numeric), ~ round(.x, 2)),

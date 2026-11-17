@@ -448,8 +448,8 @@ data_reformat <- function(INPUT_PATH) {
       station_order,
       `Station ID`,
       zone_order,
-      Depth,
-      Date
+      Date,
+      Depth
     ) |>
 
     # Remove sorting columns
