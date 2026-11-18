@@ -437,7 +437,7 @@ make_plankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
           YEAR
         ),
         y = "Relative Abundance",
-        x = NULL
+        x = "Month"
       ) +
 
       theme_bw() +
