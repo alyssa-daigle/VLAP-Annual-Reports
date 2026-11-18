@@ -1,7 +1,7 @@
 # =========================================================
 # MONTHLY ZOOPLANKTON RELATIVE ABUNDANCE
 #
-# Uses 2026 data where Type = "Z"
+# Uses YEAR data where Type = "Z"
 # The column named Percent contains RAW COUNTS, not percentages.
 #
 # - One month of data: pie chart with percentage labels
@@ -67,12 +67,12 @@ make_zooplankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
   }
 
   # -------------------------------------------------------
-  # Filter to 2026 zooplankton records
+  # Filter to YEAR zooplankton records
   # -------------------------------------------------------
   data <- data |>
     dplyr::filter(
       toupper(trimws(as.character(Type))) == "Z",
-      lubridate::year(`date-time`) == 2026
+      lubridate::year(`date-time`) == YEAR
     ) |>
     dplyr::mutate(
       year = lubridate::year(`date-time`),
@@ -86,11 +86,13 @@ make_zooplankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
   message(
     "Found ",
     nrow(data),
-    " zooplankton records from 2026."
+    " zooplankton records from ",
+    YEAR,
+    "."
   )
 
   if (nrow(data) == 0) {
-    message("No 2026 zooplankton records found. Skipping plots.")
+    message("No zooplankton records found. Skipping plots.")
     return(invisible(NULL))
   }
 
@@ -447,34 +449,49 @@ make_zooplankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
         zoo_legend +
         ggplot2::labs(
           title = paste0(
-            lake_name,
             " Zooplankton Population - ",
             month_names,
-            " 2026"
-          ),
-          subtitle = paste0(
-            "Station: ",
-            current_station_id
+            " ",
+            YEAR
           ),
           fill = NULL
         ) +
         ggplot2::theme_void() +
         ggplot2::theme(
+          text = ggplot2::element_text(
+            family = "Calibri"
+          ),
+
           legend.position = "right",
+
+          # Center title across plot and legend, and lower slightly
+          plot.title.position = "plot",
+
           plot.title = ggplot2::element_text(
             family = "Calibri",
             face = "bold",
-            size = 14,
-            hjust = 0.5
+            size = 16.5,
+            hjust = 0.5,
+            margin = ggplot2::margin(t = 18, b = 5)
           ),
+
           plot.subtitle = ggplot2::element_text(
             family = "Calibri",
             size = 10,
+            face = "plain",
             hjust = 0.5
           ),
+
           legend.title = ggplot2::element_text(
             family = "Calibri",
+            size = 13,
             face = "bold"
+          ),
+
+          legend.text = ggplot2::element_text(
+            family = "Calibri",
+            size = 11,
+            face = "plain"
           )
         )
 
@@ -531,12 +548,8 @@ make_zooplankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
         zoo_legend +
         ggplot2::labs(
           title = paste0(
-            lake_name,
-            " Monthly Zooplankton Population - 2026"
-          ),
-          subtitle = paste0(
-            "Station: ",
-            current_station_id
+            " Monthly Zooplankton Population - ",
+            YEAR
           ),
           x = "Month",
           y = "Relative Abundance",
@@ -545,13 +558,49 @@ make_zooplankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
         ggplot2::theme_bw() +
         theme_plankton() +
         ggplot2::theme(
+          text = ggplot2::element_text(
+            family = "Calibri"
+          ),
+
+          # Center title across plot and legend, and lower slightly
+          plot.title.position = "plot",
+
+          plot.title = ggplot2::element_text(
+            family = "Calibri",
+            size = 16.5,
+            face = "bold",
+            hjust = 0.5,
+            margin = ggplot2::margin(t = 2, b = 5)
+          ),
+
           plot.subtitle = ggplot2::element_text(
             family = "Calibri",
-            size = 10
+            size = 10,
+            face = "plain"
           ),
+
+          axis.title = ggplot2::element_text(
+            family = "Calibri",
+            size = 13,
+            face = "bold"
+          ),
+
+          axis.text = ggplot2::element_text(
+            family = "Calibri",
+            size = 12,
+            face = "bold"
+          ),
+
           legend.title = ggplot2::element_text(
             family = "Calibri",
+            size = 13,
             face = "bold"
+          ),
+
+          legend.text = ggplot2::element_text(
+            family = "Calibri",
+            size = 11,
+            face = "plain"
           )
         )
     }
@@ -593,23 +642,29 @@ make_zooplankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
       fileext = ".png"
     )
 
+    # -----------------------------------------------------
     # Save the ggplot
+    # Match monthly pH/conductivity dimensions
+    # -----------------------------------------------------
     ggplot2::ggsave(
       filename = temp_file,
       plot = p_main,
-      width = 8,
-      height = 4,
-      dpi = 300,
+      width = 6.0,
+      height = 4.5,
+      units = "in",
+      dpi = 250,
       bg = "white"
     )
 
+    # -----------------------------------------------------
     # Add border using magick
+    # -----------------------------------------------------
     img <- magick::image_read(temp_file)
 
     img <- magick::image_border(
       img,
       color = "black",
-      geometry = "2x2"
+      geometry = "3.5x3.5"
     )
 
     # Write bordered image to a separate file
@@ -619,7 +674,9 @@ make_zooplankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
       format = "png"
     )
 
+    # -----------------------------------------------------
     # Replace original output with finished image
+    # -----------------------------------------------------
     if (file.exists(output_file)) {
       file.remove(output_file)
     }

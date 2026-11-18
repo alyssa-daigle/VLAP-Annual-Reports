@@ -433,26 +433,53 @@ make_plankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
 
       labs(
         title = paste0(
-          lake_name,
-          " Monthly Phytoplankton Population - ",
+          "Monthly Phytoplankton Population - ",
           YEAR
         ),
-        subtitle = paste0(
-          "Station: ",
-          station_id
-        ),
-        x = "Month",
         y = "Relative Abundance",
-        fill = NULL
+        x = NULL
       ) +
 
       theme_bw() +
+
       theme_plankton() +
 
+      # -----------------------------
+      # Font sizing and formatting
+      # Match monthly pH/conductivity plots
+      # -----------------------------
       theme(
-        legend.title = element_text(
-          family = "Calibri",
+        text = element_text(
+          family = "Calibri"
+        ),
+
+        # Center title over the plot and legend
+        plot.title.position = "plot",
+
+        plot.title = element_text(
+          size = 16.5,
+          face = "bold",
+          hjust = 0.5,
+          margin = margin(t = 2, b = 5)
+        ),
+
+        axis.title = element_text(
+          size = 13,
           face = "bold"
+        ),
+
+        axis.text = element_text(
+          size = 12,
+          face = "bold"
+        ),
+
+        legend.title = element_text(
+          size = 13,
+          face = "bold"
+        ),
+
+        legend.text = element_text(
+          size = 11
         )
       )
 
@@ -489,13 +516,15 @@ make_plankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
 
     # -----------------------------
     # Save plot to temporary file
+    # Match pH/conductivity dimensions
     # -----------------------------
     ggsave(
       filename = temp_file,
       plot = p_main,
-      width = 8,
-      height = 4,
-      dpi = 300,
+      width = 6.0,
+      height = 4.5,
+      units = "in",
+      dpi = 250,
       bg = "white"
     )
 
@@ -507,7 +536,7 @@ make_plankton_monthly <- function(INPUT_PATH, OUTPUT_PATH) {
     img_bordered <- magick::image_border(
       img,
       color = "black",
-      geometry = "7x7"
+      geometry = "3.5x3.5"
     )
 
     magick::image_write(

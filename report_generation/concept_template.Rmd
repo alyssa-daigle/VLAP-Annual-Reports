@@ -543,7 +543,7 @@ if (plot6_exists || plot7_exists) {
 }
 ```
 
-```{r monthly phytoplankton, out.width = '45%'}
+```{r monthly phytoplankton, out.width = '55%'}
 if (plot6_exists) {
   knitr::include_graphics(plot_monthly_plankton)
 }
@@ -816,7 +816,7 @@ if (plot8_exists) {
 }
 ```
 
-```{r zooplankton plot, out.width='95%'}
+```{r zooplankton plot, out.width='55%'}
 if (plot8_exists) {
   knitr::include_graphics(plot_zooplankton)
 }
