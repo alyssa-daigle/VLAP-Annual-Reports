@@ -34,7 +34,8 @@ The individual scripts called by **`00_make_all.R`** include:
 -   **`04-5_monthly_ph_cond.R`**: Contains the function to generate monthly pH and Conductivity plots for the current year at each station.
 -   **`05_temp_DO.R`**: Contains the function to generate seasonal Temperature/Dissolved Oxygen profile plots for each station (currently requires master Excel data sheet).
 -   **`06_plankton.R`**: Contains the function to generate seasonal Phytoplankton Population plots for each station (currently requires master Excel data sheet).
--   **`06-5_plankton.R`**: Contains the function to generate monthly Phytoplankton Population plots for each station (currently requires master Excel data sheet). Will eventualyl contain a portion of code for generating monthly Zooplankton Population plots.
+-   **`06-5_monthly_phytoplankton.R`**: Contains the function to generate monthly Phytoplankton Population plots for each station (currently requires master Excel data sheet).
+-   **`06-55_monthly_zooplankton.R`**: Contains the function to generate monthly Zooplankton Population plots for each station (currently requires master Excel data sheet).
 -   **`07_CYA_table.R`**: Contains the function to generate Current Year Average tables for each lake.
 -   **`08_report_gen.R`**: Contains the function to generate a report according to **`report_template.Rmd`** for each sampling station by looping through a lake map. Uses **`template.docx`** as a template Word document, including NHDES headings and contact info. A .docx is generated for each station that pulls together all plots and tables. Leaves room to manually enter observations and recommendations (typically lake-specific).
 
@@ -46,8 +47,8 @@ The individual scripts called by **`00_make_all.R`** include:
 
 Note that the master data file for all chemical data is stored locally due to its large sizes. Contact me to obtain files.
 
--   **`VLAP_alldata2025.csv`**: data generated from SQL EMD data pull; needs to be re-copied into this repo annually.
+-   **`VLAP_alldata[YEAR].csv`**: data generated from SQL EMD data pull; needs to be re-copied into this repo annually.
 -   **`LAKEMAP.csv`**: provides a comprehensive list of all lakes and their stations participating in VLAP.
--   **`master-DO-2025.xlsm`**: copy of the master DO file; needs to be re-copied into this repo annually.
--   **`Historical_Phytoplankton_Data_Thru2025.xlsm`**: copy of the master phytoplankton file; needs to be re-copied into this repo annually.
+-   **`master-DO-[YEAR].xlsm`**: copy of the master DO file; needs to be re-copied into this repo annually.
+-   **`Historical_Phytoplankton_Data_Thru[YEAR].xlsm`**: copy of the master phytoplankton file; needs to be re-copied into this repo annually.
 
